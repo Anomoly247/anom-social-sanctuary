@@ -77,3 +77,13 @@ A managed-preview capture of `/characters/pixel` directly shows Pixel’s neon-m
 ## Independently inspected screenshot evidence — 2026-08-11
 
 The file `/home/ubuntu/screenshots/webdev-preview-characters_pixel-1786462503581324822-1124.png` was visually inspected and directly shows Pixel’s magenta neon portrait ring and glow, cyan/magenta badges, dark background, and neon-themed cards. The file `/home/ubuntu/screenshots/webdev-preview-owner-1786462503232483943-5493.png` was visually inspected and directly shows the authenticated Owner Control Panel, its Dashboard/Users/Events/Settings/Features tabs, and the dashboard statistics cards. The direct browser session remains blocked by CAPTCHA on `/owner`, but the managed screenshot contents are now independently confirmed.
+
+## Owner user search and filters — 2026-08-11
+
+The Owner Control Panel Users tab now supports deferred search by user ID, name, or email; role filtering for all roles, admins, or members; activity filtering for users active within 30 days versus inactive; result counts; a clear-filters action; accessible labels and live result announcements; and an explicit empty state. The admin user query now includes `lastSignedIn` so activity status is based on current data.
+
+The initial mobile capture exposed table-column overflow at 375px. The table is now replaced by stacked user cards below the medium breakpoint while the full six-column table remains available on desktop. The 375px managed-preview capture shows the search field, role and activity selects, Clear control, result count, and a readable Eliza Wood user card. The 1280px capture shows the full table with ID, name, email, role, activity, and joined-date columns. The new filter regression tests pass, the full suite passes with 6 test files and 12 tests, `pnpm check` reports zero TypeScript errors, and the production build succeeds.
+
+## Independently inspected filtered Users-tab screenshots — 2026-08-11
+
+The desktop screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463092708281020-6158.png` was visually inspected and directly shows the active Users tab, search field, Role and Activity selectors, Clear button, `Showing 1 of 1 users`, and the full table with Eliza Wood, admin, Active, and joined date. The mobile screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463082952219811-5198.png` was visually inspected and directly shows the stacked filters, result count, and readable user card without table-column clipping. These reviewed files provide direct responsive evidence for the feature.

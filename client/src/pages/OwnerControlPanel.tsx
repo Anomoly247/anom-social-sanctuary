@@ -5,14 +5,25 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useLocation } from 'wouter';
-import { useState, useEffect } from 'react';
-import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, Edit2 } from 'lucide-react';
+import { useDeferredValue, useMemo, useState } from 'react';
+import {
+  filterAdminUsers,
+  isAdminUserActive,
+  type AdminUserRoleFilter,
+  type AdminUserStatusFilter,
+} from '../../../shared/adminUserFilters';
+import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function OwnerControlPanel() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get('tab');
+    return ['dashboard', 'users', 'events', 'settings', 'features'].includes(requestedTab ?? '')
+      ? requestedTab!
+      : 'dashboard';
+  });
   const [settings, setSettings] = useState({
     siteName: 'Anom Artsy',
     siteDescription: 'Unite physical and digital identity for social good',
@@ -20,11 +31,24 @@ export default function OwnerControlPanel() {
     levelUpXP: 1000,
     achievementMultiplier: 1,
   });
+  const [userQuery, setUserQuery] = useState('');
+  const deferredUserQuery = useDeferredValue(userQuery);
+  const [userRoleFilter, setUserRoleFilter] = useState<AdminUserRoleFilter>('all');
+  const [userStatusFilter, setUserStatusFilter] = useState<AdminUserStatusFilter>('all');
 
   // Real-time data queries
   const { data: stats } = trpc.system.getStats.useQuery(undefined, { refetchInterval: 5000 });
   const { data: users = [] } = trpc.system.getAllUsers.useQuery(undefined, { refetchInterval: 10000 });
   const { data: events = [] } = trpc.system.getEvents.useQuery(undefined, { refetchInterval: 5000 });
+  const filteredUsers = useMemo(
+    () =>
+      filterAdminUsers(users, {
+        query: deferredUserQuery,
+        role: userRoleFilter,
+        status: userStatusFilter,
+      }),
+    [users, deferredUserQuery, userRoleFilter, userStatusFilter],
+  );
 
   // Mutations
   const updateSettingsMutation = trpc.system.updateSettings.useMutation();
@@ -189,27 +213,146 @@ export default function OwnerControlPanel() {
         <div>
           <h2 className="text-2xl font-bold text-[#ff00cc] mb-4">Manage Users</h2>
           <Card className="border-2 border-[#00eaff] bg-[#0b0e14]/80 p-6">
-            <div className="overflow-x-auto">
+            <div className="mb-6 space-y-4">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px_180px_auto] md:items-end">
+                <div>
+                  <label htmlFor="user-search" className="mb-2 block text-sm font-bold text-gray-300">
+                    Search users
+                  </label>
+                  <Input
+                    id="user-search"
+                    value={userQuery}
+                    onChange={(event) => setUserQuery(event.target.value)}
+                    placeholder="Search by name, email, or ID"
+                    aria-label="Search users by name, email, or ID"
+                    className="bg-[#1a1f2e] border-[#00eaff] text-white placeholder:text-gray-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="user-role-filter" className="mb-2 block text-sm font-bold text-gray-300">
+                    Role
+                  </label>
+                  <select
+                    id="user-role-filter"
+                    value={userRoleFilter}
+                    onChange={(event) => setUserRoleFilter(event.target.value as AdminUserRoleFilter)}
+                    className="h-10 w-full rounded-md border border-[#00eaff] bg-[#1a1f2e] px-3 text-sm text-white outline-none focus:ring-2 focus:ring-[#00eaff]"
+                  >
+                    <option value="all">All roles</option>
+                    <option value="admin">Admins</option>
+                    <option value="user">Members</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="user-status-filter" className="mb-2 block text-sm font-bold text-gray-300">
+                    Activity
+                  </label>
+                  <select
+                    id="user-status-filter"
+                    value={userStatusFilter}
+                    onChange={(event) => setUserStatusFilter(event.target.value as AdminUserStatusFilter)}
+                    className="h-10 w-full rounded-md border border-[#00eaff] bg-[#1a1f2e] px-3 text-sm text-white outline-none focus:ring-2 focus:ring-[#00eaff]"
+                  >
+                    <option value="all">All activity</option>
+                    <option value="active">Active in 30 days</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setUserQuery('');
+                    setUserRoleFilter('all');
+                    setUserStatusFilter('all');
+                  }}
+                  disabled={!userQuery && userRoleFilter === 'all' && userStatusFilter === 'all'}
+                  className="h-10 border-[#ff00cc] text-[#ff00cc] hover:bg-[#ff00cc]/10"
+                >
+                  Clear
+                </Button>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-sm" aria-live="polite">
+                <p className="text-gray-300">
+                  Showing <span className="font-bold text-[#00eaff]">{filteredUsers.length}</span> of {users.length} users
+                </p>
+                {(userQuery || userRoleFilter !== 'all' || userStatusFilter !== 'all') && (
+                  <p className="text-[#ff00cc]">Filters active</p>
+                )}
+              </div>
+            </div>
+            <div className="space-y-3 md:hidden">
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((u) => {
+                  const active = isAdminUserActive(u.lastSignedIn);
+                  return (
+                    <article key={u.id} className="rounded-lg border border-[#2a2f3e] bg-[#1a1f2e] p-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold text-white">{u.name || 'Unnamed user'}</h3>
+                          <p className="break-all text-sm text-gray-400">{u.email || 'No email'}</p>
+                        </div>
+                        <span className="shrink-0 text-xs text-gray-500">#{u.id}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <span className={`rounded px-2 py-1 ${u.role === 'admin' ? 'bg-[#ff00cc]/20 text-[#ff00cc]' : 'bg-[#00eaff]/20 text-[#00eaff]'}`}>
+                          {u.role}
+                        </span>
+                        <span className={`rounded px-2 py-1 ${active ? 'bg-[#00ff88]/20 text-[#00ff88]' : 'bg-gray-500/20 text-gray-400'}`}>
+                          {active ? 'Active' : 'Inactive'}
+                        </span>
+                        <span className="text-gray-500">Joined {new Date(u.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </article>
+                  );
+                })
+              ) : (
+                <p className="py-8 text-center text-gray-400">No users match the current search and filters.</p>
+              )}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-sm">
+                <caption className="sr-only">Filtered Anom Artsy users</caption>
                 <thead>
                   <tr className="border-b border-[#2a2f3e]">
-                    <th className="text-left py-2 text-[#00eaff]">User ID</th>
-                    <th className="text-left py-2 text-[#00eaff]">Name</th>
-                    <th className="text-left py-2 text-[#00eaff]">Email</th>
-                    <th className="text-left py-2 text-[#00eaff]">Role</th>
-                    <th className="text-left py-2 text-[#00eaff]">Joined</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">User ID</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">Name</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">Email</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">Role</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">Activity</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">Joined</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u: any) => (
-                    <tr key={u.id} className="border-b border-[#2a2f3e] hover:bg-[#1a1f2e]">
-                      <td className="py-2 text-gray-300">{u.id}</td>
-                      <td className="py-2 text-gray-300">{u.name}</td>
-                      <td className="py-2 text-gray-300">{u.email}</td>
-                      <td className="py-2"><span className="px-2 py-1 bg-[#ff00cc]/20 text-[#ff00cc] rounded text-xs">{u.role}</span></td>
-                      <td className="py-2 text-gray-300">{new Date(u.createdAt).toLocaleDateString()}</td>
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((u) => {
+                      const active = isAdminUserActive(u.lastSignedIn);
+                      return (
+                        <tr key={u.id} className="border-b border-[#2a2f3e] hover:bg-[#1a1f2e]">
+                          <td className="py-2 text-gray-300">{u.id}</td>
+                          <td className="py-2 text-gray-300">{u.name || 'Unnamed user'}</td>
+                          <td className="py-2 text-gray-300">{u.email || 'No email'}</td>
+                          <td className="py-2">
+                            <span className={`rounded px-2 py-1 text-xs ${u.role === 'admin' ? 'bg-[#ff00cc]/20 text-[#ff00cc]' : 'bg-[#00eaff]/20 text-[#00eaff]'}`}>
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="py-2">
+                            <span className={`rounded px-2 py-1 text-xs ${active ? 'bg-[#00ff88]/20 text-[#00ff88]' : 'bg-gray-500/20 text-gray-400'}`}>
+                              {active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="py-2 text-gray-300">{new Date(u.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-10 text-center text-gray-400">
+                        No users match the current search and filters.
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

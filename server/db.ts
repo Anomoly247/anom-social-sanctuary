@@ -826,6 +826,7 @@ export async function getAllUsers() {
       email: users.email,
       role: users.role,
       createdAt: users.createdAt,
+      lastSignedIn: users.lastSignedIn,
     })
     .from(users)
     .orderBy(desc(users.createdAt));

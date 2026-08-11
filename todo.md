@@ -87,3 +87,6 @@
 - [x] Run production build and TypeScript diagnostics and document validation baseline (production build succeeded cleanly in 5.15s; 27 TypeScript diagnostics span server/db.ts and auxiliary admin/membership pages)
 - [x] Resolve all 27 TypeScript diagnostics across server/db.ts, admin pages, lounge pages, OwnerSettings.tsx, and membership.procedures.ts
 - [x] Re-run TypeScript, full Vitest suite, and production build after the diagnostic fixes (all passed)
+- [x] Add user search and role/status filters to the Owner Control Panel
+- [x] Add tests and verify the filtered user list at desktop and mobile widths (6 test files / 12 tests pass; screenshot files independently inspected at 1280px and 375px)
+- [x] Replace the narrow-screen user table overflow with a readable mobile user-card layout
