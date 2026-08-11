@@ -15,3 +15,8 @@
 - [x] Add lounge regression test in `server/lounge.test.ts`
 - [x] Run full test suite, TypeScript check, build, and capture `/lounges` screenshot
 - [x] Save checkpoint with verified lounges fix
+- [ ] Add user-facing color theme settings control (Magenta, Cyan, Purple) accessible to all users
+- [ ] Connect theme selection to `profile.updateTheme` tRPC mutation
+- [ ] Add regression test for user neon theme updates
+- [ ] Run full test suite, type check, build, and capture settings screenshot
+- [ ] Save checkpoint with user color settings feature

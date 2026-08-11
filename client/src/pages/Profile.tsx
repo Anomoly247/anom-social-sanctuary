@@ -291,6 +291,63 @@ export default function Profile() {
         {activeTab === "settings" && (
           <div className="space-y-6">
             <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-6">
+              <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Color & Theme Settings</h3>
+              <p className="text-[#7a7f8e] text-sm mb-4">
+                Choose your signature neon accent color and theme, just like creating a private lounge.
+              </p>
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {[
+                  { id: "magenta", name: "Neon Magenta", color: "#ff00cc", preview: "🌸" },
+                  { id: "cyan", name: "Neon Cyan", color: "#00eaff", preview: "💎" },
+                  { id: "purple", name: "Neon Purple", color: "#b000ff", preview: "👾" },
+                ].map((theme) => (
+                  <button
+                    key={theme.id}
+                    onClick={() => {
+                      setSelectedTheme(theme.id);
+                      updateThemeMutation.mutate({ theme: theme.id as any }, {
+                        onSuccess: () => toast.success(`Neon theme updated to ${theme.name}!`),
+                        onError: () => toast.error("Failed to update neon theme")
+                      });
+                    }}
+                    className={`p-4 rounded-lg border-2 transition-all text-center ${
+                      selectedTheme === theme.id
+                        ? "border-[#ff00cc] bg-[#ff00cc]/20 text-[#ff00cc]"
+                        : "border-[#2a2f3e] hover:border-[#ff00cc] text-[#7a7f8e]"
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{theme.preview}</div>
+                    <p className="text-xs font-bold">{theme.name}</p>
+                  </button>
+                ))}
+              </div>
+
+              <h4 className="text-lg font-bold text-[#00eaff] mb-3">Name Accent Color</h4>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {NAME_COLORS.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => {
+                      setSelectedNameColor(color.id);
+                      updateNameColorMutation.mutate({ nameColor: color.id }, {
+                        onSuccess: () => toast.success(`Name color updated!`),
+                        onError: () => toast.error("Failed to update name color")
+                      });
+                    }}
+                    className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                      selectedNameColor === color.id
+                        ? "border-[#00eaff] bg-[#00eaff]/20"
+                        : "border-[#2a2f3e] hover:border-[#00eaff]"
+                    }`}
+                  >
+                    <div className="w-6 h-6 rounded-full border border-white/20" style={{ backgroundColor: color.color }} />
+                    <span className="text-xs text-[#7a7f8e]">{color.name}</span>
+                  </button>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-6">
               <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Edit Bio</h3>
               {isEditingProfile ? (
                 <div className="space-y-4">
