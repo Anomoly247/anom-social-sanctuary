@@ -160,9 +160,14 @@ export default function LoungeDetail({ params }: LoungeDetailProps) {
             </h1>
             <p className="text-[#00eaff]">{lounge.type} Lounge</p>
           </div>
-          <Button onClick={() => navigate("/lounges")} className="bg-[#2a2f3e] hover:bg-[#3a3f4e] text-[#00eaff]">
-            Back to Lounges
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/")} className="bg-[#2a2f3e] hover:bg-[#3a3f4e] text-[#00eaff]">
+              🏠 Home
+            </Button>
+            <Button onClick={() => navigate("/lounges")} className="bg-[#2a2f3e] hover:bg-[#3a3f4e] text-[#00eaff]">
+              Back to Lounges
+            </Button>
+          </div>
         </div>
       </div>
 
