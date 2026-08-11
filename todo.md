@@ -124,4 +124,4 @@
 - [x] Verify admin login and Owner Control Panel session recovery
 - [x] Add regression coverage proving concurrent unauthorized errors trigger only one startLogin call
 - [x] Confirm OAuth callback and admin session recovery under the debounced guard
-- [ ] Add client-side unit test for unauthorized redirect rate-limiting in main.tsx
+- [x] Add client-side unit test for unauthorized redirect rate-limiting in main.tsx
