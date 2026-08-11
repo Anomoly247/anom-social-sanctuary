@@ -311,6 +311,10 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
+    if (user.status === "suspended") {
+      throw ForbiddenError("Account suspended");
+    }
+
     await db.upsertUser({
       openId: user.openId,
       lastSignedIn: signedInAt,
@@ -339,6 +343,7 @@ function buildCronUser(
     email: null,
     loginMethod: null,
     role: "user",
+    status: "active",
     createdAt: now,
     updatedAt: now,
     lastSignedIn: now,

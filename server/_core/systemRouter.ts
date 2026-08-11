@@ -38,6 +38,32 @@ export const systemRouter = router({
     return getAllUsers();
   }),
 
+  updateUserRole: adminProcedure
+    .input(z.object({ userId: z.number().int().positive(), role: z.enum(["user", "admin"]) }))
+    .mutation(async ({ ctx, input }) => {
+      if (input.userId === ctx.user.id && input.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "You cannot remove your own admin access." });
+      }
+      const { getUserById, updateUserRole } = await import("../db");
+      if (!await getUserById(input.userId)) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found." });
+      }
+      return updateUserRole(input.userId, input.role);
+    }),
+
+  updateUserStatus: adminProcedure
+    .input(z.object({ userId: z.number().int().positive(), status: z.enum(["active", "suspended"]) }))
+    .mutation(async ({ ctx, input }) => {
+      if (input.userId === ctx.user.id && input.status === "suspended") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "You cannot suspend your own account." });
+      }
+      const { getUserById, updateUserStatus } = await import("../db");
+      if (!await getUserById(input.userId)) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found." });
+      }
+      return updateUserStatus(input.userId, input.status);
+    }),
+
   getEvents: adminProcedure.query(async () => {
     const { getCommunityEvents } = await import("../db");
     return getCommunityEvents();

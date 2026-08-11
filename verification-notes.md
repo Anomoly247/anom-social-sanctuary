@@ -87,3 +87,15 @@ The initial mobile capture exposed table-column overflow at 375px. The table is 
 ## Independently inspected filtered Users-tab screenshots — 2026-08-11
 
 The desktop screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463092708281020-6158.png` was visually inspected and directly shows the active Users tab, search field, Role and Activity selectors, Clear button, `Showing 1 of 1 users`, and the full table with Eliza Wood, admin, Active, and joined date. The mobile screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463082952219811-5198.png` was visually inspected and directly shows the stacked filters, result count, and readable user card without table-column clipping. These reviewed files provide direct responsive evidence for the feature.
+
+## Owner moderation controls and suspension enforcement — 2026-08-11
+
+The managed authenticated Owner Control Panel Users tab was captured at 1280×720 and 375×812. The desktop table now shows account state badges plus Promote/Demote and Suspend/Activate actions. The mobile view uses stacked user cards with full-width action buttons and no horizontal clipping; the cyberpunk magenta/cyan treatment remains intact. The owner’s own Demote and Suspend controls are visibly disabled as a client-side safety affordance, with server-side self-protection enforced independently.
+
+The role and status mutations are protected by `adminProcedure`, validate positive integer target IDs, reject missing users with `NOT_FOUND`, and refetch the user directory after success. Confirmation dialogs and success/error toasts are wired for both action types. Suspended users are blocked centrally during session authentication and by protected/admin tRPC middleware. Validation completed with `pnpm check`, 7 Vitest files / 17 tests, and a successful production build.
+
+The remote full-story MP4 remains unavailable because the storage proxy redirects to a CloudFront object that returns HTTP 403 for followed HEAD requests. No source MP4 is present in the project or static-assets workspace, so the object ACL or upload must be corrected externally; the existing client fallback already reports that the episode is temporarily unavailable rather than rendering an empty player.
+
+### Independent screenshot inspection — moderation actions
+
+The latest 1280×720 screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463981560307397-8504.png` directly shows the Users tab, the full table, the Account active badge, and readable Demote and Suspend buttons in the Actions column without clipping. The latest 375×1114 screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463988018879898-5014.png` directly shows the stacked user card, Admin / Active in 30d / Account active badges, and full-width Demote and Suspend buttons inside the card. Both screenshots preserve the dark neon background with magenta and cyan accents; no horizontal overflow is visible. The confirmation dialog is implemented in the shared page markup, while direct click interaction remains limited by screenshot-only verification.

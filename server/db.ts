@@ -97,6 +97,17 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserById(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user by ID: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function getOrCreateUserProfile(userId: number) {
   const db = await getDb();
   if (!db) {
@@ -825,11 +836,26 @@ export async function getAllUsers() {
       name: users.name,
       email: users.email,
       role: users.role,
+      status: users.status,
       createdAt: users.createdAt,
       lastSignedIn: users.lastSignedIn,
     })
     .from(users)
     .orderBy(desc(users.createdAt));
+}
+
+export async function updateUserRole(userId: number, role: "user" | "admin") {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(users).set({ role }).where(eq(users.id, userId));
+  return { success: true } as const;
+}
+
+export async function updateUserStatus(userId: number, status: "active" | "suspended") {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(users).set({ status }).where(eq(users.id, userId));
+  return { success: true } as const;
 }
 
 async function safeRows<T>(query: PromiseLike<T[]>, label: string): Promise<T[]> {

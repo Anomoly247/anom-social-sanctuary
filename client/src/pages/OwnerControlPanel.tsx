@@ -2,6 +2,16 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useLocation } from 'wouter';
@@ -11,9 +21,14 @@ import {
   isAdminUserActive,
   type AdminUserRoleFilter,
   type AdminUserStatusFilter,
+  type AdminUserSummary,
 } from '../../../shared/adminUserFilters';
-import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff } from 'lucide-react';
 import { toast } from 'sonner';
+
+type PendingModerationAction =
+  | { kind: 'role'; userId: number; userLabel: string; nextRole: 'user' | 'admin' }
+  | { kind: 'status'; userId: number; userLabel: string; nextStatus: 'active' | 'suspended' };
 
 export default function OwnerControlPanel() {
   const { user } = useAuth();
@@ -38,7 +53,7 @@ export default function OwnerControlPanel() {
 
   // Real-time data queries
   const { data: stats } = trpc.system.getStats.useQuery(undefined, { refetchInterval: 5000 });
-  const { data: users = [] } = trpc.system.getAllUsers.useQuery(undefined, { refetchInterval: 10000 });
+  const { data: users = [], refetch: refetchUsers } = trpc.system.getAllUsers.useQuery(undefined, { refetchInterval: 10000 });
   const { data: events = [] } = trpc.system.getEvents.useQuery(undefined, { refetchInterval: 5000 });
   const filteredUsers = useMemo(
     () =>
@@ -54,6 +69,10 @@ export default function OwnerControlPanel() {
   const updateSettingsMutation = trpc.system.updateSettings.useMutation();
   const createEventMutation = trpc.system.createEvent.useMutation();
   const deleteEventMutation = trpc.system.deleteEvent.useMutation();
+  const updateUserRoleMutation = trpc.system.updateUserRole.useMutation();
+  const updateUserStatusMutation = trpc.system.updateUserStatus.useMutation();
+  const [pendingModerationAction, setPendingModerationAction] = useState<PendingModerationAction | null>(null);
+  const isModerationPending = updateUserRoleMutation.isPending || updateUserStatusMutation.isPending;
 
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -120,6 +139,44 @@ export default function OwnerControlPanel() {
       toast.success('Event deleted successfully!');
     } catch (error) {
       toast.error('Failed to delete event');
+    }
+  };
+
+  const requestRoleChange = (target: AdminUserSummary) => {
+    setPendingModerationAction({
+      kind: 'role',
+      userId: target.id,
+      userLabel: target.name || target.email || `User #${target.id}`,
+      nextRole: target.role === 'admin' ? 'user' : 'admin',
+    });
+  };
+
+  const requestStatusChange = (target: AdminUserSummary) => {
+    setPendingModerationAction({
+      kind: 'status',
+      userId: target.id,
+      userLabel: target.name || target.email || `User #${target.id}`,
+      nextStatus: target.status === 'suspended' ? 'active' : 'suspended',
+    });
+  };
+
+  const handleConfirmModeration = async () => {
+    if (!pendingModerationAction) return;
+
+    const action = pendingModerationAction;
+    try {
+      if (action.kind === 'role') {
+        await updateUserRoleMutation.mutateAsync({ userId: action.userId, role: action.nextRole });
+        toast.success(`${action.userLabel} is now ${action.nextRole === 'admin' ? 'an admin' : 'a member'}.`);
+      } else {
+        await updateUserStatusMutation.mutateAsync({ userId: action.userId, status: action.nextStatus });
+        toast.success(`${action.userLabel} is ${action.nextStatus === 'suspended' ? 'suspended' : 'active'} now.`);
+      }
+      await refetchUsers();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'The moderation action could not be completed.');
+    } finally {
+      setPendingModerationAction(null);
     }
   };
 
@@ -299,9 +356,35 @@ export default function OwnerControlPanel() {
                           {u.role}
                         </span>
                         <span className={`rounded px-2 py-1 ${active ? 'bg-[#00ff88]/20 text-[#00ff88]' : 'bg-gray-500/20 text-gray-400'}`}>
-                          {active ? 'Active' : 'Inactive'}
+                          {active ? 'Active in 30d' : 'Inactive'}
+                        </span>
+                        <span className={`rounded px-2 py-1 ${u.status === 'suspended' ? 'bg-red-500/20 text-red-300' : 'bg-[#00eaff]/10 text-[#00eaff]'}`}>
+                          {u.status === 'suspended' ? 'Suspended' : 'Account active'}
                         </span>
                         <span className="text-gray-500">Joined {new Date(u.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="mt-4 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => requestRoleChange(u)}
+                          disabled={u.id === user?.id && u.role === 'admin'}
+                          aria-label={`${u.role === 'admin' ? 'Demote' : 'Promote'} ${u.name || u.email || `user ${u.id}`}`}
+                          className="border-[#ff00cc] text-[#ff00cc] hover:bg-[#ff00cc]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {u.role === 'admin' ? <ShieldOff className="mr-2 h-4 w-4" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+                          {u.role === 'admin' ? 'Demote' : 'Promote'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => requestStatusChange(u)}
+                          disabled={u.id === user?.id}
+                          aria-label={`${u.status === 'suspended' ? 'Activate' : 'Suspend'} ${u.name || u.email || `user ${u.id}`}`}
+                          className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {u.status === 'suspended' ? 'Activate' : 'Suspend'}
+                        </Button>
                       </div>
                     </article>
                   );
@@ -321,6 +404,7 @@ export default function OwnerControlPanel() {
                     <th scope="col" className="text-left py-2 text-[#00eaff]">Role</th>
                     <th scope="col" className="text-left py-2 text-[#00eaff]">Activity</th>
                     <th scope="col" className="text-left py-2 text-[#00eaff]">Joined</th>
+                    <th scope="col" className="text-left py-2 text-[#00eaff]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -341,14 +425,44 @@ export default function OwnerControlPanel() {
                             <span className={`rounded px-2 py-1 text-xs ${active ? 'bg-[#00ff88]/20 text-[#00ff88]' : 'bg-gray-500/20 text-gray-400'}`}>
                               {active ? 'Active' : 'Inactive'}
                             </span>
+                            <span className={`ml-2 rounded px-2 py-1 text-xs ${u.status === 'suspended' ? 'bg-red-500/20 text-red-300' : 'bg-[#00eaff]/10 text-[#00eaff]'}`}>
+                              {u.status === 'suspended' ? 'Suspended' : 'Account active'}
+                            </span>
                           </td>
                           <td className="py-2 text-gray-300">{new Date(u.createdAt).toLocaleDateString()}</td>
+                          <td className="py-2">
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => requestRoleChange(u)}
+                                disabled={u.id === user?.id && u.role === 'admin'}
+                                aria-label={`${u.role === 'admin' ? 'Demote' : 'Promote'} ${u.name || u.email || `user ${u.id}`}`}
+                                className="border-[#ff00cc] text-[#ff00cc] hover:bg-[#ff00cc]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                {u.role === 'admin' ? <ShieldOff className="mr-1 h-3.5 w-3.5" /> : <ShieldCheck className="mr-1 h-3.5 w-3.5" />}
+                                {u.role === 'admin' ? 'Demote' : 'Promote'}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => requestStatusChange(u)}
+                                disabled={u.id === user?.id}
+                                aria-label={`${u.status === 'suspended' ? 'Activate' : 'Suspend'} ${u.name || u.email || `user ${u.id}`}`}
+                                className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                {u.status === 'suspended' ? 'Activate' : 'Suspend'}
+                              </Button>
+                            </div>
+                          </td>
                         </tr>
                       );
                     })
                   ) : (
                     <tr>
-                      <td colSpan={6} className="py-10 text-center text-gray-400">
+                      <td colSpan={7} className="py-10 text-center text-gray-400">
                         No users match the current search and filters.
                       </td>
                     </tr>
@@ -548,6 +662,47 @@ export default function OwnerControlPanel() {
           </div>
         </div>
       )}
+
+      <AlertDialog
+        open={pendingModerationAction !== null}
+        onOpenChange={(open) => {
+          if (!open && !isModerationPending) setPendingModerationAction(null);
+        }}
+      >
+        <AlertDialogContent className="border-2 border-[#ff00cc] bg-[#0b0e14] text-white shadow-[0_0_30px_rgba(255,0,204,0.25)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[#ff00cc]">
+              {pendingModerationAction?.kind === 'role'
+                ? `${pendingModerationAction.nextRole === 'admin' ? 'Promote' : 'Demote'} user?`
+                : `${pendingModerationAction?.nextStatus === 'suspended' ? 'Suspend' : 'Activate'} user?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              {pendingModerationAction?.kind === 'role'
+                ? `${pendingModerationAction.userLabel} will ${pendingModerationAction.nextRole === 'admin' ? 'receive' : 'lose'} Owner Control Panel access.`
+                : `${pendingModerationAction?.userLabel} will be ${pendingModerationAction?.nextStatus === 'suspended' ? 'blocked from active participation' : 'allowed to participate again'}.`}
+              {' '}This action is recorded through the protected admin endpoint.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isModerationPending}
+              className="border-[#2a2f3e] bg-transparent text-gray-300 hover:bg-[#1a1f2e] hover:text-white"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isModerationPending}
+              onClick={(event) => {
+                event.preventDefault();
+                void handleConfirmModeration();
+              }}
+              className="bg-[#ff00cc] text-black hover:bg-[#ff00cc]/80"
+            >
+              {isModerationPending ? 'Applying...' : 'Confirm action'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

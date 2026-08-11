@@ -90,3 +90,12 @@
 - [x] Add user search and role/status filters to the Owner Control Panel
 - [x] Add tests and verify the filtered user list at desktop and mobile widths (6 test files / 12 tests pass; screenshot files independently inspected at 1280px and 375px)
 - [x] Replace the narrow-screen user table overflow with a readable mobile user-card layout
+- [x] Add protected quick promotion and suspension mutations for admin user management
+- [x] Add promotion and suspension controls to desktop user rows and mobile user cards
+- [x] Add regression tests and verify admin controls at desktop and mobile widths
+- [x] Add and apply a users.status migration for persistent suspension state
+- [x] Enforce suspended-user blocking in the authenticated session/protected-procedure path
+- [x] Add regression tests for suspended-user enforcement, role/status mutations, self-protection, and missing-user handling
+- [x] Re-verify moderation controls at desktop and mobile widths after enforcement
+- [x] Investigate the remote MP4 403 storage permission issue (confirmed remote CloudFront object permission failure; external re-upload/ACL correction required)
+

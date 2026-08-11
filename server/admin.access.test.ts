@@ -21,6 +21,7 @@ function createContext(role: Role): TrpcContext {
       email: "owner@example.com",
       loginMethod: "google",
       role,
+      status: "active",
       createdAt: now,
       updatedAt: now,
       lastSignedIn: now,

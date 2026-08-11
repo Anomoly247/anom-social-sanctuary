@@ -1,4 +1,5 @@
 export type AdminUserRole = "admin" | "user";
+export type AdminUserAccountStatus = "active" | "suspended";
 export type AdminUserRoleFilter = "all" | AdminUserRole;
 export type AdminUserStatusFilter = "all" | "active" | "inactive";
 
@@ -7,6 +8,7 @@ export type AdminUserSummary = {
   name: string | null;
   email: string | null;
   role: AdminUserRole;
+  status?: AdminUserAccountStatus;
   createdAt: Date | string;
   lastSignedIn: Date | string | null;
 };
