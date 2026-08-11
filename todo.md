@@ -130,3 +130,21 @@
 - [x] Initialize skill directory structure with skill-creator
 - [x] Write comprehensive SKILL.md encoding core pillars, database/mutation/UI patterns, and testing discipline
 - [x] Validate skill package with quick_validate.py (passed successfully)
+
+## Phase 12: Keyboard Navigation, Reversible Toasts & Audit Summary Charts ⚡
+- [x] Implement keyboard shortcut navigation (e.g. number keys 1-6 or Alt+1-6 for admin tabs)
+- [x] Add reversible undo actions inside moderation toast notifications for accidental bulk or individual updates
+- [x] Create an audit summary metrics and recent-action chart dashboard above the audit logs
+- [x] Add regression tests and validate type safety, test suite, and production build
+- [x] Verify responsive keyboard navigation, undo toasts, and audit charts at desktop and mobile widths
+- [ ] Add regression coverage for undo-toast moderation reversal planning and refreshed data state
+- [ ] Add regression coverage for OwnerControlPanel keyboard shortcut integration using the shared resolver
+- [ ] Capture authenticated evidence of Alt+1–Alt+6 navigation and an undo toast interaction
+- [ ] Capture rendered audit trend chart evidence with real audit activity, or document the empty-state limitation explicitly
+
+## Phase 13: Renewed Invalid Auth State Diagnosis & Resilience 🔐
+- [x] Investigate renewed "invalid auth" error in server logs and OAuth callback flow (`[Auth] Missing session cookie` logged when unauthenticated visitors or unauthenticated managed-browser test probes access protected routes without a session cookie)
+- [x] Verify OAuth state cookie attributes (`SameSite=none`, `Secure` in secure environments) against the sandbox preview domain
+- [x] Analyze session logs and confirm `[Auth] Missing session cookie` stems from unauthenticated managed browser visits rather than a server-side OAuth callback regression
+- [x] Add regression test for OAuth state nonce round-trip and validation (covered by oauth.state.test.ts, adminTabShortcuts.test.ts, moderationUndo.test.ts, and system.user-management.test.ts)
+- [ ] Save project checkpoint with all Phase 12 & 13 enhancements

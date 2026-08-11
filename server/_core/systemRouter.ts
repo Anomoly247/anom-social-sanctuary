@@ -136,6 +136,11 @@ export const systemRouter = router({
       return { success: true, count: input.userIds.length } as const;
     }),
 
+  getAuditSummaryStats: adminProcedure.query(async () => {
+    const { getAuditSummaryStats } = await import("../db");
+    return getAuditSummaryStats();
+  }),
+
   getAuditLogs: adminProcedure
     .input(
       z.object({

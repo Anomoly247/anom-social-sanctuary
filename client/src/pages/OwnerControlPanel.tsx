@@ -30,7 +30,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useLocation } from 'wouter';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   filterAdminUsers,
   isAdminUserActive,
@@ -39,14 +39,22 @@ import {
   type AdminUserStatusFilter,
   type AdminUserSummary,
 } from '../../../shared/adminUserFilters';
+import { ADMIN_TAB_IDS, resolveAdminTabShortcut, type AdminTabId } from '../../../shared/adminTabShortcuts';
+import { buildModerationUndoOperations, type ModerationUndoAction } from '../../../shared/moderationUndo';
 import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff, ScrollText, CheckSquare, Square, Download, Search, CalendarDays, Filter } from 'lucide-react';
 import { toast } from 'sonner';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 type PendingModerationAction =
   | { kind: 'role'; userId: number; userLabel: string; nextRole: 'user' | 'admin' }
   | { kind: 'status'; userId: number; userLabel: string; nextStatus: 'active' | 'suspended' }
   | { kind: 'bulk-role'; userIds: number[]; nextRole: 'admin' }
   | { kind: 'bulk-status'; userIds: number[]; nextStatus: 'suspended' };
+
+const AUDIT_CHART_CONFIG = {
+  actions: { label: 'Actions', color: '#ff00cc' },
+} satisfies ChartConfig;
 
 const AUDIT_ACTION_TYPES = [
   'update_user_role_admin',
@@ -62,7 +70,7 @@ export default function OwnerControlPanel() {
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
     const requestedTab = new URLSearchParams(window.location.search).get('tab');
-    return ['dashboard', 'users', 'audit', 'events', 'settings', 'features'].includes(requestedTab ?? '')
+    return ADMIN_TAB_IDS.includes(requestedTab as typeof ADMIN_TAB_IDS[number])
       ? requestedTab!
       : 'dashboard';
   });
@@ -103,9 +111,21 @@ export default function OwnerControlPanel() {
     enabled: activeTab === 'audit',
     refetchInterval: activeTab === 'audit' ? 5000 : false,
   });
+  const auditSummaryQuery = trpc.system.getAuditSummaryStats.useQuery(undefined, {
+    enabled: activeTab === 'audit',
+    refetchInterval: activeTab === 'audit' ? 10000 : false,
+  });
   const auditLogs = auditQuery.data?.logs ?? [];
   const auditTotal = auditQuery.data?.total ?? 0;
   const refetchAuditLogs = auditQuery.refetch;
+  const auditTimeline = useMemo(() => {
+    const buckets = new Map<string, number>();
+    for (const entry of auditSummaryQuery.data?.recentTimeline ?? []) {
+      const label = new Date(entry.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      buckets.set(label, (buckets.get(label) ?? 0) + 1);
+    }
+    return Array.from(buckets, ([label, actions]) => ({ label, actions })).slice(-14);
+  }, [auditSummaryQuery.data?.recentTimeline]);
   const filteredUsers = useMemo(
     () =>
       filterAdminUsers(users, {
@@ -133,11 +153,32 @@ export default function OwnerControlPanel() {
   const bulkUpdateUserStatusMutation = trpc.system.bulkUpdateUserStatus.useMutation();
   const exportAuditLogsCsvMutation = trpc.system.exportAuditLogsCsv.useMutation();
   const [pendingModerationAction, setPendingModerationAction] = useState<PendingModerationAction | null>(null);
+  const undoInFlightRef = useRef(false);
   const isModerationPending = updateUserRoleMutation.isPending || updateUserStatusMutation.isPending || bulkUpdateUserRoleMutation.isPending || bulkUpdateUserStatusMutation.isPending;
   const auditPageCount = Math.max(1, Math.ceil(auditTotal / auditPageSize));
   const isBulkModerationAction = pendingModerationAction?.kind === 'bulk-role' || pendingModerationAction?.kind === 'bulk-status';
   const pendingBulkUserIds = isBulkModerationAction ? pendingModerationAction.userIds : [];
   const pendingBulkUsers = selectAdminUsers(users, pendingBulkUserIds);
+
+  const selectAdminTab = (tab: AdminTabId) => {
+    setActiveTab(tab);
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tab);
+    window.history.replaceState({}, '', url);
+  };
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.matches('input, textarea, select, [contenteditable="true"]')) return;
+      const tab = resolveAdminTabShortcut(event);
+      if (!tab) return;
+      event.preventDefault();
+      selectAdminTab(tab);
+    };
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, []);
 
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -248,26 +289,63 @@ export default function OwnerControlPanel() {
     setPendingModerationAction({ kind: 'bulk-status', userIds: selectedVisibleUserIds, nextStatus: 'suspended' });
   };
 
+  const handleUndoModeration = async (undoAction: ModerationUndoAction) => {
+    if (undoInFlightRef.current) return;
+    undoInFlightRef.current = true;
+    try {
+      await Promise.all(buildModerationUndoOperations(undoAction).map((operation) => {
+        if ('role' in operation) return updateUserRoleMutation.mutateAsync(operation);
+        return updateUserStatusMutation.mutateAsync(operation);
+      }));
+      await Promise.all([refetchUsers(), refetchAuditLogs(), auditSummaryQuery.refetch()]);
+      toast.success('Moderation action reverted.', { description: 'The reversal was recorded in the audit stream.' });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Undo could not be completed.');
+    } finally {
+      undoInFlightRef.current = false;
+    }
+  };
+
   const handleConfirmModeration = async () => {
     if (!pendingModerationAction) return;
 
     const action = pendingModerationAction;
     try {
       if (action.kind === 'role') {
+        const target = users.find((candidate) => candidate.id === action.userId);
         await updateUserRoleMutation.mutateAsync({ userId: action.userId, role: action.nextRole });
-        toast.success(`${action.userLabel} is now ${action.nextRole === 'admin' ? 'an admin' : 'a member'}.`, { description: 'Role change recorded in the audit stream.' });
+        toast.success(`${action.userLabel} is now ${action.nextRole === 'admin' ? 'an admin' : 'a member'}.`, {
+          description: 'Role change recorded in the audit stream.',
+          duration: 10000,
+          action: { label: 'Undo', onClick: () => void handleUndoModeration({ kind: 'role', userId: action.userId, userLabel: action.userLabel, previousRole: target?.role ?? 'user' }) },
+        });
       } else if (action.kind === 'status') {
+        const target = users.find((candidate) => candidate.id === action.userId);
         await updateUserStatusMutation.mutateAsync({ userId: action.userId, status: action.nextStatus });
-        toast.success(`${action.userLabel} is ${action.nextStatus === 'suspended' ? 'suspended' : 'active'} now.`, { description: 'Account status change recorded in the audit stream.' });
+        toast.success(`${action.userLabel} is ${action.nextStatus === 'suspended' ? 'suspended' : 'active'} now.`, {
+          description: 'Account status change recorded in the audit stream.',
+          duration: 10000,
+          action: { label: 'Undo', onClick: () => void handleUndoModeration({ kind: 'status', userId: action.userId, userLabel: action.userLabel, previousStatus: target?.status === 'suspended' ? 'suspended' : 'active' }) },
+        });
       } else if (action.kind === 'bulk-role') {
+        const selectedBefore = selectAdminUsers(users, action.userIds);
         const result = await bulkUpdateUserRoleMutation.mutateAsync({ userIds: action.userIds, role: action.nextRole });
-        toast.success(`${result.count} users promoted.`, { description: 'Bulk role change recorded in the audit stream.' });
+        toast.success(`${result.count} users promoted.`, {
+          description: 'Bulk role change recorded in the audit stream.',
+          duration: 10000,
+          action: { label: 'Undo', onClick: () => void handleUndoModeration({ kind: 'bulk-role', changes: selectedBefore.map((target) => ({ userId: target.id, userLabel: target.name || target.email || `User #${target.id}`, previousRole: target.role })) }) },
+        });
       } else {
+        const selectedBefore = selectAdminUsers(users, action.userIds);
         const result = await bulkUpdateUserStatusMutation.mutateAsync({ userIds: action.userIds, status: action.nextStatus });
-        toast.success(`${result.count} users suspended.`, { description: 'Bulk status change recorded in the audit stream.' });
+        toast.success(`${result.count} users suspended.`, {
+          description: 'Bulk status change recorded in the audit stream.',
+          duration: 10000,
+          action: { label: 'Undo', onClick: () => void handleUndoModeration({ kind: 'bulk-status', changes: selectedBefore.map((target) => ({ userId: target.id, userLabel: target.name || target.email || `User #${target.id}`, previousStatus: target.status === 'suspended' ? 'suspended' : 'active' })) }) },
+        });
       }
       setSelectedUserIds([]);
-      await Promise.all([refetchUsers(), refetchAuditLogs()]);
+      await Promise.all([refetchUsers(), refetchAuditLogs(), auditSummaryQuery.refetch()]);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'The moderation action could not be completed.');
     } finally {
@@ -331,12 +409,15 @@ export default function OwnerControlPanel() {
           { id: 'events', label: 'Events', icon: Package },
           { id: 'settings', label: 'Settings', icon: Settings },
           { id: 'features', label: 'Features', icon: Zap },
-        ].map((tab) => {
+        ].map((tab, index) => {
           const Icon = tab.icon;
+          const shortcut = `Alt+${index + 1}`;
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => selectAdminTab(tab.id as AdminTabId)}
+              aria-keyshortcuts={shortcut}
+              title={`Open ${tab.label} (${shortcut})`}
               className={`p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
                 activeTab === tab.id
                   ? 'border-[#ff00cc] bg-[#ff00cc]/20 text-[#ff00cc]'
@@ -345,6 +426,7 @@ export default function OwnerControlPanel() {
             >
               <Icon className="w-4 h-4" />
               <span className="hidden sm:inline text-sm font-bold">{tab.label}</span>
+              <span className="hidden xl:inline text-[10px] opacity-60">{shortcut}</span>
             </button>
           );
         })}
@@ -698,6 +780,52 @@ export default function OwnerControlPanel() {
               </Button>
             </div>
           </div>
+
+          <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[
+              { label: 'Total actions', value: auditSummaryQuery.data?.totalActions ?? 0, color: 'text-[#ff00cc]' },
+              { label: 'Role changes', value: auditSummaryQuery.data?.roleChanges ?? 0, color: 'text-[#00eaff]' },
+              { label: 'Status changes', value: auditSummaryQuery.data?.suspensions ?? 0, color: 'text-[#00ff88]' },
+              { label: 'Bulk operations', value: auditSummaryQuery.data?.bulkOperations ?? 0, color: 'text-[#8b00ff]' },
+            ].map((metric) => (
+              <Card key={metric.label} className="border border-[#2a2f3e] bg-[#1a1f2e]/80 p-4 shadow-[0_0_18px_rgba(255,0,204,0.12)]">
+                <p className="text-xs uppercase tracking-[0.18em] text-gray-500">{metric.label}</p>
+                <p className={`mt-2 text-2xl font-black ${metric.color}`} aria-label={`${metric.label}: ${metric.value}`}>
+                  {auditSummaryQuery.isLoading ? '—' : metric.value}
+                </p>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="mb-5 border-2 border-[#8b00ff] bg-[#0b0e14]/80 p-4 md:p-6">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="text-lg font-bold text-[#00eaff]">Recent administrative actions</h3>
+                <p className="mt-1 text-xs text-gray-500">Daily activity across role, suspension, and bulk moderation changes.</p>
+              </div>
+              <span className="rounded-full border border-[#ff00cc]/40 bg-[#ff00cc]/10 px-3 py-1 text-xs text-[#ff00cc]">Live summary</span>
+            </div>
+            {auditSummaryQuery.isError ? (
+              <div className="rounded-lg border border-red-400/40 bg-red-950/20 p-4 text-sm text-red-200" role="alert">
+                The summary chart could not be loaded. Audit records remain available below.
+              </div>
+            ) : auditSummaryQuery.isLoading ? (
+              <div className="flex h-52 items-center justify-center text-sm text-gray-400" aria-live="polite">Loading action trend…</div>
+            ) : auditTimeline.length > 0 ? (
+              <ChartContainer config={AUDIT_CHART_CONFIG} className="h-56 w-full aspect-auto">
+                <LineChart accessibilityLayer data={auditTimeline} margin={{ left: 4, right: 12, top: 8, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,234,255,0.16)" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                  <YAxis allowDecimals={false} width={28} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                  <ChartTooltip cursor={{ stroke: '#00eaff', strokeOpacity: 0.3 }} content={<ChartTooltipContent />} />
+                  <Line type="monotone" dataKey="actions" stroke="var(--color-actions)" strokeWidth={3} dot={{ fill: '#ff00cc', r: 4, strokeWidth: 0 }} activeDot={{ r: 6, fill: '#00eaff' }} />
+                </LineChart>
+              </ChartContainer>
+            ) : (
+              <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-[#2a2f3e] text-sm text-gray-500">No recent administrative actions to chart.</div>
+            )}
+          </Card>
+
           <Card className="border-2 border-[#00eaff] bg-[#0b0e14]/80 p-4 md:p-6">
             <div className="mb-5 rounded-lg border border-[#2a2f3e] bg-[#1a1f2e]/70 p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#00eaff]"><Filter className="h-4 w-4" /> Audit filters</div>

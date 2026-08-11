@@ -1147,3 +1147,36 @@ export async function getFilteredAuditLogs(options: AuditLogFilterOptions = {}) 
     return { logs: [], total: 0 };
   }
 }
+
+export async function getAuditSummaryStats() {
+  const db = await getDb();
+  if (!db) return { totalActions: 0, roleChanges: 0, suspensions: 0, bulkOperations: 0, recentTimeline: [] };
+
+  try {
+    const [totalRow] = await db.select({ count: sql<number>`count(*)` }).from(auditLog).where(sql`${auditLog.entityType} != 'event'`);
+    const [roleRow] = await db.select({ count: sql<number>`count(*)` }).from(auditLog).where(sql`${auditLog.action} like '%role%'`);
+    const [suspensionRow] = await db.select({ count: sql<number>`count(*)` }).from(auditLog).where(sql`${auditLog.action} like '%status%'`);
+    const [bulkRow] = await db.select({ count: sql<number>`count(*)` }).from(auditLog).where(sql`${auditLog.action} like '%bulk%'`);
+
+    const recentLogs = await db
+      .select({
+        action: auditLog.action,
+        createdAt: auditLog.createdAt,
+      })
+      .from(auditLog)
+      .where(sql`${auditLog.entityType} != 'event'`)
+      .orderBy(desc(auditLog.createdAt))
+      .limit(50);
+
+    return {
+      totalActions: Number(totalRow?.count ?? 0),
+      roleChanges: Number(roleRow?.count ?? 0),
+      suspensions: Number(suspensionRow?.count ?? 0),
+      bulkOperations: Number(bulkRow?.count ?? 0),
+      recentTimeline: recentLogs,
+    };
+  } catch (error) {
+    console.warn("[Database] Audit summary stats query failed:", error);
+    return { totalActions: 0, roleChanges: 0, suspensions: 0, bulkOperations: 0, recentTimeline: [] };
+  }
+}

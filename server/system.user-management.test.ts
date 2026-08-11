@@ -13,6 +13,7 @@ const dbMocks = vi.hoisted(() => ({
   updateUserStatus: vi.fn(async (_userId: number, _status: "active" | "suspended") => ({ success: true as const })),
   createAuditLog: vi.fn(async (_entry: Record<string, unknown>) => undefined),
   getFilteredAuditLogs: vi.fn(async (_options: Record<string, unknown>) => ({ logs: [], total: 0 })),
+  getAuditSummaryStats: vi.fn(async () => ({ totalActions: 4, roleChanges: 2, suspensions: 1, bulkOperations: 1, recentTimeline: [{ action: 'update_user_role_admin', createdAt: new Date('2026-08-11T12:00:00.000Z') }] })),
 }));
 
 vi.mock("./db", () => dbMocks);
@@ -152,6 +153,19 @@ describe("system user management procedures", () => {
     expect(result.csv).toContain("Log ID,Timestamp,Admin ID,Admin Name");
     expect(result.csv).toContain('"Contains, comma"');
     expect(dbMocks.getFilteredAuditLogs).toHaveBeenCalledWith(expect.objectContaining({ actionType: "update_user_status_suspended", limit: 1000, offset: 0 }));
+  });
+
+  it("exposes protected audit summary metrics and timeline data", async () => {
+    const caller = appRouter.createCaller(createContext("admin"));
+
+    await expect(caller.system.getAuditSummaryStats()).resolves.toEqual(expect.objectContaining({
+      totalActions: 4,
+      roleChanges: 2,
+      suspensions: 1,
+      bulkOperations: 1,
+      recentTimeline: expect.arrayContaining([expect.objectContaining({ action: "update_user_role_admin" })]),
+    }));
+    expect(dbMocks.getAuditSummaryStats).toHaveBeenCalledTimes(1);
   });
 
   it("blocks suspended users before protected procedures run", async () => {
