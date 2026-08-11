@@ -76,3 +76,7 @@
 - [x] Add regression coverage for owner/admin role assignment and admin access
 - [x] Re-test the login/session path and document the external OAuth limitation
 - [x] Add and run a regression test proving the configured owner open ID is assigned the admin role by upsertUser
+- [x] Add system.getEvents, system.getAllUsers, and system.getStats procedures for the admin Home-page requests
+- [x] Test the new system procedures and verify the Home page no longer reports missing-path API errors in the dedicated procedure test; broader verification remains open
+- [x] Re-run the full Vitest suite after the safeRows fix and confirm all 5 test files and 8 tests pass
+- [ ] Re-verify the authenticated admin/owner page state that calls system.getStats, system.getAllUsers, and system.getEvents, and confirm the browser console shows no missing-path API errors; current preview route is blocked by captcha and only exposes the anonymous access-denied state

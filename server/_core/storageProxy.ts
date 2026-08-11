@@ -15,12 +15,17 @@ export function registerStorageProxy(app: Express) {
     const publicPath = path.join(process.cwd(), "client", "public", "manus-storage", key);
     
     try {
-      await fs.access(publicPath);
-      // If file exists, serve it directly
-      res.sendFile(publicPath);
-      return;
+      const localFile = await fs.stat(publicPath);
+      if (localFile.isFile() && localFile.size > 0) {
+        // Only serve complete local files. Empty placeholders must fall through
+        // so a real Forge-backed object can be used when available.
+        res.sendFile(publicPath);
+        return;
+      }
+
+      console.warn(`[StorageProxy] Ignoring empty local file: ${key}`);
     } catch (e) {
-      // File not found locally, proceed to proxy
+      // File not found locally, proceed to proxy.
     }
 
     if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {

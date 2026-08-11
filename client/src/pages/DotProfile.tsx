@@ -4,8 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Share2, Sparkles, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 export default function DotProfile() {
+  const [, navigate] = useLocation();
   const [liked, setLiked] = useState(false);
 
   const handleShare = () => {
@@ -172,7 +174,10 @@ export default function DotProfile() {
                 <Button className="w-full bg-[#2a2f3e] text-[#7a7f8e] hover:bg-[#3a3f4e] justify-start">
                   Partner: Pixel
                 </Button>
-                <Button className="w-full bg-[#2a2f3e] text-[#7a7f8e] hover:bg-[#3a3f4e] justify-start">
+                <Button
+                  className="w-full bg-[#2a2f3e] text-[#7a7f8e] hover:bg-[#3a3f4e] justify-start"
+                  onClick={() => navigate("/anoms-corner")}
+                >
                   View Episodes
                 </Button>
               </div>

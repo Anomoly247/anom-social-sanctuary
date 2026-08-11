@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Share2, Heart, Star, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { useEffect } from "react";
 
 interface Episode {
   id: string;
@@ -43,6 +44,11 @@ const episodes: Episode[] = [
 export default function AnomsCorner() {
   const [selectedEpisode, setSelectedEpisode] = useState<Episode>(episodes[0]);
   const [liked, setLiked] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+
+  useEffect(() => {
+    setVideoError(false);
+  }, [selectedEpisode.id]);
 
   const handleShare = () => {
     const url = selectedEpisode.storageUrl 
@@ -126,17 +132,18 @@ export default function AnomsCorner() {
               {/* Featured Video Player */}
               <div className="mb-6">
                 <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e]">
-                  {selectedEpisode.storageUrl ? (
+                  {selectedEpisode.storageUrl && !videoError ? (
                     <video
                       className="w-full h-auto"
                       controls
                       autoPlay
                       style={{ maxHeight: "600px" }}
+                      onError={() => setVideoError(true)}
                     >
                       <source src={selectedEpisode.storageUrl} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
-                  ) : (
+                  ) : selectedEpisode.videoId ? (
                     <div className="relative w-full bg-black rounded-lg overflow-hidden" style={{ paddingBottom: "56.25%" }}>
                       <iframe
                         className="absolute inset-0 w-full h-full"
@@ -145,6 +152,10 @@ export default function AnomsCorner() {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
+                    </div>
+                  ) : (
+                    <div className="flex min-h-64 items-center justify-center bg-black px-6 text-center text-[#7a7f8e]">
+                      <p>This episode’s video is temporarily unavailable. Please try another episode.</p>
                     </div>
                   )}
                 </div>

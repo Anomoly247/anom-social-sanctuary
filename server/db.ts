@@ -1,3 +1,4 @@
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog } from "../drizzle/schema";
@@ -444,9 +445,6 @@ export async function getUserKidsProgress(userId: number) {
   }
 }
 
-// Import eq and and functions from drizzle-orm
-import { eq, and } from "drizzle-orm";
-
 export async function getPlatformSettings() {
   const db = await getDb();
   if (!db) return undefined;
@@ -730,4 +728,158 @@ export async function getAllMerchRequests() {
     console.error("[Database] Failed to get all merch requests:", error);
     throw error;
   }
+}
+
+export type AdminStats = {
+  totalUsers: number;
+  userGrowth: number;
+  activeMembers: number;
+  activeGrowth: number;
+  monthlyRevenue: number;
+  revenueGrowth: number;
+  coinsDistributed: string;
+  coinsGrowth: number;
+  totalLounges: number;
+  totalOrders: number;
+  achievementsUnlocked: number;
+};
+
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .orderBy(desc(users.createdAt));
+}
+
+async function safeRows<T>(query: PromiseLike<T[]>, label: string): Promise<T[]> {
+  try {
+    return await query;
+  } catch (error) {
+    console.warn(`[Database] Optional admin metric unavailable (${label})`, error);
+    return [];
+  }
+}
+
+export async function getSystemStats(): Promise<AdminStats> {
+  const db = await getDb();
+  if (!db) {
+    return {
+      totalUsers: 0,
+      userGrowth: 0,
+      activeMembers: 0,
+      activeGrowth: 0,
+      monthlyRevenue: 0,
+      revenueGrowth: 0,
+      coinsDistributed: "0",
+      coinsGrowth: 0,
+      totalLounges: 0,
+      totalOrders: 0,
+      achievementsUnlocked: 0,
+    };
+  }
+
+  const [userRows, loungeRows, transactionRows, achievementRows] = await Promise.all([
+    safeRows(db.select({ id: users.id }).from(users), "users"),
+    safeRows(db.select({ id: lounges.id }).from(lounges), "lounges"),
+    safeRows(db.select({ amount: coinTransactions.amount, type: coinTransactions.type }).from(coinTransactions), "coin_transactions"),
+    safeRows(db.select({ id: userAchievements.id }).from(userAchievements), "user_achievements"),
+  ]);
+
+  const coinsDistributed = transactionRows
+    .filter((transaction) => transaction.type === "earn")
+    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+
+  return {
+    totalUsers: userRows.length,
+    userGrowth: 0,
+    activeMembers: userRows.length,
+    activeGrowth: 0,
+    monthlyRevenue: 0,
+    revenueGrowth: 0,
+    coinsDistributed: coinsDistributed.toFixed(2),
+    coinsGrowth: 0,
+    totalLounges: loungeRows.length,
+    totalOrders: 0,
+    achievementsUnlocked: achievementRows.length,
+  };
+}
+
+export type CommunityEvent = {
+  id: number;
+  title: string;
+  description: string;
+  date: Date;
+  imageUrl: string | null;
+};
+
+export async function getCommunityEvents(): Promise<CommunityEvent[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  let rows;
+  try {
+    rows = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.entityType, "event"))
+      .orderBy(desc(auditLog.createdAt));
+  } catch (error) {
+    console.warn("[Database] Optional admin events unavailable", error);
+    return [];
+  }
+
+  return rows.map((row) => {
+    const details = row.details ?? {};
+    return {
+      id: row.id,
+      title: typeof details.title === "string" ? details.title : row.action,
+      description: typeof details.description === "string" ? details.description : "",
+      date: details.date instanceof Date ? details.date : new Date(typeof details.date === "string" ? details.date : row.createdAt),
+      imageUrl: typeof details.imageUrl === "string" ? details.imageUrl : null,
+    };
+  });
+}
+
+export async function createCommunityEvent(input: {
+  userId: number;
+  title: string;
+  description: string;
+  date: Date;
+  imageUrl?: string;
+}) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const details = {
+    title: input.title,
+    description: input.description,
+    date: input.date.toISOString(),
+    imageUrl: input.imageUrl ?? null,
+  };
+
+  const result = await db.insert(auditLog).values({
+    userId: input.userId,
+    action: "community_event",
+    entityType: "event",
+    details,
+  });
+
+  return result;
+}
+
+export async function deleteCommunityEvent(eventId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db.delete(auditLog).where(and(eq(auditLog.id, eventId), eq(auditLog.entityType, "event")));
+  return { success: true } as const;
 }
