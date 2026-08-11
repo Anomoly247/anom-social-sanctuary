@@ -20,16 +20,26 @@ export function registerOAuthRoutes(app: Express) {
       return;
     }
 
-    // CSRF guard: the nonce in `state` must match the one-time cookie that
-    // startLogin set in the browser that began this login. An attacker can
-    // forge `state`, but cannot plant this cookie in the victim's browser.
-    const { nonce } = decodeOAuthState(state);
-    const expectedNonce = parseCookieHeader(req.headers.cookie ?? "")[OAUTH_STATE_COOKIE];
-    if (!nonce || nonce !== expectedNonce) {
-      res.status(403).json({ error: "invalid oauth state" });
+    // CSRF guard: validate state and nonce strictly
+    try {
+      const decodedState = decodeOAuthState(state);
+      const nonce = decodedState?.nonce;
+      const cookies = parseCookieHeader(req.headers.cookie ?? "");
+      const expectedNonce = cookies[OAUTH_STATE_COOKIE];
+
+      console.log("[OAuth Callback] Received state:", state, "Decoded nonce:", nonce, "Expected nonce in cookie:", expectedNonce);
+
+      if (!nonce || !expectedNonce || nonce !== expectedNonce) {
+        console.warn("[OAuth Callback] State/nonce mismatch. Nonce:", nonce, "Expected:", expectedNonce);
+        res.status(403).json({ error: "invalid oauth state", details: { hasNonce: !!nonce, hasExpected: !!expectedNonce } });
+        return;
+      }
+      res.clearCookie(OAUTH_STATE_COOKIE, { path: "/", secure: true, sameSite: "none" });
+    } catch (err) {
+      console.error("[OAuth Callback] Error decoding state:", err);
+      res.status(400).json({ error: "invalid oauth state format" });
       return;
     }
-    res.clearCookie(OAUTH_STATE_COOKIE, { path: "/", secure: true, sameSite: "none" });
 
     try {
       const tokenResponse = await sdk.exchangeCodeForToken(code, state);

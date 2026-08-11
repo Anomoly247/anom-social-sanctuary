@@ -44,3 +44,4 @@
 - [ ] Phase 17: Moderator roles, permission tiers, audit records, and moderation queue UI
 - [ ] Phase 18: Date of birth collection, guardian consent, and Kids Corner gating
 - [ ] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification
+- [x] Diagnose and fix OAuth callback failure in server/_core
