@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Award, Star, Trophy, Heart } from "lucide-react";
+import { startLogin } from "@/const";
 
 export default function Achievements() {
   const { user, isAuthenticated } = useAuth();
@@ -14,9 +15,24 @@ export default function Achievements() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0b0e14] text-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[#7a7f8e] mb-4">Sign in to view your achievements</p>
+      <div className="min-h-screen bg-[#0b0e14] text-white flex flex-col items-center justify-center p-6">
+        <div className="text-center max-w-md bg-[#121620] border-2 border-[#00eaff] rounded-xl p-8 shadow-[0_0_25px_rgba(0,234,255,0.2)]">
+          <h2 className="text-2xl font-bold text-[#00eaff] mb-3">Sanctuary Access</h2>
+          <p className="text-[#7a7f8e] mb-6">Sign in to view your achievements, level up, and earn Anom Coins.</p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => startLogin()}
+              className="px-6 py-3 rounded-lg font-bold text-black bg-[#00eaff] hover:bg-[#00b8cc] transition-all shadow-[0_0_15px_rgba(0,234,255,0.4)] cursor-pointer"
+            >
+              Sign In / Sign Up
+            </button>
+            <button
+              onClick={() => window.location.href = "/"}
+              className="px-6 py-3 rounded-lg font-bold text-white border border-[#ff00cc] hover:bg-[#ff00cc]/10 transition-all cursor-pointer"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -40,7 +56,7 @@ export default function Achievements() {
           </div>
           <button
             onClick={() => window.location.href = "/"}
-            className="btn-neon-cyan px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+            className="btn-neon-cyan px-4 py-2 rounded-lg text-sm flex items-center gap-2 cursor-pointer"
           >
             🏠 Back to Home
           </button>
@@ -69,84 +85,44 @@ export default function Achievements() {
                 {xp} / {xpPerLevel}
               </span>
             </div>
-            <div className="w-full h-4 bg-[#1a1f2e] rounded-full border border-[#7a7f8e] overflow-hidden">
+            <div className="w-full bg-[#1e2330] h-4 rounded-full overflow-hidden p-0.5 border border-[#00eaff]/30">
               <div
-                className="h-full bg-gradient-to-r from-[#ff00cc] to-[#00eaff]"
-                style={{ width: `${xpProgress}%`, transition: "width 0.3s ease" }}
+                className="bg-gradient-to-r from-[#00eaff] to-[#ff00cc] h-full rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(xpProgress, 100)}%` }}
               />
             </div>
           </div>
         </div>
 
         {/* Achievements Grid */}
-        <div>
-          <h2 className="text-2xl font-bold text-[#ff00cc] mb-6">Achievements</h2>
-          {!allAchievements || allAchievements.length === 0 ? (
-            <div
-              className="rounded-lg border-2 border-[#7a7f8e] p-8 text-center"
-              style={{
-                boxShadow: "0 0 10px rgba(122, 127, 142, 0.2)",
-              }}
-            >
-              <p className="text-[#7a7f8e]">No achievements available yet</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allAchievements.map((achievement) => {
-                const isUnlocked = unlockedIds.has(achievement.id);
-                return (
-                  <div
-                    key={achievement.id}
-                    className={`rounded-lg border-2 p-6 transition-all ${
-                      isUnlocked
-                        ? "border-[#ff00cc] bg-[#1a0a1a]"
-                        : "border-[#7a7f8e] bg-[#0b0e14] opacity-60"
-                    }`}
-                    style={{
-                      boxShadow: isUnlocked
-                        ? "0 0 15px rgba(255, 0, 204, 0.2)"
-                        : "0 0 10px rgba(122, 127, 142, 0.1)",
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-white mb-1">{achievement.name}</h3>
-                        <p className="text-[#7a7f8e] text-sm">{achievement.description}</p>
-                      </div>
-                      {isUnlocked ? (
-                        <Award className="w-6 h-6 text-[#ff00cc] flex-shrink-0 ml-2" />
-                      ) : (
-                        <Star className="w-6 h-6 text-[#7a7f8e] flex-shrink-0 ml-2" />
-                      )}
-                    </div>
-
-                    {isUnlocked && (
-                      <div className="text-[#00eaff] text-xs font-bold">✓ UNLOCKED</div>
-                    )}
+        <h2 className="text-2xl font-bold text-[#ff00cc] mb-6">Badge Gallery</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {allAchievements?.map((achievement) => {
+            const isUnlocked = unlockedIds.has(achievement.id);
+            return (
+              <div
+                key={achievement.id}
+                className={`p-6 rounded-xl border-2 transition-all ${
+                  isUnlocked
+                    ? "border-[#00eaff] bg-[#121620] shadow-[0_0_15px_rgba(0,234,255,0.15)]"
+                    : "border-[#2a3042] bg-[#0b0e14]/50 opacity-60"
+                }`}
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`p-3 rounded-lg ${isUnlocked ? "bg-[#00eaff]/20 text-[#00eaff]" : "bg-[#2a3042] text-[#7a7f8e]"}`}>
+                    <Award className="w-8 h-8" />
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Achievement Categories */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-lg border-2 border-[#8b00ff] p-6" style={{ boxShadow: "0 0 15px rgba(139, 0, 255, 0.2)" }}>
-            <Heart className="w-8 h-8 text-[#8b00ff] mb-3" />
-            <h3 className="font-bold text-white mb-2">Social Good</h3>
-            <p className="text-[#7a7f8e] text-sm">Earn by helping others and spreading positivity</p>
-          </div>
-          <div className="rounded-lg border-2 border-[#00eaff] p-6" style={{ boxShadow: "0 0 15px rgba(0, 234, 255, 0.2)" }}>
-            <Trophy className="w-8 h-8 text-[#00eaff] mb-3" />
-            <h3 className="font-bold text-white mb-2">Games</h3>
-            <p className="text-[#7a7f8e] text-sm">Unlock badges by winning mini-games</p>
-          </div>
-          <div className="rounded-lg border-2 border-[#ff00cc] p-6" style={{ boxShadow: "0 0 15px rgba(255, 0, 204, 0.2)" }}>
-            <Star className="w-8 h-8 text-[#ff00cc] mb-3" />
-            <h3 className="font-bold text-white mb-2">Milestones</h3>
-            <p className="text-[#7a7f8e] text-sm">Reach level milestones and community goals</p>
-          </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-white">{achievement.name}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded ${isUnlocked ? "bg-[#00eaff]/20 text-[#00eaff]" : "bg-[#2a3042] text-[#7a7f8e]"}`}>
+                      {isUnlocked ? "Unlocked" : "Locked"}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-[#7a7f8e] text-sm">{achievement.description}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

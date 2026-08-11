@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { Coins, TrendingUp, TrendingDown, Zap } from "lucide-react";
+import { startLogin } from "@/const";
 
 export default function Wallet() {
   const { user, isAuthenticated } = useAuth();
@@ -14,9 +15,24 @@ export default function Wallet() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0b0e14] text-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[#7a7f8e] mb-4">Sign in to view your Anom Coin wallet</p>
+      <div className="min-h-screen bg-[#0b0e14] text-white flex flex-col items-center justify-center p-6">
+        <div className="text-center max-w-md bg-[#121620] border-2 border-[#ff00cc] rounded-xl p-8 shadow-[0_0_25px_rgba(255,0,204,0.2)]">
+          <h2 className="text-2xl font-bold text-[#ff00cc] mb-3">Wallet Access</h2>
+          <p className="text-[#7a7f8e] mb-6">Sign in to view your Anom Coin balance and transaction history.</p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => startLogin()}
+              className="px-6 py-3 rounded-lg font-bold text-black bg-[#ff00cc] hover:bg-[#cc00a3] transition-all shadow-[0_0_15px_rgba(255,0,204,0.4)] cursor-pointer"
+            >
+              Sign In / Sign Up
+            </button>
+            <button
+              onClick={() => window.location.href = "/"}
+              className="px-6 py-3 rounded-lg font-bold text-white border border-[#00eaff] hover:bg-[#00eaff]/10 transition-all cursor-pointer"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -36,7 +52,7 @@ export default function Wallet() {
           </div>
           <button
             onClick={() => window.location.href = "/"}
-            className="btn-neon-cyan px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+            className="btn-neon-cyan px-4 py-2 rounded-lg text-sm flex items-center gap-2 cursor-pointer"
           >
             🏠 Back to Home
           </button>
@@ -44,111 +60,50 @@ export default function Wallet() {
 
         {/* Balance Card */}
         <div
-          className="rounded-lg border-2 border-[#ff00cc] p-8 mb-8"
+          className="rounded-lg border-2 border-[#ff00cc] p-8 mb-8 bg-[#121620]"
           style={{
-            boxShadow: "0 0 20px rgba(255, 0, 204, 0.3)",
+            boxShadow: "0 0 20px rgba(255, 0, 204, 0.25)",
           }}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[#7a7f8e] text-sm mb-2">Current Balance</p>
-              <p className="text-5xl font-bold text-[#ff00cc]">{balance}</p>
-              <p className="text-[#00eaff] text-sm mt-2">Anom Coins</p>
+              <p className="text-[#7a7f8e] text-sm mb-1">Available Balance</p>
+              <p className="text-5xl font-bold text-[#ff00cc] flex items-center gap-3">
+                <Coins className="w-10 h-10 text-[#00eaff]" />
+                {balanceLoading ? "..." : balance} AC
+              </p>
             </div>
-            <Coins className="w-24 h-24 text-[#ff00cc] opacity-50" />
           </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Button className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-white font-bold py-6">
-            <Zap className="w-4 h-4 mr-2" />
-            Earn Coins
-          </Button>
-          <Button className="bg-[#00eaff] hover:bg-[#00eaff]/80 text-[#0b0e14] font-bold py-6">
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Spend Coins
-          </Button>
-          <Button className="border-2 border-[#8b00ff] hover:bg-[#8b00ff]/10 text-[#8b00ff] font-bold py-6">
-            <TrendingDown className="w-4 h-4 mr-2" />
-            History
-          </Button>
+          <p className="text-sm text-[#7a7f8e]">Earn Anom Coins by participating in community lounges, rating posts, and completing mission goals.</p>
         </div>
 
         {/* Transaction History */}
-        <div>
-          <h2 className="text-2xl font-bold text-[#00eaff] mb-4">Transaction History</h2>
+        <h2 className="text-2xl font-bold text-[#00eaff] mb-4">Transaction History</h2>
+        <div className="bg-[#121620] border border-[#2a3042] rounded-xl overflow-hidden">
           {historyLoading ? (
-            <div className="text-center py-8">
-              <p className="text-[#7a7f8e]">Loading transactions...</p>
-            </div>
+            <p className="p-6 text-center text-[#7a7f8e]">Loading transactions...</p>
           ) : transactions.length === 0 ? (
-            <div
-              className="rounded-lg border-2 border-[#7a7f8e] p-8 text-center"
-              style={{
-                boxShadow: "0 0 10px rgba(122, 127, 142, 0.2)",
-              }}
-            >
-              <p className="text-[#7a7f8e]">No transactions yet. Start earning Anom Coins!</p>
-            </div>
+            <p className="p-6 text-center text-[#7a7f8e]">No transactions yet. Start engaging to earn coins!</p>
           ) : (
-            <div className="space-y-3">
-              {transactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="rounded-lg border-2 border-[#7a7f8e] p-4 flex items-center justify-between hover:border-[#ff00cc] transition-colors"
-                  style={{
-                    boxShadow: "0 0 10px rgba(122, 127, 142, 0.1)",
-                  }}
-                >
-                  <div className="flex items-center gap-4">
-                    {transaction.type === "earn" ? (
-                      <TrendingUp className="w-6 h-6 text-[#00eaff]" />
-                    ) : (
-                      <TrendingDown className="w-6 h-6 text-[#ff00cc]" />
-                    )}
+            <div className="divide-y divide-[#2a3042]">
+              {transactions.map((tx: any) => (
+                <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-[#181d2c] transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${tx.type === "earn" ? "bg-[#00eaff]/10 text-[#00eaff]" : "bg-[#ff00cc]/10 text-[#ff00cc]"}`}>
+                      {tx.type === "earn" ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                    </div>
                     <div>
-                      <p className="font-bold text-white capitalize">{transaction.reason}</p>
-                      <p className="text-[#7a7f8e] text-sm">
-                        {new Date(transaction.createdAt).toLocaleDateString()}
-                      </p>
+                      <p className="font-medium text-white">{tx.reason}</p>
+                      <p className="text-xs text-[#7a7f8e]">{new Date(tx.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
-                  <div className={`text-lg font-bold ${transaction.type === "earn" ? "text-[#00eaff]" : "text-[#ff00cc]"}`}>
-                    {transaction.type === "earn" ? "+" : "-"}
-                    {transaction.amount}
-                  </div>
+                  <span className={`font-bold ${tx.type === "earn" ? "text-[#00eaff]" : "text-[#ff00cc]"}`}>
+                    {tx.type === "earn" ? "+" : "-"}{tx.amount} AC
+                  </span>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Earning Guide */}
-        <div className="mt-12 rounded-lg border-2 border-[#8b00ff] p-6" style={{ boxShadow: "0 0 15px rgba(139, 0, 255, 0.2)" }}>
-          <h3 className="text-xl font-bold text-[#8b00ff] mb-4">How to Earn Anom Coins</h3>
-          <ul className="space-y-3 text-[#7a7f8e]">
-            <li className="flex items-start gap-3">
-              <span className="text-[#00eaff] font-bold">•</span>
-              <span>Complete Kids Corner lessons and activities</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-[#00eaff] font-bold">•</span>
-              <span>Help others in family and friend lounges</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-[#00eaff] font-bold">•</span>
-              <span>Win mini-games (Trivia, Memory, Mood Matcher, Snack Vault Rush)</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-[#00eaff] font-bold">•</span>
-              <span>Achieve milestones and unlock achievements</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-[#00eaff] font-bold">•</span>
-              <span>Participate in community events and challenges</span>
-            </li>
-          </ul>
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import ProfilePhotoManager from "@/components/ProfilePhotoManager";
 import IdentitySyncCard from "@/components/IdentitySyncCard";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { startLogin } from "@/const";
 
 const THEME_OPTIONS = [
   { id: "magenta", name: "Neon Magenta", color: "#ff00cc", preview: "🌸" },
@@ -100,12 +101,18 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0b0e14] text-[#00eaff] flex items-center justify-center">
-        <Card className="border-2 border-[#ff00cc] bg-[#0b0e14]/80 p-8">
-          <p className="text-[#ff00cc] mb-4">Please sign in to view your profile</p>
-          <Button onClick={() => navigate("/")} className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black">
-            Go to Home
-          </Button>
+      <div className="min-h-screen bg-[#0b0e14] text-[#00eaff] flex items-center justify-center p-6">
+        <Card className="border-2 border-[#ff00cc] bg-[#0b0e14]/80 p-8 text-center max-w-md shadow-[0_0_25px_rgba(255,0,204,0.2)]">
+          <h2 className="text-2xl font-bold text-[#ff00cc] mb-3">Sanctuary Profile Access</h2>
+          <p className="text-[#7a7f8e] mb-6">Please sign in to view and customize your profile, theme, and badges.</p>
+          <div className="flex gap-4 justify-center">
+            <Button onClick={() => startLogin()} className="bg-[#ff00cc] hover:bg-[#cc00a3] text-black font-bold">
+              Sign In / Sign Up
+            </Button>
+            <Button onClick={() => navigate("/")} variant="outline" className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10">
+              Back to Home
+            </Button>
+          </div>
         </Card>
       </div>
     );

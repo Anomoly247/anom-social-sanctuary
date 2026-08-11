@@ -10,6 +10,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { toast } from "sonner";
+import { startLogin } from "@/const";
 
 export default function Lounges() {
   const { isAuthenticated, loading } = useAuth();
@@ -72,12 +73,18 @@ export default function Lounges() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0b0e14] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[#00eaff] text-xl mb-4">Please sign in to access lounges</p>
-          <Button className="btn-neon-magenta" onClick={() => navigate("/")}>
-            Back to Home
-          </Button>
+      <div className="min-h-screen bg-[#0b0e14] text-white flex items-center justify-center p-6">
+        <div className="text-center max-w-md bg-[#121620] border-2 border-[#00eaff] rounded-xl p-8 shadow-[0_0_25px_rgba(0,234,255,0.2)]">
+          <h2 className="text-2xl font-bold text-[#00eaff] mb-3">Sanctuary Lounges</h2>
+          <p className="text-[#7a7f8e] mb-6">Please sign in to access community lounges and private chats.</p>
+          <div className="flex gap-4 justify-center">
+            <Button onClick={() => startLogin()} className="bg-[#00eaff] hover:bg-[#00b8cc] text-black font-bold">
+              Sign In / Sign Up
+            </Button>
+            <Button onClick={() => navigate("/")} variant="outline" className="border-[#ff00cc] text-[#ff00cc] hover:bg-[#ff00cc]/10">
+              Back to Home
+            </Button>
+          </div>
         </div>
       </div>
     );
