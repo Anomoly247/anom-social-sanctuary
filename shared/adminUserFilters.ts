@@ -1,4 +1,4 @@
-export type AdminUserRole = "admin" | "user";
+export type AdminUserRole = "user" | "ambassador" | "moderator" | "admin" | "owner";
 export type AdminUserAccountStatus = "active" | "suspended";
 export type AdminUserRoleFilter = "all" | AdminUserRole;
 export type AdminUserStatusFilter = "all" | "active" | "inactive";
@@ -39,18 +39,15 @@ export function filterAdminUsers(
     const searchableText = `${user.id} ${user.name ?? ""} ${user.email ?? ""}`.toLowerCase();
     const matchesQuery = query.length === 0 || searchableText.includes(query);
     const matchesRole = role === "all" || user.role === role;
-    const active = isAdminUserActive(user.lastSignedIn, now);
-    const matchesStatus = status === "all" || (status === "active" ? active : !active);
+    const matchesStatus =
+      status === "all" ||
+      (status === "active" && isAdminUserActive(user.lastSignedIn, now)) ||
+      (status === "inactive" && !isAdminUserActive(user.lastSignedIn, now));
     return matchesQuery && matchesRole && matchesStatus;
   });
 }
 
-export function selectAdminUsers(
-  users: readonly AdminUserSummary[],
-  selectedIds: readonly number[],
-): AdminUserSummary[] {
-  const usersById = new Map(users.map((user) => [user.id, user]));
-  return selectedIds
-    .map((id) => usersById.get(id))
-    .filter((user): user is AdminUserSummary => user !== undefined);
+export function selectAdminUsers(users: readonly AdminUserSummary[], userIds: readonly number[]): AdminUserSummary[] {
+  const idSet = new Set(userIds);
+  return users.filter((user) => idSet.has(user.id));
 }

@@ -35,11 +35,23 @@ export async function takeModerationAction(
   reportId?: number,
   durationHours?: number
 ) {
-  // Permission tiers check
-  if (moderatorRole !== "admin" && moderatorRole !== "owner") {
-    if (actionType === "suspend" || actionType === "ban") {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Ambassadors and moderators cannot suspend or ban users." });
+  // Permission tiers check:
+  // Ambassador: warn, mute (up to 24h), escalate — cannot suspend or ban, cannot timeout or remove content.
+  // Moderator: adds timeout, content removal, suspend — cannot ban.
+  // Admin/owner: adds ban, reinstate, role assignment.
+  if (moderatorRole === "ambassador") {
+    if (!["warn", "mute", "escalate"].includes(actionType)) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Ambassadors can only warn, mute, or escalate reports." });
     }
+    if (actionType === "mute" && durationHours && durationHours > 24) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Ambassadors can only mute up to 24 hours." });
+    }
+  } else if (moderatorRole === "moderator") {
+    if (["ban", "reinstate", "assign_role"].includes(actionType)) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Moderators cannot ban users or assign roles." });
+    }
+  } else if (moderatorRole !== "admin" && moderatorRole !== "owner") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Insufficient permissions to take moderation actions." });
   }
 
   const db = await getDb();

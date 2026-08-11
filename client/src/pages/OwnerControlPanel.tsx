@@ -294,7 +294,7 @@ export default function OwnerControlPanel() {
     undoInFlightRef.current = true;
     try {
       await Promise.all(buildModerationUndoOperations(undoAction).map((operation) => {
-        if ('role' in operation) return updateUserRoleMutation.mutateAsync(operation);
+        if ('role' in operation) return updateUserRoleMutation.mutateAsync({ userId: operation.userId, role: operation.role as any });
         return updateUserStatusMutation.mutateAsync(operation);
       }));
       await Promise.all([refetchUsers(), refetchAuditLogs(), auditSummaryQuery.refetch()]);

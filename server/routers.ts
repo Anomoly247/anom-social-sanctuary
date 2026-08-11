@@ -8,6 +8,7 @@ import { gamesRouter } from "./games.procedures";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getActivityEvents, logActivityEvent, likeActivityEvent, rateActivityEvent, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
 import { submitReport, blockUser, unblockUser, getBlockedUserIds } from "./safety";
+import { getModerationQueue, takeModerationAction } from "./moderation";
 import { getAllFeatureFlags, setFeatureFlag, disableAllUgc, enforceFeatureFlag } from "./featureFlags";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -316,6 +317,39 @@ export const appRouter = router({
     listBlocks: protectedProcedure.query(async ({ ctx }) => {
       return await getBlockedUserIds(ctx.user.id);
     }),
+
+    getModerationQueue: protectedProcedure.query(async ({ ctx }) => {
+      if (!["ambassador", "moderator", "admin", "owner"].includes(ctx.user.role)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Ambassador role or higher required." });
+      }
+      return await getModerationQueue();
+    }),
+
+    takeModerationAction: protectedProcedure
+      .input(
+        z.object({
+          reportId: z.number().optional(),
+          targetUserId: z.number().nullable(),
+          targetType: z.string().nullable(),
+          targetId: z.number().nullable(),
+          actionType: z.enum(["warn", "mute", "timeout", "content_remove", "suspend", "ban", "reinstate"]),
+          reason: z.string().min(1, "Written reason is required"),
+          durationHours: z.number().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return await takeModerationAction(
+          ctx.user.id,
+          ctx.user.role,
+          input.targetUserId ?? null,
+          input.targetType ?? null,
+          input.targetId ?? null,
+          input.actionType,
+          input.reason,
+          input.reportId,
+          input.durationHours
+        );
+      }),
 
     getFeatureFlags: publicProcedure.query(async () => {
       return await getAllFeatureFlags();

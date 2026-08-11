@@ -10,7 +10,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "ambassador", "moderator", "admin", "owner"]).default("user").notNull(),
   status: mysqlEnum("status", ["active", "suspended"]).default("active").notNull(),
   moderatorTier: varchar("moderator_tier", { length: 20 }).default("none"),
   dateOfBirth: timestamp("date_of_birth"),

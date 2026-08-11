@@ -19,6 +19,7 @@ import Admin from "./pages/Admin";
 import PublicProfile from "./pages/PublicProfile";
 import CollaborationStation from "./pages/CollaborationStation";
 import OwnerControlPanel from "./pages/OwnerControlPanel";
+import ModerationQueue from "./pages/ModerationQueue";
 import OwnerSettings from "./pages/OwnerSettings";
 import ColorCustomizer from "./components/ColorCustomizer";
 import YouTubeManager from "./pages/YouTubeManager";
@@ -61,6 +62,7 @@ const AppRoutes = () => {
       <Route path="/mission-hub" component={MissionHub} />
       <Route path="/music-library" component={MusicLibrary} />
       <Route path="/owner" component={OwnerControlPanel} />
+      <Route path="/moderation" component={ModerationQueue} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
