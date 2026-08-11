@@ -44,3 +44,14 @@ A fresh 375×812 screenshot confirmed that `Anom Artsy`, `Welcome, Eliza Wood`, 
 
 The direct sandbox browser could not authenticate the admin account `bethmarieshanley6@gmail.com`, so the post-fix authenticated header was not inspectable through that browser session. The managed authenticated preview capture at 375×812 was used instead; it visibly showed `Anom Artsy`, `Welcome, Eliza Wood`, `Background`, `Owner Panel`, and `Sign Out` fully inside the viewport. The direct browser session independently confirmed the public Home route remained available.
 
+
+## Admin login investigation and fix — 2026-08-11
+
+The copied database already contains the requested account with the correct admin role, and the configured owner identity matches that account’s stored OAuth open ID. The server-side admin guard also correctly accepts `role: "admin"`. The failure was in the client OAuth entrypoints: the Home page, sign-up connectors, dashboard sign-in, and unauthenticated redirect used the legacy `getLoginUrl()` helper, which encoded only the redirect URI and did not create the one-time `__Host-oauth_state` nonce cookie required by `/api/oauth/callback`. The callback therefore rejected the login with `invalid oauth state` before a session could be established.
+
+The fix replaces every interactive login entrypoint with `startLogin()`, which creates the nonce cookie and encodes the matching `{ redirectUri, nonce }` state. The obsolete nonce-free helper was removed to prevent future bypasses. A browser check confirmed that clicking Home → Sign In produces an OAuth URL containing an encoded nonce, and returning to the app origin showed the `__Host-oauth_state` cookie present with a 36-character nonce. The external provider could not be completed for the account in the available browser session, so end-to-end identity-provider completion remains externally constrained.
+
+Regression coverage now includes OAuth state round-tripping/malformed-state rejection and admin guard allow/deny behavior. The full Vitest suite passes: 3 files and 5 tests. The project’s existing TypeScript baseline remains at 33 unrelated diagnostics; none reference the changed OAuth or test files.
+
+
+The owner-role regression test was added with an isolated mocked Drizzle insert path. It confirms that when `upsertUser` receives the configured owner open ID without an explicit role, both the inserted values and duplicate-update set include `role: "admin"`. The full suite now passes 4 files and 6 tests.

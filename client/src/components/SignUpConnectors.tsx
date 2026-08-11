@@ -1,23 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chrome, Github, Mail } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { startLogin } from "@/const";
 
 export default function SignUpConnectors() {
-  const handleGoogleSignUp = () => {
-    // Google OAuth would be configured via environment variables
-    window.location.href = getLoginUrl();
-  };
-
-  const handleGitHubSignUp = () => {
-    // GitHub OAuth would be configured via environment variables
-    window.location.href = getLoginUrl();
-  };
-
-  const handleEmailSignUp = () => {
-    // Email sign-up would open a modal or navigate to signup page
-    window.location.href = getLoginUrl();
-  };
+  const handleGoogleSignUp = startLogin;
+  const handleGitHubSignUp = startLogin;
+  const handleEmailSignUp = startLogin;
 
   return (
     <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-8 max-w-md mx-auto">

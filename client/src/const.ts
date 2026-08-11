@@ -1,6 +1,6 @@
-import { OAUTH_STATE_COOKIE, encodeOAuthState, getLoginUrl as sharedGetLoginUrl } from "@shared/const";
+import { OAUTH_STATE_COOKIE, encodeOAuthState } from "@shared/const";
 
-export { COOKIE_NAME, ONE_YEAR_MS, getLoginUrl } from "@shared/const";
+export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
 // Start the Manus OAuth login. Call this from an event handler or effect at the
 // moment you want to navigate, e.g. `onClick={() => startLogin()}`.
@@ -30,6 +30,4 @@ export const startLogin = () => {
   window.location.href = url.toString();
 };
 
-// Re-export getLoginUrl for backward compatibility
-export { sharedGetLoginUrl };
 

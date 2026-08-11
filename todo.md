@@ -54,7 +54,7 @@
 
 ## Phase 7: Deployment 📋
 - [x] Create initial checkpoint
-- [ ] Test production build
+- [x] Test production build (OAuth/admin-login fix bundles successfully)
 - [ ] Deploy to Manus WebDev
 - [ ] Verify live site functionality
 - [x] Verify dev server is running and document the existing 33 TypeScript errors
@@ -70,3 +70,9 @@
 
 - [x] Fix Home page mobile header clipping so the right-side owner/sign-out controls remain visible at narrow widths (verified at 375px and 1280px)
 - [x] Document that direct sandbox admin login is unavailable for bethmarieshanley6@gmail.com; use managed authenticated preview evidence for this responsive QA
+- [x] Restart and verify the development server after it stopped responding
+- [x] Investigate why bethmarieshanley6@gmail.com cannot obtain the copied project's admin session
+- [x] Verify OAuth owner matching, user upsert, role assignment, and admin route guards without exposing credentials
+- [x] Add regression coverage for owner/admin role assignment and admin access
+- [x] Re-test the login/session path and document the external OAuth limitation
+- [x] Add and run a regression test proving the configured owner open ID is assigned the admin role by upsertUser
