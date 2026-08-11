@@ -44,3 +44,13 @@ export function filterAdminUsers(
     return matchesQuery && matchesRole && matchesStatus;
   });
 }
+
+export function selectAdminUsers(
+  users: readonly AdminUserSummary[],
+  selectedIds: readonly number[],
+): AdminUserSummary[] {
+  const usersById = new Map(users.map((user) => [user.id, user]));
+  return selectedIds
+    .map((id) => usersById.get(id))
+    .filter((user): user is AdminUserSummary => user !== undefined);
+}

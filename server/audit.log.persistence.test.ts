@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { auditLog } from "../drizzle/schema";
-import { createAuditLog, getAuditLogs, getDb } from "./db";
+import { createAuditLog, getAuditLogs, getFilteredAuditLogs, getDb } from "./db";
 
 const testAction = `test_audit_persistence_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
@@ -31,6 +31,15 @@ describe("audit log persistence", () => {
 
     const logs = await getAuditLogs(1000);
     const persisted = logs.find((log) => log.action === testAction);
+    const filtered = await getFilteredAuditLogs({
+      adminQuery: "bethmarieshanley6",
+      actionType: testAction,
+      targetUserQuery: "audit-target@example.com",
+      startDate: new Date("2026-01-01T00:00:00.000Z"),
+      endDate: new Date("2027-01-01T00:00:00.000Z"),
+      limit: 1,
+      offset: 0,
+    });
 
     expect(persisted).toMatchObject({
       userId: 1,
@@ -42,5 +51,8 @@ describe("audit log persistence", () => {
       targetEmail: "audit-target@example.com",
       newStatus: "suspended",
     });
+    expect(filtered.total).toBe(1);
+    expect(filtered.logs).toHaveLength(1);
+    expect(filtered.logs[0]?.action).toBe(testAction);
   });
 });

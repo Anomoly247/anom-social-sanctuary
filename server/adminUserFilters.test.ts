@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterAdminUsers, isAdminUserActive, type AdminUserSummary } from "../shared/adminUserFilters";
+import { filterAdminUsers, isAdminUserActive, selectAdminUsers, type AdminUserSummary } from "../shared/adminUserFilters";
 
 const now = Date.parse("2026-08-11T00:00:00.000Z");
 const users: AdminUserSummary[] = [
@@ -41,5 +41,9 @@ describe("admin user filters", () => {
 
   it("returns an empty list when no users match", () => {
     expect(filterAdminUsers(users, { query: "missing", now })).toEqual([]);
+  });
+
+  it("resolves the exact selected users in selection order for a bulk preview", () => {
+    expect(selectAdminUsers(users, [2, 999, 1])).toEqual([users[1], users[0]]);
   });
 });

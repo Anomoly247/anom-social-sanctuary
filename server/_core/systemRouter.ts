@@ -55,7 +55,7 @@ export const systemRouter = router({
         action: `update_user_role_${input.role}`,
         entityType: "user",
         entityId: input.userId,
-        details: { targetEmail: targetUser.email, previousRole: targetUser.role, newRole: input.role },
+        details: { targetEmail: targetUser.email, targetName: targetUser.name, previousRole: targetUser.role, newRole: input.role },
       });
       return res;
     }),
@@ -77,7 +77,7 @@ export const systemRouter = router({
         action: `update_user_status_${input.status}`,
         entityType: "user",
         entityId: input.userId,
-        details: { targetEmail: targetUser.email, previousStatus: targetUser.status, newStatus: input.status },
+        details: { targetEmail: targetUser.email, targetName: targetUser.name, previousStatus: targetUser.status, newStatus: input.status },
       });
       return res;
     }),
@@ -89,10 +89,13 @@ export const systemRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "You cannot remove your own admin access in a bulk action." });
       }
       const { getUserById, updateUserRole, createAuditLog } = await import("../db");
+      const targetUsers = [];
       for (const id of input.userIds) {
-        if (!await getUserById(id)) {
+        const targetUser = await getUserById(id);
+        if (!targetUser) {
           throw new TRPCError({ code: "NOT_FOUND", message: `User ID ${id} not found.` });
         }
+        targetUsers.push({ id: targetUser.id, name: targetUser.name, email: targetUser.email });
       }
       for (const id of input.userIds) {
         await updateUserRole(id, input.role);
@@ -101,7 +104,7 @@ export const systemRouter = router({
         userId: ctx.user.id,
         action: `bulk_update_user_role_${input.role}`,
         entityType: "user",
-        details: { count: input.userIds.length, userIds: input.userIds, newRole: input.role },
+        details: { count: input.userIds.length, userIds: input.userIds, targets: targetUsers, newRole: input.role },
       });
       return { success: true, count: input.userIds.length } as const;
     }),
@@ -113,10 +116,13 @@ export const systemRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "You cannot suspend your own account in a bulk action." });
       }
       const { getUserById, updateUserStatus, createAuditLog } = await import("../db");
+      const targetUsers = [];
       for (const id of input.userIds) {
-        if (!await getUserById(id)) {
+        const targetUser = await getUserById(id);
+        if (!targetUser) {
           throw new TRPCError({ code: "NOT_FOUND", message: `User ID ${id} not found.` });
         }
+        targetUsers.push({ id: targetUser.id, name: targetUser.name, email: targetUser.email });
       }
       for (const id of input.userIds) {
         await updateUserStatus(id, input.status);
@@ -125,15 +131,93 @@ export const systemRouter = router({
         userId: ctx.user.id,
         action: `bulk_update_user_status_${input.status}`,
         entityType: "user",
-        details: { count: input.userIds.length, userIds: input.userIds, newStatus: input.status },
+        details: { count: input.userIds.length, userIds: input.userIds, targets: targetUsers, newStatus: input.status },
       });
       return { success: true, count: input.userIds.length } as const;
     }),
 
-  getAuditLogs: adminProcedure.query(async () => {
-    const { getAuditLogs } = await import("../db");
-    return getAuditLogs(100);
-  }),
+  getAuditLogs: adminProcedure
+    .input(
+      z.object({
+        adminId: z.number().int().optional(),
+        adminQuery: z.string().optional(),
+        actionType: z.string().optional(),
+        targetUserQuery: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        limit: z.number().int().min(1).max(200).default(25),
+        offset: z.number().int().min(0).default(0),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      const { getFilteredAuditLogs } = await import("../db");
+      const opts = input ?? { adminId: undefined, adminQuery: undefined, actionType: undefined, targetUserQuery: undefined, startDate: undefined, endDate: undefined, limit: 25, offset: 0 };
+      const startDate = opts.startDate ? new Date(opts.startDate) : undefined;
+      const endDate = opts.endDate ? new Date(opts.endDate) : undefined;
+      return getFilteredAuditLogs({
+        adminId: opts.adminId,
+        adminQuery: opts.adminQuery,
+        actionType: opts.actionType,
+        targetUserQuery: opts.targetUserQuery,
+        startDate: isNaN(startDate?.getTime() ?? 0) ? undefined : startDate,
+        endDate: isNaN(endDate?.getTime() ?? 0) ? undefined : endDate,
+        limit: opts.limit ?? 25,
+        offset: opts.offset ?? 0,
+      });
+    }),
+
+  exportAuditLogsCsv: adminProcedure
+    .input(
+      z.object({
+        adminId: z.number().int().optional(),
+        adminQuery: z.string().optional(),
+        actionType: z.string().optional(),
+        targetUserQuery: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional()
+    )
+    .mutation(async ({ input }) => {
+      const { getFilteredAuditLogs } = await import("../db");
+      const opts = input ?? { adminId: undefined, adminQuery: undefined, actionType: undefined, targetUserQuery: undefined, startDate: undefined, endDate: undefined, limit: 25, offset: 0 };
+      const startDate = opts.startDate ? new Date(opts.startDate) : undefined;
+      const endDate = opts.endDate ? new Date(opts.endDate) : undefined;
+      const { logs } = await getFilteredAuditLogs({
+        adminId: opts.adminId,
+        adminQuery: opts.adminQuery,
+        actionType: opts.actionType,
+        targetUserQuery: opts.targetUserQuery,
+        startDate: isNaN(startDate?.getTime() ?? 0) ? undefined : startDate,
+        endDate: isNaN(endDate?.getTime() ?? 0) ? undefined : endDate,
+        limit: 1000,
+        offset: 0,
+      });
+
+      const headers = ["Log ID", "Timestamp", "Admin ID", "Admin Name", "Admin Email", "Action", "Entity Type", "Entity ID", "Details"];
+      const escapeCsv = (val: unknown) => {
+        if (val === null || val === undefined) return '""';
+        const str = typeof val === "object" ? JSON.stringify(val) : String(val);
+        return `"${str.replace(/"/g, '""')}"`;
+      };
+
+      const csvRows = [headers.join(",")];
+      for (const log of logs) {
+        const row = [
+          log.id,
+          new Date(log.createdAt).toISOString(),
+          log.userId ?? "",
+          log.userName ?? "",
+          log.userEmail ?? "",
+          log.action,
+          log.entityType,
+          log.entityId ?? "",
+          log.details ?? {},
+        ];
+        csvRows.push(row.map(escapeCsv).join(","));
+      }
+
+      return { csv: csvRows.join("\n"), count: logs.length };
+    }),
 
   getEvents: adminProcedure.query(async () => {
     const { getCommunityEvents } = await import("../db");

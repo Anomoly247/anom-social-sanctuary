@@ -12,6 +12,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useLocation } from 'wouter';
@@ -19,11 +34,12 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import {
   filterAdminUsers,
   isAdminUserActive,
+  selectAdminUsers,
   type AdminUserRoleFilter,
   type AdminUserStatusFilter,
   type AdminUserSummary,
 } from '../../../shared/adminUserFilters';
-import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff, ScrollText, CheckSquare, Square } from 'lucide-react';
+import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff, ScrollText, CheckSquare, Square, Download, Search, CalendarDays, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
 type PendingModerationAction =
@@ -31,6 +47,15 @@ type PendingModerationAction =
   | { kind: 'status'; userId: number; userLabel: string; nextStatus: 'active' | 'suspended' }
   | { kind: 'bulk-role'; userIds: number[]; nextRole: 'admin' }
   | { kind: 'bulk-status'; userIds: number[]; nextStatus: 'suspended' };
+
+const AUDIT_ACTION_TYPES = [
+  'update_user_role_admin',
+  'update_user_role_user',
+  'update_user_status_active',
+  'update_user_status_suspended',
+  'bulk_update_user_role_admin',
+  'bulk_update_user_status_suspended',
+] as const;
 
 export default function OwnerControlPanel() {
   const { user } = useAuth();
@@ -53,15 +78,34 @@ export default function OwnerControlPanel() {
   const [userRoleFilter, setUserRoleFilter] = useState<AdminUserRoleFilter>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<AdminUserStatusFilter>('all');
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [auditAdminQuery, setAuditAdminQuery] = useState('');
+  const [auditActionType, setAuditActionType] = useState<string>('all');
+  const [auditTargetQuery, setAuditTargetQuery] = useState('');
+  const [auditStartDate, setAuditStartDate] = useState('');
+  const [auditEndDate, setAuditEndDate] = useState('');
+  const [auditPage, setAuditPage] = useState(1);
+  const auditPageSize = 25;
+  const auditQueryInput = useMemo(() => ({
+    adminQuery: auditAdminQuery.trim() || undefined,
+    actionType: auditActionType === 'all' ? undefined : auditActionType,
+    targetUserQuery: auditTargetQuery.trim() || undefined,
+    startDate: auditStartDate ? new Date(`${auditStartDate}T00:00:00.000Z`).toISOString() : undefined,
+    endDate: auditEndDate ? new Date(`${auditEndDate}T23:59:59.999Z`).toISOString() : undefined,
+    limit: auditPageSize,
+    offset: (auditPage - 1) * auditPageSize,
+  }), [auditAdminQuery, auditActionType, auditTargetQuery, auditStartDate, auditEndDate, auditPage]);
 
   // Real-time data queries
   const { data: stats } = trpc.system.getStats.useQuery(undefined, { refetchInterval: 5000 });
   const { data: users = [], refetch: refetchUsers } = trpc.system.getAllUsers.useQuery(undefined, { refetchInterval: 10000 });
   const { data: events = [] } = trpc.system.getEvents.useQuery(undefined, { refetchInterval: 5000 });
-  const { data: auditLogs = [], refetch: refetchAuditLogs } = trpc.system.getAuditLogs.useQuery(undefined, {
+  const auditQuery = trpc.system.getAuditLogs.useQuery(auditQueryInput, {
     enabled: activeTab === 'audit',
     refetchInterval: activeTab === 'audit' ? 5000 : false,
   });
+  const auditLogs = auditQuery.data?.logs ?? [];
+  const auditTotal = auditQuery.data?.total ?? 0;
+  const refetchAuditLogs = auditQuery.refetch;
   const filteredUsers = useMemo(
     () =>
       filterAdminUsers(users, {
@@ -87,8 +131,13 @@ export default function OwnerControlPanel() {
   const updateUserStatusMutation = trpc.system.updateUserStatus.useMutation();
   const bulkUpdateUserRoleMutation = trpc.system.bulkUpdateUserRole.useMutation();
   const bulkUpdateUserStatusMutation = trpc.system.bulkUpdateUserStatus.useMutation();
+  const exportAuditLogsCsvMutation = trpc.system.exportAuditLogsCsv.useMutation();
   const [pendingModerationAction, setPendingModerationAction] = useState<PendingModerationAction | null>(null);
   const isModerationPending = updateUserRoleMutation.isPending || updateUserStatusMutation.isPending || bulkUpdateUserRoleMutation.isPending || bulkUpdateUserStatusMutation.isPending;
+  const auditPageCount = Math.max(1, Math.ceil(auditTotal / auditPageSize));
+  const isBulkModerationAction = pendingModerationAction?.kind === 'bulk-role' || pendingModerationAction?.kind === 'bulk-status';
+  const pendingBulkUserIds = isBulkModerationAction ? pendingModerationAction.userIds : [];
+  const pendingBulkUsers = selectAdminUsers(users, pendingBulkUserIds);
 
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -223,6 +272,39 @@ export default function OwnerControlPanel() {
       toast.error(error instanceof Error ? error.message : 'The moderation action could not be completed.');
     } finally {
       setPendingModerationAction(null);
+    }
+  };
+
+  const resetAuditFilters = () => {
+    setAuditAdminQuery('');
+    setAuditActionType('all');
+    setAuditTargetQuery('');
+    setAuditStartDate('');
+    setAuditEndDate('');
+    setAuditPage(1);
+  };
+
+  const handleExportAuditLogs = async () => {
+    try {
+      const result = await exportAuditLogsCsvMutation.mutateAsync({
+        adminQuery: auditAdminQuery.trim() || undefined,
+        actionType: auditActionType === 'all' ? undefined : auditActionType,
+        targetUserQuery: auditTargetQuery.trim() || undefined,
+        startDate: auditStartDate ? new Date(`${auditStartDate}T00:00:00.000Z`).toISOString() : undefined,
+        endDate: auditEndDate ? new Date(`${auditEndDate}T23:59:59.999Z`).toISOString() : undefined,
+      });
+      const blob = new Blob([result.csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `anom-artsy-audit-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      toast.success(`Exported ${result.count} audit records.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Audit CSV export failed.');
     }
   };
 
@@ -594,37 +676,109 @@ export default function OwnerControlPanel() {
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-2xl font-bold text-[#ff00cc]">Audit Activity</h2>
-              <p className="mt-1 text-sm text-gray-400">Protected record of role and account-status changes.</p>
+              <p className="mt-1 text-sm text-gray-400">Searchable, exportable record of role and account-status changes.</p>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void refetchAuditLogs()}
-              className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10"
-            >
-              Refresh activity
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void refetchAuditLogs()}
+                className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10"
+              >
+                Refresh activity
+              </Button>
+              <Button
+                type="button"
+                onClick={() => void handleExportAuditLogs()}
+                disabled={exportAuditLogsCsvMutation.isPending}
+                className="bg-[#ff00cc] text-black hover:bg-[#ff00cc]/80 disabled:opacity-50"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                {exportAuditLogsCsvMutation.isPending ? 'Preparing CSV...' : 'Export CSV'}
+              </Button>
+            </div>
           </div>
           <Card className="border-2 border-[#00eaff] bg-[#0b0e14]/80 p-4 md:p-6">
-            {auditLogs.length > 0 ? (
+            <div className="mb-5 rounded-lg border border-[#2a2f3e] bg-[#1a1f2e]/70 p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#00eaff]"><Filter className="h-4 w-4" /> Audit filters</div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+                <label className="text-sm text-gray-300">
+                  Administrator
+                  <div className="relative mt-1">
+                    <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input value={auditAdminQuery} onChange={(event) => { setAuditAdminQuery(event.target.value); setAuditPage(1); }} placeholder="Name, email, or ID" className="bg-[#0b0e14] pl-9 text-white" />
+                  </div>
+                </label>
+                <label className="text-sm text-gray-300">
+                  Action type
+                  <select value={auditActionType} onChange={(event) => { setAuditActionType(event.target.value); setAuditPage(1); }} className="mt-1 h-10 w-full rounded-md border border-[#00eaff] bg-[#0b0e14] px-3 text-sm text-white">
+                    <option value="all">All moderation actions</option>
+                    {AUDIT_ACTION_TYPES.map((action) => <option key={action} value={action}>{action.replaceAll('_', ' ')}</option>)}
+                  </select>
+                </label>
+                <label className="text-sm text-gray-300">
+                  Target user
+                  <div className="relative mt-1">
+                    <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input value={auditTargetQuery} onChange={(event) => { setAuditTargetQuery(event.target.value); setAuditPage(1); }} placeholder="Email, name, or ID" className="bg-[#0b0e14] pl-9 text-white" />
+                  </div>
+                </label>
+                <label className="text-sm text-gray-300">
+                  From date
+                  <div className="relative mt-1">
+                    <CalendarDays className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input type="date" value={auditStartDate} onChange={(event) => { setAuditStartDate(event.target.value); setAuditPage(1); }} className="bg-[#0b0e14] pl-9 text-white" />
+                  </div>
+                </label>
+                <label className="text-sm text-gray-300">
+                  To date
+                  <div className="relative mt-1">
+                    <CalendarDays className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input type="date" value={auditEndDate} onChange={(event) => { setAuditEndDate(event.target.value); setAuditPage(1); }} className="bg-[#0b0e14] pl-9 text-white" />
+                  </div>
+                </label>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-gray-500">Filters apply to the server-side query and CSV export.</p>
+                <Button type="button" variant="outline" onClick={resetAuditFilters} className="border-[#ff00cc] text-[#ff00cc] hover:bg-[#ff00cc]/10">Clear filters</Button>
+              </div>
+            </div>
+
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-400">
+              <span>Showing {auditTotal === 0 ? 0 : (auditPage - 1) * auditPageSize + 1}–{Math.min(auditPage * auditPageSize, auditTotal)} of {auditTotal} records</span>
+              <span>Page {Math.min(auditPage, auditPageCount)} of {auditPageCount}</span>
+            </div>
+
+            {auditQuery.isLoading ? (
+              <div className="flex min-h-48 flex-col items-center justify-center gap-3 text-center" aria-live="polite">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#00eaff] border-t-transparent" aria-hidden="true" />
+                <p className="text-gray-300">Loading audit activity…</p>
+              </div>
+            ) : auditQuery.isError ? (
+              <div className="flex min-h-48 flex-col items-center justify-center gap-3 text-center" role="alert">
+                <ScrollText className="h-10 w-10 text-[#ff00cc]" />
+                <div>
+                  <p className="text-gray-300">Audit activity could not be loaded.</p>
+                  <p className="mt-1 text-xs text-gray-500">{auditQuery.error?.message || 'The protected audit query returned an error.'}</p>
+                </div>
+                <Button type="button" variant="outline" onClick={() => void refetchAuditLogs()} className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10">Retry query</Button>
+              </div>
+            ) : auditLogs.length > 0 ? (
               <div className="space-y-3">
                 {auditLogs.map((log) => {
                   const details = log.details && typeof log.details === 'object' ? log.details as Record<string, unknown> : {};
                   const targetEmail = typeof details.targetEmail === 'string' ? details.targetEmail : undefined;
+                  const targetName = typeof details.targetName === 'string' ? details.targetName : undefined;
                   const count = typeof details.count === 'number' ? details.count : undefined;
                   return (
                     <article key={log.id} className="rounded-lg border border-[#2a2f3e] bg-[#1a1f2e] p-4 transition-colors hover:border-[#ff00cc]/70">
                       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                         <div>
                           <p className="font-semibold capitalize text-[#ff00cc]">{log.action.replaceAll('_', ' ')}</p>
-                          <p className="text-sm text-gray-300">
-                            By {log.userName || log.userEmail || `Admin #${log.userId ?? 'system'}`}
-                            {targetEmail ? ` → ${targetEmail}` : count ? ` → ${count} users` : ''}
-                          </p>
+                          <p className="text-sm text-gray-300">By {log.userName || log.userEmail || `Admin #${log.userId ?? 'system'}`}</p>
+                          <p className="text-xs text-gray-400">Target: {targetName || targetEmail || (log.entityId ? `User #${log.entityId}` : count ? `${count} users` : 'Bulk selection')}</p>
                         </div>
-                        <time className="text-xs text-gray-500" dateTime={new Date(log.createdAt).toISOString()}>
-                          {new Date(log.createdAt).toLocaleString()}
-                        </time>
+                        <time className="text-xs text-gray-500" dateTime={new Date(log.createdAt).toISOString()}>{new Date(log.createdAt).toLocaleString()}</time>
                       </div>
                     </article>
                   );
@@ -633,10 +787,22 @@ export default function OwnerControlPanel() {
             ) : (
               <div className="py-12 text-center">
                 <ScrollText className="mx-auto mb-3 h-10 w-10 text-[#00eaff]" />
-                <p className="text-gray-300">No moderation activity recorded yet.</p>
-                <p className="mt-1 text-sm text-gray-500">New role and suspension changes will appear here.</p>
+                <p className="text-gray-300">No moderation activity matches these filters.</p>
+                <p className="mt-1 text-sm text-gray-500">Adjust the filters or clear them to see more records.</p>
               </div>
             )}
+
+            <Pagination className="mt-6">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious href="#" aria-disabled={auditPage <= 1} className={auditPage <= 1 ? 'pointer-events-none opacity-40' : undefined} onClick={(event) => { event.preventDefault(); setAuditPage((page) => Math.max(1, page - 1)); }} />
+                </PaginationItem>
+                <PaginationItem><span className="px-3 text-sm text-gray-400">{auditPage} / {auditPageCount}</span></PaginationItem>
+                <PaginationItem>
+                  <PaginationNext href="#" aria-disabled={auditPage >= auditPageCount} className={auditPage >= auditPageCount ? 'pointer-events-none opacity-40' : undefined} onClick={(event) => { event.preventDefault(); setAuditPage((page) => Math.min(auditPageCount, page + 1)); }} />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </Card>
         </div>
       )}
@@ -830,8 +996,51 @@ export default function OwnerControlPanel() {
         </div>
       )}
 
+      <Dialog
+        open={isBulkModerationAction}
+        onOpenChange={(open) => {
+          if (!open && !isModerationPending) setPendingModerationAction(null);
+        }}
+      >
+        <DialogContent className="max-w-2xl border-2 border-[#00eaff] bg-[#0b0e14] text-white shadow-[0_0_35px_rgba(0,234,255,0.3)]">
+          <DialogHeader>
+            <DialogTitle className="text-[#00eaff]">Review bulk moderation impact</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Confirm the exact users and resulting account changes before applying this protected bulk action.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[45vh] space-y-2 overflow-y-auto rounded-lg border border-[#2a2f3e] bg-[#1a1f2e]/70 p-3">
+            {pendingBulkUserIds.map((id) => {
+              const target = users.find((candidate) => candidate.id === id);
+              const isRoleChange = pendingModerationAction?.kind === 'bulk-role';
+              const currentValue = isRoleChange ? (target?.role ?? 'unknown') : (target?.status ?? 'active');
+              const nextValue = isRoleChange ? 'admin' : 'suspended';
+              return (
+                <div key={id} className="flex flex-col gap-2 rounded-md border border-[#2a2f3e] bg-[#0b0e14] p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-white">{target?.name || target?.email || `User #${id}`}</p>
+                    <p className="truncate text-xs text-gray-400">{target?.email || `ID ${id}`}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="rounded bg-gray-500/20 px-2 py-1 text-gray-300">{currentValue}</span>
+                    <span className="text-[#00eaff]">→</span>
+                    <span className={`rounded px-2 py-1 ${isRoleChange ? 'bg-[#ff00cc]/20 text-[#ff00cc]' : 'bg-red-500/20 text-red-300'}`}>{nextValue}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" disabled={isModerationPending} onClick={() => setPendingModerationAction(null)} className="border-[#2a2f3e] bg-transparent text-gray-300 hover:bg-[#1a1f2e] hover:text-white">Cancel</Button>
+            <Button type="button" disabled={isModerationPending || pendingBulkUsers.length !== pendingBulkUserIds.length} onClick={() => void handleConfirmModeration()} className="bg-[#ff00cc] text-black hover:bg-[#ff00cc]/80">
+              {isModerationPending ? 'Applying...' : 'Confirm and apply'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog
-        open={pendingModerationAction !== null}
+        open={pendingModerationAction !== null && !isBulkModerationAction}
         onOpenChange={(open) => {
           if (!open && !isModerationPending) setPendingModerationAction(null);
         }}

@@ -12,7 +12,7 @@ const dbMocks = vi.hoisted(() => ({
   updateUserRole: vi.fn(async (_userId: number, _role: "user" | "admin") => ({ success: true as const })),
   updateUserStatus: vi.fn(async (_userId: number, _status: "active" | "suspended") => ({ success: true as const })),
   createAuditLog: vi.fn(async (_entry: Record<string, unknown>) => undefined),
-  getAuditLogs: vi.fn(async (_limit: number) => []),
+  getFilteredAuditLogs: vi.fn(async (_options: Record<string, unknown>) => ({ logs: [], total: 0 })),
 }));
 
 vi.mock("./db", () => dbMocks);
@@ -122,12 +122,36 @@ describe("system user management procedures", () => {
     expect(dbMocks.updateUserStatus).not.toHaveBeenCalled();
   });
 
-  it("exposes the protected audit activity query", async () => {
+  it("exposes the protected filtered and paginated audit activity query", async () => {
     const caller = appRouter.createCaller(createContext("admin"));
-    dbMocks.getAuditLogs.mockResolvedValueOnce([{ id: 1, action: "bulk_update_user_status_suspended" }]);
+    dbMocks.getFilteredAuditLogs.mockResolvedValueOnce({ logs: [{ id: 1, action: "bulk_update_user_status_suspended" }], total: 1 });
 
-    await expect(caller.system.getAuditLogs()).resolves.toEqual([{ id: 1, action: "bulk_update_user_status_suspended" }]);
-    expect(dbMocks.getAuditLogs).toHaveBeenCalledWith(100);
+    await expect(caller.system.getAuditLogs({ adminQuery: "Eliza", actionType: "bulk_update_user_status_suspended", targetUserQuery: "7", startDate: "2026-01-01T00:00:00.000Z", endDate: "2026-01-31T23:59:59.999Z", limit: 25, offset: 0 })).resolves.toEqual({ logs: [{ id: 1, action: "bulk_update_user_status_suspended" }], total: 1 });
+    expect(dbMocks.getFilteredAuditLogs).toHaveBeenCalledWith(expect.objectContaining({ adminQuery: "Eliza", actionType: "bulk_update_user_status_suspended", targetUserQuery: "7", limit: 25, offset: 0 }));
+  });
+
+  it("exports filtered audit activity as escaped CSV for compliance review", async () => {
+    const caller = appRouter.createCaller(createContext("admin"));
+    dbMocks.getFilteredAuditLogs.mockResolvedValueOnce({
+      logs: [{
+        id: 3,
+        createdAt: new Date("2026-08-11T12:00:00.000Z"),
+        userId: 1,
+        userName: "Eliza Wood",
+        userEmail: "bethmarieshanley6@gmail.com",
+        action: "update_user_status_suspended",
+        entityType: "user",
+        entityId: 7,
+        details: { targetEmail: "target@example.com", note: 'Contains, comma' },
+      }],
+      total: 1,
+    });
+
+    const result = await caller.system.exportAuditLogsCsv({ actionType: "update_user_status_suspended" });
+    expect(result.count).toBe(1);
+    expect(result.csv).toContain("Log ID,Timestamp,Admin ID,Admin Name");
+    expect(result.csv).toContain('"Contains, comma"');
+    expect(dbMocks.getFilteredAuditLogs).toHaveBeenCalledWith(expect.objectContaining({ actionType: "update_user_status_suspended", limit: 1000, offset: 0 }));
   });
 
   it("blocks suspended users before protected procedures run", async () => {

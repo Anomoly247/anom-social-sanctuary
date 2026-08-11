@@ -109,3 +109,11 @@ Full validation after the feature work completed with clean TypeScript checking,
 ### Final responsive inspection after navigation refinement
 
 The final 1280px Users screenshot shows all six navigation tabs on one row, the selection checkbox column, bulk toolbar, individual actions, and no horizontal clipping. The final 1280px Audit screenshot shows the audit heading, protected-record description, refresh action, and empty activity state inside the neon bordered panel. At 375px, Users remains a stacked card layout with the bulk toolbar and full-width action controls, while Audit remains a readable single-column empty state with no overflow. These captures were independently inspected after the final grid change.
+
+## Advanced compliance and bulk preview verification — 2026-08-11
+
+The final Audit Activity screenshots were inspected at 1280px and 375px. Desktop presents administrator, action-type, target-user, from-date, and to-date filters in a single responsive filter panel, with Refresh activity, Export CSV, Clear filters, result counts, and Previous/Next pagination controls. Mobile stacks the same controls without horizontal overflow and keeps the empty-state and pager readable. The Users tab continues to show the mobile card layout and bulk selection toolbar. The bulk preview modal is implemented as a scrollable dialog driven by the selected user IDs; direct interaction is unavailable in the managed preview session, so the exact preview rows are covered by the TypeScript implementation and protected mutation tests.
+
+The filtered audit persistence test now exercises a real database write/read cycle with administrator, action, target-user, date-range, limit, and offset filters. Final type checking and the full suite passed with 22 tests across 8 files. Existing optional-metric warnings for absent legacy tables remain unrelated to this feature.
+
+Interactive verification limitation: the browser session opened `/owner?tab=users` but was blocked by the authentication/captcha gate and rendered Access Denied. Static managed screenshots confirm the responsive Users and Audit layouts; the exact opened bulk-preview modal and live filter/pagination/export actions require an authenticated owner browser session for final manual confirmation.

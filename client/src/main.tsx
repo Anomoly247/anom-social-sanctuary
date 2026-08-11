@@ -10,14 +10,18 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
+let isRedirectingToLogin = false;
+
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
+  if (isRedirectingToLogin) return;
 
   const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
 
   if (!isUnauthorized) return;
 
+  isRedirectingToLogin = true;
   startLogin();
 };
 

@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte, like, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
@@ -1055,5 +1055,95 @@ export async function getAuditLogs(limit = 100) {
   } catch (error) {
     console.warn("[Database] Audit log table unavailable or query failed:", error);
     return [];
+  }
+}
+
+export type AuditLogFilterOptions = {
+  adminId?: number;
+  adminQuery?: string;
+  actionType?: string;
+  targetUserQuery?: string;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+  offset?: number;
+};
+
+export async function getFilteredAuditLogs(options: AuditLogFilterOptions = {}) {
+  const db = await getDb();
+  if (!db) return { logs: [], total: 0 };
+
+  const limit = options.limit ?? 25;
+  const offset = options.offset ?? 0;
+
+  try {
+    const conditions = [];
+    conditions.push(sql`${auditLog.entityType} != 'event'`);
+
+    if (options.adminId !== undefined && options.adminId > 0) {
+      conditions.push(eq(auditLog.userId, options.adminId));
+    }
+    if (options.adminQuery && options.adminQuery.trim() !== '') {
+      const q = `%${options.adminQuery.trim()}%`;
+      conditions.push(or(
+        like(users.name, q),
+        like(users.email, q),
+        sql`cast(${users.id} as char) like ${q}`,
+      ));
+    }
+    if (options.actionType && options.actionType !== 'all') {
+      conditions.push(eq(auditLog.action, options.actionType));
+    }
+    if (options.startDate) {
+      conditions.push(gte(auditLog.createdAt, options.startDate));
+    }
+    if (options.endDate) {
+      conditions.push(lte(auditLog.createdAt, options.endDate));
+    }
+    if (options.targetUserQuery && options.targetUserQuery.trim() !== '') {
+      const q = `%${options.targetUserQuery.trim()}%`;
+      conditions.push(
+        sql`(
+          cast(${auditLog.entityId} as char) like ${q} or
+          json_unquote(json_extract(${auditLog.details}, '$.targetEmail')) like ${q} or
+          json_unquote(json_extract(${auditLog.details}, '$.targetName')) like ${q} or
+          json_search(${auditLog.details}, 'one', ${q}) is not null
+        )`
+      );
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [countRows] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(auditLog)
+      .leftJoin(users, eq(auditLog.userId, users.id))
+      .where(whereClause);
+
+    const total = Number(countRows?.count ?? 0);
+
+    const rows = await db
+      .select({
+        id: auditLog.id,
+        userId: auditLog.userId,
+        action: auditLog.action,
+        entityType: auditLog.entityType,
+        entityId: auditLog.entityId,
+        details: auditLog.details,
+        createdAt: auditLog.createdAt,
+        userName: users.name,
+        userEmail: users.email,
+      })
+      .from(auditLog)
+      .leftJoin(users, eq(auditLog.userId, users.id))
+      .where(whereClause)
+      .orderBy(desc(auditLog.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return { logs: rows, total };
+  } catch (error) {
+    console.warn("[Database] Filtered audit log query failed:", error);
+    return { logs: [], total: 0 };
   }
 }

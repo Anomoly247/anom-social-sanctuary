@@ -107,3 +107,21 @@
 - [x] Add an 'Audit Activity' view to the Owner Control Panel
 - [x] Add regression tests for bulk procedures and audit persistence (including real write/read cleanup coverage)
 - [x] Verify bulk and audit UI at desktop and mobile widths (final screenshots independently inspected after grid refinement)
+
+## Phase 9: Advanced Compliance & Bulk Impact Controls 🔍
+- [x] Add server-side audit log filtering (administrator, action type, target user, date range)
+- [x] Implement audit history pagination and CSV export feature
+- [x] Create a bulk-selection preview modal showing exact impacted users and resulting account changes
+- [x] Add regression tests for filtered audit queries, CSV formatting, and bulk preview selection
+- [x] Verify advanced compliance and bulk impact UI at desktop and mobile widths
+- [x] Add explicit loading and error states to the Audit Activity filtered/paginated query
+- [x] Re-verify filtered audit, pagination, CSV export, and bulk preview flows after loading/error handling
+
+## Phase 10: Auth State Troubleshooting & Recovery 🔐
+- [x] Investigate OAuth callback and session validation for "invalid auth state" errors
+- [x] Check server logs and `.manus-logs/devserver.log` for authentication errors
+- [x] Repair session token or OAuth state validation if needed (added debounced startLogin guard in main.tsx to prevent concurrent query failures from overwriting the OAuth state nonce)
+- [x] Verify admin login and Owner Control Panel session recovery
+- [x] Add regression coverage proving concurrent unauthorized errors trigger only one startLogin call
+- [x] Confirm OAuth callback and admin session recovery under the debounced guard
+- [ ] Add client-side unit test for unauthorized redirect rate-limiting in main.tsx
