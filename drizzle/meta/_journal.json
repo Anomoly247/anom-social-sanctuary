@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1785862067933,
+      "tag": "0000_clammy_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1785863126315,
+      "tag": "0001_purple_red_ghost",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1785863142397,
+      "tag": "0002_lush_squirrel_girl",
+      "breakpoints": true
+    }
+  ]
+}
