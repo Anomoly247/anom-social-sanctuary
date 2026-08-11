@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { eq, and, sql, gt, desc, gte, like, lte, or } from "drizzle-orm";
-import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, activityEvents, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
+import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, activityEvents, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips, userBlocks } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -577,7 +577,7 @@ export async function logActivityEvent(userId: number, loungeId: number | null, 
   }
 }
 
-export async function getLoungeMessages(loungeId: number, limit: number = 50) {
+export async function getLoungeMessages(loungeId: number, limit = 100, currentUserId?: number) {
   const db = await getDb();
   if (!db) return [];
 
@@ -597,7 +597,13 @@ export async function getLoungeMessages(loungeId: number, limit: number = 50) {
       await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS image_url TEXT`);
     } catch (e) {}
 
-    return await db
+    let blockedIds: number[] = [];
+    if (currentUserId) {
+      const blocks = await db.select().from(userBlocks).where(eq(userBlocks.blockerUserId, currentUserId));
+      blockedIds = blocks.map(b => b.blockedUserId);
+    }
+
+    const messages = await db
       .select({
         id: loungeMessages.id,
         loungeId: loungeMessages.loungeId,
@@ -617,6 +623,9 @@ export async function getLoungeMessages(loungeId: number, limit: number = 50) {
       .where(eq(loungeMessages.loungeId, loungeId))
       .orderBy(loungeMessages.createdAt)
       .limit(limit);
+
+    if (blockedIds.length === 0) return messages;
+    return messages.filter(m => !blockedIds.includes(m.userId));
   } catch (error) {
     console.error("[Database] Failed to get lounge messages:", error);
     throw error;
