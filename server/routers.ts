@@ -8,6 +8,7 @@ import { gamesRouter } from "./games.procedures";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getActivityEvents, logActivityEvent, likeActivityEvent, rateActivityEvent, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
 import { submitReport, blockUser, unblockUser, getBlockedUserIds } from "./safety";
+import { getAllFeatureFlags, setFeatureFlag, disableAllUgc, enforceFeatureFlag } from "./featureFlags";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "../shared/const";
@@ -197,6 +198,9 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (input.imageUrl) {
+          await enforceFeatureFlag("lounge_image_upload");
+        }
         const res = await addLoungeMessage(input.loungeId, ctx.user.id, input.content, input.imageUrl);
         await logActivityEvent(ctx.user.id, input.loungeId, "New Lounge Message", `${ctx.user.name || "A member"} posted a message in lounge #${input.loungeId}`, "milestone");
         return res;
@@ -228,12 +232,14 @@ export const appRouter = router({
     toggleReaction: protectedProcedure
       .input(z.object({ messageId: z.number(), emoji: z.string() }))
       .mutation(async ({ ctx, input }) => {
+        await enforceFeatureFlag("lounge_reactions");
         return await toggleMessageReaction(input.messageId, ctx.user.id, input.emoji);
       }),
 
     pinMessage: protectedProcedure
       .input(z.object({ loungeId: z.number(), messageId: z.number(), isPinned: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
+        await enforceFeatureFlag("lounge_pinned_messages");
         const lounge = await getLounge(input.loungeId);
         if (!lounge || lounge.ownerId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Only the lounge owner can pin messages" });
@@ -306,6 +312,26 @@ export const appRouter = router({
 
     listBlocks: protectedProcedure.query(async ({ ctx }) => {
       return await getBlockedUserIds(ctx.user.id);
+    }),
+
+    getFeatureFlags: publicProcedure.query(async () => {
+      return await getAllFeatureFlags();
+    }),
+
+    setFeatureFlag: protectedProcedure
+      .input(z.object({ flagKey: z.string(), value: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required to toggle feature flags." });
+        }
+        return await setFeatureFlag(ctx.user.id, input.flagKey as any, input.value);
+      }),
+
+    disableAllUgc: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required." });
+      }
+      return await disableAllUgc(ctx.user.id);
     }),
   }),
 

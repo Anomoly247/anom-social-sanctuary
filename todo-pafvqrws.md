@@ -42,5 +42,5 @@
 - [ ] Phase 15: Safety schema migration (`reports`, `user_blocks`, `moderation_actions`, `guardian_links`, user extensions, soft deletes)
 - [ ] Phase 16: User-facing reporting and blocking with server-side query enforcement
 - [ ] Phase 17: Moderator roles, permission tiers, audit records, and moderation queue UI
-- [ ] Phase 18: Age assurance, date of birth collection, guardian consent, and Kids Corner gating
+- [ ] Phase 18: Date of birth collection, guardian consent, and Kids Corner gating
 - [ ] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification

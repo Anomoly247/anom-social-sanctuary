@@ -378,6 +378,9 @@ export const platformSettings = mysqlTable("platform_settings", {
   enableCollaboration: boolean("enable_collaboration").default(true),
   enableKidsCorner: boolean("enable_kids_corner").default(true),
   
+  // Feature flags JSON storage
+  featureFlags: json("feature_flags").$type<Record<string, boolean>>(),
+
   // Payment settings
   stripePublicKey: varchar("stripe_public_key", { length: 255 }),
   stripeSecretKey: varchar("stripe_secret_key", { length: 255 }),
@@ -619,3 +622,5 @@ export const guardianLinks = mysqlTable("guardian_links", {
 
 export type GuardianLink = typeof guardianLinks.$inferSelect;
 export type InsertGuardianLink = typeof guardianLinks.$inferInsert;
+
+
