@@ -1,7 +1,7 @@
 import { getDb } from "./db";
 import { sql } from "drizzle-orm";
 
-async function runMigration() {
+export async function ensureSafetyTables() {
   console.log("[Migration] Initializing safety layer database migration...");
   const db = await getDb();
   if (!db) {
@@ -36,6 +36,7 @@ async function runMigration() {
     )`);
 
     // Alter users table
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS moderator_tier VARCHAR(20) DEFAULT 'none'`);
     await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS date_of_birth TIMESTAMP`);
     await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS age_bracket ENUM('under_13', 'teen_13_17', 'adult_18_plus', 'unverified') DEFAULT 'unverified' NOT NULL`);
     await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS restricted_until TIMESTAMP`);
@@ -111,4 +112,4 @@ async function runMigration() {
   }
 }
 
-runMigration();
+ensureSafetyTables().catch(console.error);

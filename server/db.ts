@@ -38,6 +38,13 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
+    try {
+      await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS moderator_tier VARCHAR(20) DEFAULT 'none'`);
+      await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS date_of_birth TIMESTAMP`);
+      await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS age_bracket ENUM('under_13', 'teen_13_17', 'adult_18_plus', 'unverified') DEFAULT 'unverified' NOT NULL`);
+      await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS restricted_until TIMESTAMP`);
+    } catch (e) {}
+
     const values: InsertUser = {
       openId: user.openId,
     };
