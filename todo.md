@@ -125,3 +125,8 @@
 - [x] Add regression coverage proving concurrent unauthorized errors trigger only one startLogin call
 - [x] Confirm OAuth callback and admin session recovery under the debounced guard
 - [x] Add client-side unit test for unauthorized redirect rate-limiting in main.tsx
+
+## Phase 11: Reusable Skill Package (`admin-moderation-audit-workflow`) 📦
+- [x] Initialize skill directory structure with skill-creator
+- [x] Write comprehensive SKILL.md encoding core pillars, database/mutation/UI patterns, and testing discipline
+- [x] Validate skill package with quick_validate.py (passed successfully)
