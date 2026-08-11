@@ -99,3 +99,13 @@ The remote full-story MP4 remains unavailable because the storage proxy redirect
 ### Independent screenshot inspection — moderation actions
 
 The latest 1280×720 screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463981560307397-8504.png` directly shows the Users tab, the full table, the Account active badge, and readable Demote and Suspend buttons in the Actions column without clipping. The latest 375×1114 screenshot `/home/ubuntu/screenshots/webdev-preview-owner-1786463988018879898-5014.png` directly shows the stacked user card, Admin / Active in 30d / Account active badges, and full-width Demote and Suspend buttons inside the card. Both screenshots preserve the dark neon background with magenta and cyan accents; no horizontal overflow is visible. The confirmation dialog is implemented in the shared page markup, while direct click interaction remains limited by screenshot-only verification.
+
+## Bulk moderation and audit activity verification — 2026-08-11
+
+The managed preview Users tab was independently inspected at 1280px and 375px. Desktop shows a clear selection column, Select all visible control, selected-count feedback, Promote selected and Suspend selected actions, and the existing individual moderation controls without table overflow. Mobile shows the same bulk toolbar stacked above readable user cards with accessible checkboxes and full-width controls. The Audit Activity tab was inspected at both widths; its protected-record description, refresh action, empty state, and neon scroll icon remain readable and unclipped. The desktop navigation grid was then adjusted to keep all six tabs on one row at medium and larger widths while retaining two columns on mobile.
+
+Full validation after the feature work completed with clean TypeScript checking, 20 passing Vitest tests across 7 files, and a successful production build. The audit_log table was created additively in the copied database using TiDB-compatible JSON syntax; the first SQL attempt was rejected because TiDB does not accept the generated JSON default expression, and the corrected no-default JSON column succeeded.
+
+### Final responsive inspection after navigation refinement
+
+The final 1280px Users screenshot shows all six navigation tabs on one row, the selection checkbox column, bulk toolbar, individual actions, and no horizontal clipping. The final 1280px Audit screenshot shows the audit heading, protected-record description, refresh action, and empty activity state inside the neon bordered panel. At 375px, Users remains a stacked card layout with the bulk toolbar and full-width action controls, while Audit remains a readable single-column empty state with no overflow. These captures were independently inspected after the final grid change.

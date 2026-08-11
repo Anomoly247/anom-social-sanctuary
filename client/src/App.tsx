@@ -82,7 +82,23 @@ function App() {
         // switchable
       >
         <TooltipProvider>
-          <Toaster />
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            expand
+            visibleToasts={4}
+            toastOptions={{
+              duration: 4500,
+              classNames: {
+                toast: 'border-2 border-[#00eaff] bg-[#0b0e14] text-white shadow-[0_0_30px_rgba(0,234,255,0.25)] animate-in slide-in-from-right-4 fade-in duration-300',
+                title: 'font-semibold text-white',
+                description: 'text-gray-400',
+                success: 'border-[#00ff88] shadow-[0_0_30px_rgba(0,255,136,0.25)]',
+                error: 'border-[#ff00cc] shadow-[0_0_30px_rgba(255,0,204,0.3)]',
+              },
+            }}
+          />
           <ColorCustomizer />
           <AppRoutes />
           {isAuthenticated && <ChatWidget />}

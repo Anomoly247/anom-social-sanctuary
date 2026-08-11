@@ -44,11 +44,20 @@ export const systemRouter = router({
       if (input.userId === ctx.user.id && input.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "You cannot remove your own admin access." });
       }
-      const { getUserById, updateUserRole } = await import("../db");
-      if (!await getUserById(input.userId)) {
+      const { getUserById, updateUserRole, createAuditLog } = await import("../db");
+      const targetUser = await getUserById(input.userId);
+      if (!targetUser) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found." });
       }
-      return updateUserRole(input.userId, input.role);
+      const res = await updateUserRole(input.userId, input.role);
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: `update_user_role_${input.role}`,
+        entityType: "user",
+        entityId: input.userId,
+        details: { targetEmail: targetUser.email, previousRole: targetUser.role, newRole: input.role },
+      });
+      return res;
     }),
 
   updateUserStatus: adminProcedure
@@ -57,12 +66,74 @@ export const systemRouter = router({
       if (input.userId === ctx.user.id && input.status === "suspended") {
         throw new TRPCError({ code: "FORBIDDEN", message: "You cannot suspend your own account." });
       }
-      const { getUserById, updateUserStatus } = await import("../db");
-      if (!await getUserById(input.userId)) {
+      const { getUserById, updateUserStatus, createAuditLog } = await import("../db");
+      const targetUser = await getUserById(input.userId);
+      if (!targetUser) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found." });
       }
-      return updateUserStatus(input.userId, input.status);
+      const res = await updateUserStatus(input.userId, input.status);
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: `update_user_status_${input.status}`,
+        entityType: "user",
+        entityId: input.userId,
+        details: { targetEmail: targetUser.email, previousStatus: targetUser.status, newStatus: input.status },
+      });
+      return res;
     }),
+
+  bulkUpdateUserRole: adminProcedure
+    .input(z.object({ userIds: z.array(z.number().int().positive()).min(1), role: z.enum(["user", "admin"]) }))
+    .mutation(async ({ ctx, input }) => {
+      if (input.userIds.includes(ctx.user.id) && input.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "You cannot remove your own admin access in a bulk action." });
+      }
+      const { getUserById, updateUserRole, createAuditLog } = await import("../db");
+      for (const id of input.userIds) {
+        if (!await getUserById(id)) {
+          throw new TRPCError({ code: "NOT_FOUND", message: `User ID ${id} not found.` });
+        }
+      }
+      for (const id of input.userIds) {
+        await updateUserRole(id, input.role);
+      }
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: `bulk_update_user_role_${input.role}`,
+        entityType: "user",
+        details: { count: input.userIds.length, userIds: input.userIds, newRole: input.role },
+      });
+      return { success: true, count: input.userIds.length } as const;
+    }),
+
+  bulkUpdateUserStatus: adminProcedure
+    .input(z.object({ userIds: z.array(z.number().int().positive()).min(1), status: z.enum(["active", "suspended"]) }))
+    .mutation(async ({ ctx, input }) => {
+      if (input.userIds.includes(ctx.user.id) && input.status === "suspended") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "You cannot suspend your own account in a bulk action." });
+      }
+      const { getUserById, updateUserStatus, createAuditLog } = await import("../db");
+      for (const id of input.userIds) {
+        if (!await getUserById(id)) {
+          throw new TRPCError({ code: "NOT_FOUND", message: `User ID ${id} not found.` });
+        }
+      }
+      for (const id of input.userIds) {
+        await updateUserStatus(id, input.status);
+      }
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: `bulk_update_user_status_${input.status}`,
+        entityType: "user",
+        details: { count: input.userIds.length, userIds: input.userIds, newStatus: input.status },
+      });
+      return { success: true, count: input.userIds.length } as const;
+    }),
+
+  getAuditLogs: adminProcedure.query(async () => {
+    const { getAuditLogs } = await import("../db");
+    return getAuditLogs(100);
+  }),
 
   getEvents: adminProcedure.query(async () => {
     const { getCommunityEvents } = await import("../db");

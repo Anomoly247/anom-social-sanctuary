@@ -3,9 +3,16 @@ import { TRPCError } from "@trpc/server";
 import type { TrpcContext } from "./_core/context";
 
 const dbMocks = vi.hoisted(() => ({
-  getUserById: vi.fn(async (userId: number) => userId === 999999 ? undefined : ({ id: userId })),
+  getUserById: vi.fn(async (userId: number) => userId === 999999 ? undefined : ({
+    id: userId,
+    email: `target-${userId}@example.com`,
+    role: "user" as const,
+    status: "active" as const,
+  })),
   updateUserRole: vi.fn(async (_userId: number, _role: "user" | "admin") => ({ success: true as const })),
   updateUserStatus: vi.fn(async (_userId: number, _status: "active" | "suspended") => ({ success: true as const })),
+  createAuditLog: vi.fn(async (_entry: Record<string, unknown>) => undefined),
+  getAuditLogs: vi.fn(async (_limit: number) => []),
 }));
 
 vi.mock("./db", () => dbMocks);
@@ -49,6 +56,9 @@ describe("system user management procedures", () => {
 
     expect(dbMocks.updateUserRole).toHaveBeenCalledWith(7, "admin");
     expect(dbMocks.updateUserStatus).toHaveBeenCalledWith(7, "suspended");
+    expect(dbMocks.createAuditLog).toHaveBeenCalledTimes(2);
+    expect(dbMocks.createAuditLog).toHaveBeenCalledWith(expect.objectContaining({ action: "update_user_role_admin", entityId: 7 }));
+    expect(dbMocks.createAuditLog).toHaveBeenCalledWith(expect.objectContaining({ action: "update_user_status_suspended", entityId: 7 }));
   });
 
   it("rejects role and status changes from regular users", async () => {
@@ -86,6 +96,38 @@ describe("system user management procedures", () => {
       code: "NOT_FOUND",
     });
     expect(dbMocks.updateUserRole).not.toHaveBeenCalled();
+  });
+
+  it("allows an admin to promote and suspend multiple selected users atomically at the procedure level", async () => {
+    const caller = appRouter.createCaller(createContext("admin"));
+
+    await expect(caller.system.bulkUpdateUserRole({ userIds: [7, 8], role: "admin" })).resolves.toEqual({ success: true, count: 2 });
+    await expect(caller.system.bulkUpdateUserStatus({ userIds: [7, 8], status: "suspended" })).resolves.toEqual({ success: true, count: 2 });
+
+    expect(dbMocks.updateUserRole).toHaveBeenCalledWith(7, "admin");
+    expect(dbMocks.updateUserRole).toHaveBeenCalledWith(8, "admin");
+    expect(dbMocks.updateUserStatus).toHaveBeenCalledWith(7, "suspended");
+    expect(dbMocks.updateUserStatus).toHaveBeenCalledWith(8, "suspended");
+    expect(dbMocks.createAuditLog).toHaveBeenCalledWith(expect.objectContaining({ action: "bulk_update_user_role_admin" }));
+    expect(dbMocks.createAuditLog).toHaveBeenCalledWith(expect.objectContaining({ action: "bulk_update_user_status_suspended" }));
+  });
+
+  it("rejects bulk actions from regular users and protects the admin from self-suspension", async () => {
+    const regularCaller = appRouter.createCaller(createContext("user"));
+    const adminCaller = appRouter.createCaller(createContext("admin", "active", 1));
+
+    await expect(regularCaller.system.bulkUpdateUserRole({ userIds: [7, 8], role: "admin" })).rejects.toMatchObject<Partial<TRPCError>>({ code: "FORBIDDEN" });
+    await expect(regularCaller.system.bulkUpdateUserStatus({ userIds: [7, 8], status: "suspended" })).rejects.toMatchObject<Partial<TRPCError>>({ code: "FORBIDDEN" });
+    await expect(adminCaller.system.bulkUpdateUserStatus({ userIds: [1, 8], status: "suspended" })).rejects.toMatchObject<Partial<TRPCError>>({ code: "FORBIDDEN" });
+    expect(dbMocks.updateUserStatus).not.toHaveBeenCalled();
+  });
+
+  it("exposes the protected audit activity query", async () => {
+    const caller = appRouter.createCaller(createContext("admin"));
+    dbMocks.getAuditLogs.mockResolvedValueOnce([{ id: 1, action: "bulk_update_user_status_suspended" }]);
+
+    await expect(caller.system.getAuditLogs()).resolves.toEqual([{ id: 1, action: "bulk_update_user_status_suspended" }]);
+    expect(dbMocks.getAuditLogs).toHaveBeenCalledWith(100);
   });
 
   it("blocks suspended users before protected procedures run", async () => {

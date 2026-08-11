@@ -99,3 +99,11 @@
 - [x] Re-verify moderation controls at desktop and mobile widths after enforcement
 - [x] Investigate the remote MP4 403 storage permission issue (confirmed remote CloudFront object permission failure; external re-upload/ACL correction required)
 
+
+## Phase 8: Admin Experience Enhancements 🚀
+- [x] Add animated toast notifications for real-time moderation feedback
+- [x] Implement bulk moderation (multi-select suspension/promotion)
+- [x] Design and implement the audit logging system for admin actions
+- [x] Add an 'Audit Activity' view to the Owner Control Panel
+- [x] Add regression tests for bulk procedures and audit persistence (including real write/read cleanup coverage)
+- [x] Verify bulk and audit UI at desktop and mobile widths (final screenshots independently inspected after grid refinement)

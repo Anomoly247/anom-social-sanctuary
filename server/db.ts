@@ -1006,3 +1006,54 @@ export async function getUserTips(userId: number) {
 
   return db.select().from(tips).where(eq(tips.userId, userId)).orderBy(desc(tips.createdAt));
 }
+
+export async function createAuditLog(entry: {
+  userId?: number;
+  action: string;
+  entityType: string;
+  entityId?: number;
+  details?: Record<string, unknown>;
+}) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot record audit log: database unavailable");
+    return;
+  }
+  try {
+    await db.insert(auditLog).values({
+      userId: entry.userId ?? null,
+      action: entry.action,
+      entityType: entry.entityType,
+      entityId: entry.entityId ?? null,
+      details: entry.details ?? null,
+    });
+  } catch (error) {
+    console.error("[Database] Failed to record audit log:", error);
+  }
+}
+
+export async function getAuditLogs(limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db
+      .select({
+        id: auditLog.id,
+        userId: auditLog.userId,
+        action: auditLog.action,
+        entityType: auditLog.entityType,
+        entityId: auditLog.entityId,
+        details: auditLog.details,
+        createdAt: auditLog.createdAt,
+        userName: users.name,
+        userEmail: users.email,
+      })
+      .from(auditLog)
+      .leftJoin(users, eq(auditLog.userId, users.id))
+      .orderBy(desc(auditLog.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.warn("[Database] Audit log table unavailable or query failed:", error);
+    return [];
+  }
+}

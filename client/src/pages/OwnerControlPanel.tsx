@@ -23,19 +23,21 @@ import {
   type AdminUserStatusFilter,
   type AdminUserSummary,
 } from '../../../shared/adminUserFilters';
-import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff, ScrollText, CheckSquare, Square } from 'lucide-react';
 import { toast } from 'sonner';
 
 type PendingModerationAction =
   | { kind: 'role'; userId: number; userLabel: string; nextRole: 'user' | 'admin' }
-  | { kind: 'status'; userId: number; userLabel: string; nextStatus: 'active' | 'suspended' };
+  | { kind: 'status'; userId: number; userLabel: string; nextStatus: 'active' | 'suspended' }
+  | { kind: 'bulk-role'; userIds: number[]; nextRole: 'admin' }
+  | { kind: 'bulk-status'; userIds: number[]; nextStatus: 'suspended' };
 
 export default function OwnerControlPanel() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
     const requestedTab = new URLSearchParams(window.location.search).get('tab');
-    return ['dashboard', 'users', 'events', 'settings', 'features'].includes(requestedTab ?? '')
+    return ['dashboard', 'users', 'audit', 'events', 'settings', 'features'].includes(requestedTab ?? '')
       ? requestedTab!
       : 'dashboard';
   });
@@ -50,11 +52,16 @@ export default function OwnerControlPanel() {
   const deferredUserQuery = useDeferredValue(userQuery);
   const [userRoleFilter, setUserRoleFilter] = useState<AdminUserRoleFilter>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<AdminUserStatusFilter>('all');
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
 
   // Real-time data queries
   const { data: stats } = trpc.system.getStats.useQuery(undefined, { refetchInterval: 5000 });
   const { data: users = [], refetch: refetchUsers } = trpc.system.getAllUsers.useQuery(undefined, { refetchInterval: 10000 });
   const { data: events = [] } = trpc.system.getEvents.useQuery(undefined, { refetchInterval: 5000 });
+  const { data: auditLogs = [], refetch: refetchAuditLogs } = trpc.system.getAuditLogs.useQuery(undefined, {
+    enabled: activeTab === 'audit',
+    refetchInterval: activeTab === 'audit' ? 5000 : false,
+  });
   const filteredUsers = useMemo(
     () =>
       filterAdminUsers(users, {
@@ -64,6 +71,13 @@ export default function OwnerControlPanel() {
       }),
     [users, deferredUserQuery, userRoleFilter, userStatusFilter],
   );
+  const visibleUserIds = useMemo(() => filteredUsers.map((target) => target.id), [filteredUsers]);
+  const selectedVisibleUserIds = useMemo(
+    () => selectedUserIds.filter((id) => visibleUserIds.includes(id)),
+    [selectedUserIds, visibleUserIds],
+  );
+  const allVisibleUsersSelected = filteredUsers.length > 0 && selectedVisibleUserIds.length === filteredUsers.length;
+  const selectedIncludesCurrentUser = user?.id !== undefined && selectedVisibleUserIds.includes(user.id);
 
   // Mutations
   const updateSettingsMutation = trpc.system.updateSettings.useMutation();
@@ -71,8 +85,10 @@ export default function OwnerControlPanel() {
   const deleteEventMutation = trpc.system.deleteEvent.useMutation();
   const updateUserRoleMutation = trpc.system.updateUserRole.useMutation();
   const updateUserStatusMutation = trpc.system.updateUserStatus.useMutation();
+  const bulkUpdateUserRoleMutation = trpc.system.bulkUpdateUserRole.useMutation();
+  const bulkUpdateUserStatusMutation = trpc.system.bulkUpdateUserStatus.useMutation();
   const [pendingModerationAction, setPendingModerationAction] = useState<PendingModerationAction | null>(null);
-  const isModerationPending = updateUserRoleMutation.isPending || updateUserStatusMutation.isPending;
+  const isModerationPending = updateUserRoleMutation.isPending || updateUserStatusMutation.isPending || bulkUpdateUserRoleMutation.isPending || bulkUpdateUserStatusMutation.isPending;
 
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -160,6 +176,29 @@ export default function OwnerControlPanel() {
     });
   };
 
+  const toggleUserSelection = (userId: number) => {
+    setSelectedUserIds((current) => current.includes(userId)
+      ? current.filter((id) => id !== userId)
+      : [...current, userId]);
+  };
+
+  const toggleAllVisibleUsers = () => {
+    setSelectedUserIds((current) => {
+      if (allVisibleUsersSelected) return current.filter((id) => !visibleUserIds.includes(id));
+      return Array.from(new Set([...current, ...visibleUserIds]));
+    });
+  };
+
+  const requestBulkRoleChange = () => {
+    if (selectedVisibleUserIds.length === 0) return;
+    setPendingModerationAction({ kind: 'bulk-role', userIds: selectedVisibleUserIds, nextRole: 'admin' });
+  };
+
+  const requestBulkStatusChange = () => {
+    if (selectedVisibleUserIds.length === 0) return;
+    setPendingModerationAction({ kind: 'bulk-status', userIds: selectedVisibleUserIds, nextStatus: 'suspended' });
+  };
+
   const handleConfirmModeration = async () => {
     if (!pendingModerationAction) return;
 
@@ -167,12 +206,19 @@ export default function OwnerControlPanel() {
     try {
       if (action.kind === 'role') {
         await updateUserRoleMutation.mutateAsync({ userId: action.userId, role: action.nextRole });
-        toast.success(`${action.userLabel} is now ${action.nextRole === 'admin' ? 'an admin' : 'a member'}.`);
-      } else {
+        toast.success(`${action.userLabel} is now ${action.nextRole === 'admin' ? 'an admin' : 'a member'}.`, { description: 'Role change recorded in the audit stream.' });
+      } else if (action.kind === 'status') {
         await updateUserStatusMutation.mutateAsync({ userId: action.userId, status: action.nextStatus });
-        toast.success(`${action.userLabel} is ${action.nextStatus === 'suspended' ? 'suspended' : 'active'} now.`);
+        toast.success(`${action.userLabel} is ${action.nextStatus === 'suspended' ? 'suspended' : 'active'} now.`, { description: 'Account status change recorded in the audit stream.' });
+      } else if (action.kind === 'bulk-role') {
+        const result = await bulkUpdateUserRoleMutation.mutateAsync({ userIds: action.userIds, role: action.nextRole });
+        toast.success(`${result.count} users promoted.`, { description: 'Bulk role change recorded in the audit stream.' });
+      } else {
+        const result = await bulkUpdateUserStatusMutation.mutateAsync({ userIds: action.userIds, status: action.nextStatus });
+        toast.success(`${result.count} users suspended.`, { description: 'Bulk status change recorded in the audit stream.' });
       }
-      await refetchUsers();
+      setSelectedUserIds([]);
+      await Promise.all([refetchUsers(), refetchAuditLogs()]);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'The moderation action could not be completed.');
     } finally {
@@ -195,10 +241,11 @@ export default function OwnerControlPanel() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
+      <div className="grid grid-cols-2 gap-2 mb-8 md:grid-cols-6">
         {[
           { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
           { id: 'users', label: 'Users', icon: Users },
+          { id: 'audit', label: 'Audit Activity', icon: ScrollText },
           { id: 'events', label: 'Events', icon: Package },
           { id: 'settings', label: 'Settings', icon: Settings },
           { id: 'features', label: 'Features', icon: Zap },
@@ -338,6 +385,46 @@ export default function OwnerControlPanel() {
                 )}
               </div>
             </div>
+            {filteredUsers.length > 0 && (
+              <div className="flex flex-col gap-3 rounded-lg border border-[#2a2f3e] bg-[#1a1f2e]/70 p-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={toggleAllVisibleUsers}
+                    className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10"
+                    aria-pressed={allVisibleUsersSelected}
+                  >
+                    {allVisibleUsersSelected ? <CheckSquare className="mr-2 h-4 w-4" /> : <Square className="mr-2 h-4 w-4" />}
+                    {allVisibleUsersSelected ? 'Clear visible selection' : 'Select all visible'}
+                  </Button>
+                  <span className="text-sm text-gray-400" aria-live="polite">
+                    {selectedVisibleUserIds.length} selected
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 min-[420px]:flex-row">
+                  <Button
+                    type="button"
+                    onClick={requestBulkRoleChange}
+                    disabled={selectedVisibleUserIds.length === 0 || isModerationPending}
+                    className="bg-[#ff00cc] text-black hover:bg-[#ff00cc]/80 disabled:opacity-40"
+                  >
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Promote selected
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={requestBulkStatusChange}
+                    disabled={selectedVisibleUserIds.length === 0 || selectedIncludesCurrentUser || isModerationPending}
+                    className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 disabled:opacity-40"
+                    title={selectedIncludesCurrentUser ? 'Deselect your own account before suspending users.' : undefined}
+                  >
+                    Suspend selected
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="space-y-3 md:hidden">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((u) => {
@@ -345,9 +432,18 @@ export default function OwnerControlPanel() {
                   return (
                     <article key={u.id} className="rounded-lg border border-[#2a2f3e] bg-[#1a1f2e] p-4">
                       <div className="mb-3 flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-bold text-white">{u.name || 'Unnamed user'}</h3>
-                          <p className="break-all text-sm text-gray-400">{u.email || 'No email'}</p>
+                        <div className="flex min-w-0 items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedUserIds.includes(u.id)}
+                            onChange={() => toggleUserSelection(u.id)}
+                            aria-label={`Select ${u.name || u.email || `user ${u.id}`} for bulk moderation`}
+                            className="mt-1 h-4 w-4 accent-[#ff00cc]"
+                          />
+                          <div>
+                            <h3 className="font-bold text-white">{u.name || 'Unnamed user'}</h3>
+                            <p className="break-all text-sm text-gray-400">{u.email || 'No email'}</p>
+                          </div>
                         </div>
                         <span className="shrink-0 text-xs text-gray-500">#{u.id}</span>
                       </div>
@@ -398,6 +494,15 @@ export default function OwnerControlPanel() {
                 <caption className="sr-only">Filtered Anom Artsy users</caption>
                 <thead>
                   <tr className="border-b border-[#2a2f3e]">
+                    <th scope="col" className="w-10 py-2 text-left text-[#00eaff]">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleUsersSelected}
+                        onChange={toggleAllVisibleUsers}
+                        aria-label="Select all visible users for bulk moderation"
+                        className="h-4 w-4 accent-[#ff00cc]"
+                      />
+                    </th>
                     <th scope="col" className="text-left py-2 text-[#00eaff]">User ID</th>
                     <th scope="col" className="text-left py-2 text-[#00eaff]">Name</th>
                     <th scope="col" className="text-left py-2 text-[#00eaff]">Email</th>
@@ -413,6 +518,15 @@ export default function OwnerControlPanel() {
                       const active = isAdminUserActive(u.lastSignedIn);
                       return (
                         <tr key={u.id} className="border-b border-[#2a2f3e] hover:bg-[#1a1f2e]">
+                          <td className="py-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedUserIds.includes(u.id)}
+                              onChange={() => toggleUserSelection(u.id)}
+                              aria-label={`Select ${u.name || u.email || `user ${u.id}`} for bulk moderation`}
+                              className="h-4 w-4 accent-[#ff00cc]"
+                            />
+                          </td>
                           <td className="py-2 text-gray-300">{u.id}</td>
                           <td className="py-2 text-gray-300">{u.name || 'Unnamed user'}</td>
                           <td className="py-2 text-gray-300">{u.email || 'No email'}</td>
@@ -462,7 +576,7 @@ export default function OwnerControlPanel() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={7} className="py-10 text-center text-gray-400">
+                      <td colSpan={8} className="py-10 text-center text-gray-400">
                         No users match the current search and filters.
                       </td>
                     </tr>
@@ -470,6 +584,59 @@ export default function OwnerControlPanel() {
                 </tbody>
               </table>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Audit Activity Tab */}
+      {activeTab === 'audit' && (
+        <div>
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-bold text-[#ff00cc]">Audit Activity</h2>
+              <p className="mt-1 text-sm text-gray-400">Protected record of role and account-status changes.</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void refetchAuditLogs()}
+              className="border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10"
+            >
+              Refresh activity
+            </Button>
+          </div>
+          <Card className="border-2 border-[#00eaff] bg-[#0b0e14]/80 p-4 md:p-6">
+            {auditLogs.length > 0 ? (
+              <div className="space-y-3">
+                {auditLogs.map((log) => {
+                  const details = log.details && typeof log.details === 'object' ? log.details as Record<string, unknown> : {};
+                  const targetEmail = typeof details.targetEmail === 'string' ? details.targetEmail : undefined;
+                  const count = typeof details.count === 'number' ? details.count : undefined;
+                  return (
+                    <article key={log.id} className="rounded-lg border border-[#2a2f3e] bg-[#1a1f2e] p-4 transition-colors hover:border-[#ff00cc]/70">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="font-semibold capitalize text-[#ff00cc]">{log.action.replaceAll('_', ' ')}</p>
+                          <p className="text-sm text-gray-300">
+                            By {log.userName || log.userEmail || `Admin #${log.userId ?? 'system'}`}
+                            {targetEmail ? ` → ${targetEmail}` : count ? ` → ${count} users` : ''}
+                          </p>
+                        </div>
+                        <time className="text-xs text-gray-500" dateTime={new Date(log.createdAt).toISOString()}>
+                          {new Date(log.createdAt).toLocaleString()}
+                        </time>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <ScrollText className="mx-auto mb-3 h-10 w-10 text-[#00eaff]" />
+                <p className="text-gray-300">No moderation activity recorded yet.</p>
+                <p className="mt-1 text-sm text-gray-500">New role and suspension changes will appear here.</p>
+              </div>
+            )}
           </Card>
         </div>
       )}
@@ -674,13 +841,21 @@ export default function OwnerControlPanel() {
             <AlertDialogTitle className="text-[#ff00cc]">
               {pendingModerationAction?.kind === 'role'
                 ? `${pendingModerationAction.nextRole === 'admin' ? 'Promote' : 'Demote'} user?`
-                : `${pendingModerationAction?.nextStatus === 'suspended' ? 'Suspend' : 'Activate'} user?`}
+                : pendingModerationAction?.kind === 'status'
+                  ? `${pendingModerationAction.nextStatus === 'suspended' ? 'Suspend' : 'Activate'} user?`
+                  : pendingModerationAction?.kind === 'bulk-role'
+                    ? `Promote ${pendingModerationAction.userIds.length} selected users?`
+                    : `Suspend ${pendingModerationAction?.userIds.length ?? 0} selected users?`}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-300">
               {pendingModerationAction?.kind === 'role'
                 ? `${pendingModerationAction.userLabel} will ${pendingModerationAction.nextRole === 'admin' ? 'receive' : 'lose'} Owner Control Panel access.`
-                : `${pendingModerationAction?.userLabel} will be ${pendingModerationAction?.nextStatus === 'suspended' ? 'blocked from active participation' : 'allowed to participate again'}.`}
-              {' '}This action is recorded through the protected admin endpoint.
+                : pendingModerationAction?.kind === 'status'
+                  ? `${pendingModerationAction.userLabel} will be ${pendingModerationAction.nextStatus === 'suspended' ? 'blocked from active participation' : 'allowed to participate again'}.`
+                  : pendingModerationAction?.kind === 'bulk-role'
+                    ? `${pendingModerationAction.userIds.length} selected users will receive Owner Control Panel access.`
+                    : `${pendingModerationAction?.userIds.length ?? 0} selected users will be blocked from active participation.`}
+              {' '}This action is recorded through the protected admin endpoint and written to the audit activity stream.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
