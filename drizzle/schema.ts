@@ -12,6 +12,10 @@ export const users = mysqlTable("users", {
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   status: mysqlEnum("status", ["active", "suspended"]).default("active").notNull(),
+  moderatorTier: varchar("moderator_tier", { length: 20 }).default("none"),
+  dateOfBirth: timestamp("date_of_birth"),
+  ageBracket: mysqlEnum("age_bracket", ["under_13", "teen_13_17", "adult_18_plus", "unverified"]).default("unverified").notNull(),
+  restrictedUntil: timestamp("restricted_until"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -544,3 +548,74 @@ export const tierPurchases = mysqlTable("tier_purchases", {
 
 export type TierPurchase = typeof tierPurchases.$inferSelect;
 export type InsertTierPurchase = typeof tierPurchases.$inferInsert;
+
+/**
+ * Reports Table — tracks user-submitted content and user reports
+ */
+export const reports = mysqlTable("reports", {
+  id: int("id").autoincrement().primaryKey(),
+  reporterUserId: int("reporter_user_id").notNull(),
+  targetType: mysqlEnum("target_type", ["message", "post", "user", "profile", "lounge"]).notNull(),
+  targetId: int("target_id").notNull(),
+  reason: mysqlEnum("reason", ["harassment", "sexual_content", "violence", "self_harm", "hate", "spam", "child_safety", "other"]).notNull(),
+  details: text("details"),
+  status: mysqlEnum("status", ["open", "in_review", "actioned", "dismissed"]).default("open").notNull(),
+  assignedToUserId: int("assigned_to_user_id"),
+  resolutionNote: text("resolution_note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = typeof reports.$inferInsert;
+
+/**
+ * User Blocks Table — tracks blocks between users
+ */
+export const userBlocks = mysqlTable("user_blocks", {
+  id: int("id").autoincrement().primaryKey(),
+  blockerUserId: int("blocker_user_id").notNull(),
+  blockedUserId: int("blocked_user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type UserBlock = typeof userBlocks.$inferSelect;
+export type InsertUserBlock = typeof userBlocks.$inferInsert;
+
+/**
+ * Moderation Actions Table — specific queryable moderation record
+ */
+export const moderationActions = mysqlTable("moderation_actions", {
+  id: int("id").autoincrement().primaryKey(),
+  moderatorUserId: int("moderator_user_id").notNull(),
+  targetUserId: int("target_user_id"),
+  targetType: varchar("target_type", { length: 50 }),
+  targetId: int("target_id"),
+  actionType: mysqlEnum("action_type", ["warn", "mute", "timeout", "content_remove", "suspend", "ban", "reinstate"]).notNull(),
+  reportId: int("report_id"),
+  reason: text("reason").notNull(),
+  expiresAt: timestamp("expires_at"),
+  reversedAt: timestamp("reversed_at"),
+  reversedByUserId: int("reversed_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ModerationAction = typeof moderationActions.$inferSelect;
+export type InsertModerationAction = typeof moderationActions.$inferInsert;
+
+/**
+ * Guardian Links Table — parental consent and linking for minors
+ */
+export const guardianLinks = mysqlTable("guardian_links", {
+  id: int("id").autoincrement().primaryKey(),
+  guardianUserId: int("guardian_user_id").notNull(),
+  childUserId: int("child_user_id").notNull(),
+  consentStatus: mysqlEnum("consent_status", ["pending", "granted", "revoked"]).default("pending").notNull(),
+  consentMethod: varchar("consent_method", { length: 64 }),
+  consentGrantedAt: timestamp("consent_granted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GuardianLink = typeof guardianLinks.$inferSelect;
+export type InsertGuardianLink = typeof guardianLinks.$inferInsert;

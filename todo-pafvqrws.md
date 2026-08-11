@@ -38,3 +38,9 @@
 - [x] Add achievement reward showcase customizer and live activity feed with rate & like system on Home.tsx
 - [x] Run test suite, type-check, build, and save final checkpoint
 - [x] Add prominent Back to Home navigation to Achievements.tsx, Wallet.tsx, and all other major pages
+- [ ] Phase 14: Feature flag control panel with prerequisites and default-off safety gates
+- [ ] Phase 15: Safety schema migration (`reports`, `user_blocks`, `moderation_actions`, `guardian_links`, user extensions, soft deletes)
+- [ ] Phase 16: User-facing reporting and blocking with server-side query enforcement
+- [ ] Phase 17: Moderator roles, permission tiers, audit records, and moderation queue UI
+- [ ] Phase 18: Age assurance, date of birth collection, guardian consent, and Kids Corner gating
+- [ ] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification

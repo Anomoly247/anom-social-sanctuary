@@ -7,6 +7,7 @@ import { settingsRouter } from "./settings.procedures";
 import { gamesRouter } from "./games.procedures";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getActivityEvents, logActivityEvent, likeActivityEvent, rateActivityEvent, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
+import { submitReport, blockUser, unblockUser, getBlockedUserIds } from "./safety";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "../shared/const";
@@ -275,6 +276,37 @@ export const appRouter = router({
         await rateActivityEvent(input.eventId, ctx.user.id, input.rating);
         return { success: true };
       }),
+  }),
+
+  safety: router({
+    submitReport: protectedProcedure
+      .input(
+        z.object({
+          targetType: z.enum(["message", "post", "user", "profile", "lounge"]),
+          targetId: z.number(),
+          reason: z.enum(["harassment", "sexual_content", "violence", "self_harm", "hate", "spam", "child_safety", "other"]),
+          details: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return await submitReport(ctx.user.id, input.targetType, input.targetId, input.reason, input.details);
+      }),
+
+    blockUser: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await blockUser(ctx.user.id, input.userId);
+      }),
+
+    unblockUser: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await unblockUser(ctx.user.id, input.userId);
+      }),
+
+    listBlocks: protectedProcedure.query(async ({ ctx }) => {
+      return await getBlockedUserIds(ctx.user.id);
+    }),
   }),
 
   merch: router({
