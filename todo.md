@@ -82,3 +82,6 @@
 - [ ] Re-verify the authenticated admin/owner page state that calls system.getStats, system.getAllUsers, and system.getEvents, and confirm the browser console shows no missing-path API errors; current preview route is blocked by captcha and only exposes the anonymous access-denied state
 - [x] Verify backend implementation of system.getStats and system.getAllUsers (passed unit tests); UI inspection is blocked by unauthenticated Access Denied state
 - [x] Verify backend implementation of user list procedure (passed unit tests); UI inspection is blocked by unauthenticated Access Denied state
+- [x] Create the reusable copied-project diagnostic and repair skill (`copied-project-diagnostic-repair`)
+- [x] Run the full Vitest suite covering tRPC and database operations (5 test files, 8 tests passed successfully)
+- [x] Run production build and TypeScript diagnostics and document validation baseline (production build succeeded cleanly in 5.15s; 27 TypeScript diagnostics span server/db.ts and auxiliary admin/membership pages)
