@@ -83,8 +83,8 @@ export default function Lounges() {
       <nav className="border-b border-[#2a2f3e] px-6 py-4 sticky top-0 bg-[#0b0e14]/95 backdrop-blur">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate("/")} className="text-[#7a7f8e]">
-              ← Back
+            <Button onClick={() => navigate("/")} className="bg-[#2a2f3e] hover:bg-[#3a3f4e] text-[#00eaff] gap-1">
+              🏠 Home
             </Button>
             <h1 className="text-2xl font-bold neon-text-magenta">Private Lounges</h1>
           </div>
