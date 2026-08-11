@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Zap, Users, Gamepad2, Heart, Sparkles, ShoppingBag, Upload, Palette } from "lucide-react";
+import { Zap, Users, Gamepad2, Heart, Sparkles, Upload, Palette } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { startLogin } from "@/const";
 import { useLocation } from "wouter";
@@ -78,13 +78,13 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-6">
               <span className="text-[#00eaff]">Social Good</span>
               <span className="text-white"> Meets </span>
-              <span style={{ color: userAccent }}>Creative Power</span>
+              <span className="text-[#ff00cc]">Creative Power</span>
             </h2>
             <p className="text-[#7a7f8e] max-w-2xl mx-auto mb-6">
               Every coin earned, every collaboration started, every voice amplified—it all drives real impact. Join artists, creators, and visionaries building a better world together.
             </p>
             <a href="/mission-hub">
-              <Button style={{ backgroundColor: userAccent, color: '#000' }} className="font-bold text-lg py-4 px-8">
+              <Button className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold text-lg py-4 px-8">
                 Explore the Mission
               </Button>
             </a>

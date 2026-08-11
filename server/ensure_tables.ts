@@ -83,7 +83,18 @@ async function main() {
     lounge_id INT NOT NULL,
     user_id INT NOT NULL,
     content TEXT NOT NULL,
+    is_pinned BOOLEAN DEFAULT false NOT NULL,
+    reactions JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+  )`);
+  await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT false`);
+  await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS reactions JSON`);
+
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS lounge_read_states (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    lounge_id INT NOT NULL,
+    user_id INT NOT NULL,
+    last_read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   )`);
 
   await db.execute(sql`CREATE TABLE IF NOT EXISTS kids_progress (

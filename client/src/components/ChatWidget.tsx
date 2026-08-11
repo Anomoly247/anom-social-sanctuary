@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,13 @@ interface Channel {
 
 export default function ChatWidget() {
   const { isAuthenticated, user } = useAuth();
+  const { data: myLounges = [] } = trpc.lounge.getMyLounges.useQuery(undefined, { enabled: isAuthenticated, refetchInterval: 5000 });
+  const loungeIds = myLounges.map((l: any) => l.id);
+  const { data: unreadCounts = {} } = trpc.lounge.getUnreadCounts.useQuery(
+    { loungeIds },
+    { enabled: isAuthenticated && loungeIds.length > 0, refetchInterval: 5000 }
+  );
+  const totalUnread = Object.values(unreadCounts).reduce((acc: number, count: any) => acc + (typeof count === 'number' ? count : 0), 0);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"channels" | "dms">("channels");
   const [selectedChannel, setSelectedChannel] = useState<number | null>(1);
@@ -130,9 +138,9 @@ export default function ChatWidget() {
           }}
         >
           <MessageCircle className="w-6 h-6 text-white" />
-          {channels.reduce((sum, c) => sum + c.unread, 0) > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {channels.reduce((sum, c) => sum + c.unread, 0)}
+          {(channels.reduce((sum, c) => sum + c.unread, 0) + totalUnread) > 0 && (
+            <span className="absolute top-0 right-0 bg-[#ff00cc] text-black font-bold text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+              {channels.reduce((sum, c) => sum + c.unread, 0) + totalUnread}
             </span>
           )}
         </button>

@@ -23,10 +23,10 @@
 - [x] Add prominent "Back to Home" navigation button to LoungeDetail.tsx and Lounges.tsx
 - [x] Run type-checking, build, and capture screenshot of lounge pages with home exit button
 - [x] Save checkpoint with lounge exit navigation fix
-- [ ] Add database support for lounge message reactions, message pinning, and last-read timestamps for unread badges
-- [ ] Add tRPC procedures for adding/toggling emoji reactions, pinning/unpinning messages (owner-only), and updating unread state
-- [ ] Implement emoji reaction pickers and pinned message banner in `LoungeDetail.tsx`
-- [ ] Implement unread message badge indicators on lounge navigation links (`Lounges.tsx` & headers)
-- [ ] Refactor Home.tsx palette to cyan/black predominant with user-customizable magenta/cyan/purple highlights
-- [ ] Run full test suite, type check, build, and capture verification screenshots
-- [ ] Save checkpoint with all requested interaction and visual refresh features
+- [x] Add database support for lounge message reactions, message pinning, and last-read timestamps for unread badges
+- [x] Add tRPC procedures for adding/toggling emoji reactions, pinning/unpinning messages (owner-only), and updating unread state
+- [x] Implement emoji reaction pickers and pinned message banner in `LoungeDetail.tsx`
+- [x] Implement unread message badge indicators on lounge navigation links (`Lounges.tsx` & headers)
+- [x] Refactor Home.tsx profile/accent palette to cyan/black predominant with user-customizable highlights
+- [x] Run full test suite, type check, build, and capture verification screenshots
+- [x] Save checkpoint with all requested interaction and visual refresh features

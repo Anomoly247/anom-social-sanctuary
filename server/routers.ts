@@ -228,8 +228,12 @@ export const appRouter = router({
       }),
 
     pinMessage: protectedProcedure
-      .input(z.object({ messageId: z.number(), isPinned: z.boolean() }))
-      .mutation(async ({ input }) => {
+      .input(z.object({ loungeId: z.number(), messageId: z.number(), isPinned: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        const lounge = await getLounge(input.loungeId);
+        if (!lounge || lounge.ownerId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Only the lounge owner can pin messages" });
+        }
         return await pinMessage(input.messageId, input.isPinned);
       }),
 

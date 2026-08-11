@@ -230,7 +230,7 @@ export default function LoungeDetail({ params }: LoungeDetailProps) {
                           </div>
                           {isOwner && (
                             <button
-                              onClick={() => pinMessageMutation.mutate({ messageId: msg.id, isPinned: !msg.isPinned })}
+                              onClick={() => pinMessageMutation.mutate({ loungeId, messageId: msg.id, isPinned: !msg.isPinned })}
                               className="text-xs px-2 py-1 rounded bg-[#2a2f3e] text-yellow-400 hover:bg-[#3a3f4e]"
                             >
                               {msg.isPinned ? "Unpin" : "Pin"}
