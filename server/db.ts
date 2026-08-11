@@ -116,6 +116,30 @@ export async function getOrCreateUserProfile(userId: number) {
   }
 
   try {
+    // Ensure table exists on the fly if missing in persistent DB
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS user_profiles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL UNIQUE,
+        bio TEXT,
+        avatar_url TEXT,
+        neon_theme VARCHAR(50) DEFAULT 'magenta',
+        name_color VARCHAR(7) DEFAULT '#00eaff',
+        decoration_package_ids JSON,
+        level INT DEFAULT 1,
+        xp INT DEFAULT 0,
+        anom_coin_balance DECIMAL(10, 2) DEFAULT '0',
+        membership_tier ENUM('basic', 'vip', 'super_vip') DEFAULT 'basic',
+        tier_upgraded_at TIMESTAMP NULL,
+        tier_expires_at TIMESTAMP NULL,
+        coin_multiplier DECIMAL(3, 1) DEFAULT '1.0',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+      )`);
+    } catch (tblErr) {
+      console.warn("[Database] Could not auto-create user_profiles table:", tblErr);
+    }
+
     const result = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
 
     if (result.length > 0) {
