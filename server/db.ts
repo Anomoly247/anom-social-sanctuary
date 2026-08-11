@@ -347,6 +347,23 @@ export async function getUserLounges(userId: number) {
   if (!db) return [];
 
   try {
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS lounges (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        type ENUM('family', 'friends', 'coworkers') NOT NULL,
+        owner_id INT NOT NULL,
+        description TEXT,
+        neon_theme VARCHAR(50) DEFAULT 'magenta',
+        cost_anom DECIMAL(10, 2) DEFAULT '0',
+        cost_real DECIMAL(10, 2) DEFAULT '0',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+      )`);
+    } catch (tblErr) {
+      console.warn("[Database] Could not auto-create lounges table:", tblErr);
+    }
+
     return await db.select().from(lounges).where(eq(lounges.ownerId, userId));
   } catch (error) {
     console.error("[Database] Failed to get user lounges:", error);
