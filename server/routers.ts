@@ -233,6 +233,9 @@ export const appRouter = router({
       .input(z.object({ messageId: z.number(), emoji: z.string() }))
       .mutation(async ({ ctx, input }) => {
         await enforceFeatureFlag("lounge_reactions");
+        if (input.emoji.startsWith("custom:") || input.emoji.startsWith("animated:")) {
+          await enforceFeatureFlag("vip_custom_emoji");
+        }
         return await toggleMessageReaction(input.messageId, ctx.user.id, input.emoji);
       }),
 
