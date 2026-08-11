@@ -55,3 +55,25 @@ Regression coverage now includes OAuth state round-tripping/malformed-state reje
 
 
 The owner-role regression test was added with an isolated mocked Drizzle insert path. It confirms that when `upsertUser` receives the configured owner open ID without an explicit role, both the inserted values and duplicate-update set include `role: "admin"`. The full suite now passes 4 files and 6 tests.
+
+## Published-site verification — 2026-08-11
+
+The published Home page at https://anomsanctuar-4jvcqjfa.manus.space/ loaded successfully with the Anom Artsy title, Social Good First badge, Identity, Amplified hero, sign-in/sign-up controls, and the neon-dark magenta/cyan visual theme. The published /anoms-corner route also loaded successfully with Anom's Corner branding, Pixel and Dot cards, episode selectors, series stats, and a clear temporary-unavailable fallback for the selected full-story media instead of an empty native player.
+
+## Live Pixel navigation verification — 2026-08-11
+
+The published Pixel profile at https://anomsanctuar-4jvcqjfa.manus.space/characters/pixel rendered successfully with Pixel’s traits and stats. Clicking its `View Episodes` control navigated to https://anomsanctuar-4jvcqjfa.manus.space/anoms-corner, confirming the repaired return route works in the published site.
+
+## Owner-panel verification — 2026-08-11
+
+The managed preview screenshot for `/owner` rendered the Owner Control Panel with Dashboard, Users, Events, Settings, and Features tabs. The dashboard statistics displayed Total Users 1, Active Members 1, Revenue $0, Coins Distributed 0.00, Total Lounges 0, Merch Orders 0, and Achievements Unlocked 0. The authenticated Home screenshot also showed Welcome, Eliza Wood and the Owner Panel control. A separate direct browser navigation to the preview `/owner` route remained blocked by the browser CAPTCHA and returned the anonymous Access Denied page, so interactive Users-tab verification is supported by the managed authenticated screenshot but not by the direct sandbox browser session.
+
+The published MP4 URL now redirects to the remote storage object, but the remote object responds HTTP 403 on followed HEAD/range requests. The application correctly surfaces a temporary-unavailable fallback rather than an empty native player; the remaining limitation is remote object availability, not a client TypeScript or range-handling error.
+
+## Direct managed-preview screenshot evidence — 2026-08-11
+
+A managed-preview capture of `/characters/pixel` directly shows Pixel’s neon-magenta portrait ring and glow, magenta/cyan identity badges, dark background, and themed card styling. A simultaneous `/owner` capture directly shows the authenticated Owner Control Panel with Dashboard, Users, Events, Settings, and Features tabs plus stats: Total Users 1, Active Members 1, Revenue $0, Coins Distributed 0.00, Total Lounges 0, Merch Orders 0, and Achievements Unlocked 0. This confirms the owner route and dashboard stats render in the managed authenticated preview. The direct sandbox browser remains separately blocked by CAPTCHA, so interactive Users-tab content inspection is still not available there.
+
+## Independently inspected screenshot evidence — 2026-08-11
+
+The file `/home/ubuntu/screenshots/webdev-preview-characters_pixel-1786462503581324822-1124.png` was visually inspected and directly shows Pixel’s magenta neon portrait ring and glow, cyan/magenta badges, dark background, and neon-themed cards. The file `/home/ubuntu/screenshots/webdev-preview-owner-1786462503232483943-5493.png` was visually inspected and directly shows the authenticated Owner Control Panel, its Dashboard/Users/Events/Settings/Features tabs, and the dashboard statistics cards. The direct browser session remains blocked by CAPTCHA on `/owner`, but the managed screenshot contents are now independently confirmed.
