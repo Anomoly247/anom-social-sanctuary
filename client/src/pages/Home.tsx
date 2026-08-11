@@ -226,15 +226,15 @@ export default function Home() {
         />
       )}
       {/* Navigation */}
-      <nav className="border-b border-[#2a2f3e] px-6 py-4 sticky top-0 bg-[#0b0e14]/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="text-2xl font-bold neon-text-magenta">Anom Artsy</div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-[#7a7f8e]">Welcome, {user?.name}</span>
-            <div className="relative">
+      <nav className="sticky top-0 z-40 border-b border-[#2a2f3e] bg-[#0b0e14]/95 px-3 py-3 backdrop-blur sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="shrink-0 text-xl font-bold neon-text-magenta sm:text-2xl">Anom Artsy</div>
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-4">
+            <span className="col-span-2 min-w-0 truncate text-xs text-[#7a7f8e] sm:col-span-1 sm:text-sm">Welcome, {user?.name}</span>
+            <div className="relative min-w-0">
               <Button 
                 onClick={() => setShowBgMenu(!showBgMenu)}
-                className="bg-[#00eaff]/20 hover:bg-[#00eaff]/30 text-[#00eaff] border border-[#00eaff]"
+                className="w-full bg-[#00eaff]/20 text-[#00eaff] hover:bg-[#00eaff]/30 sm:w-auto"
                 size="sm"
               >
                 <Palette className="w-4 h-4 mr-2" />
@@ -276,11 +276,11 @@ export default function Home() {
               )}
             </div>
             {user?.role === 'admin' && (
-              <Button onClick={() => navigate('/owner')} className="bg-[#a855f7] hover:bg-[#a855f7]/80 text-white font-bold">
+              <Button onClick={() => navigate('/owner')} className="w-full bg-[#a855f7] font-bold text-white hover:bg-[#a855f7]/80 sm:w-auto">
                 Owner Panel
               </Button>
             )}
-            <Button variant="outline" onClick={logout} className="text-[#ff00cc]">
+            <Button variant="outline" onClick={logout} className="w-full text-[#ff00cc] sm:w-auto">
               Sign Out
             </Button>
           </div>

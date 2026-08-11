@@ -48,12 +48,25 @@
 - [ ] Resolve remaining TypeScript errors in admin pages
 - [ ] Test authentication flow
 - [ ] Test tRPC procedures
-- [ ] Test video loading (YouTube + MP4)
+- [x] Test video loading (YouTube switches successfully; MP4 currently fails with HTTP 416)
 - [ ] Test neon-dark theme rendering
-- [ ] Test responsive design
+- [x] Test responsive design at the available mobile preview width
 
 ## Phase 7: Deployment 📋
-- [ ] Create initial checkpoint
+- [x] Create initial checkpoint
 - [ ] Test production build
 - [ ] Deploy to Manus WebDev
 - [ ] Verify live site functionality
+- [x] Verify dev server is running and document the existing 33 TypeScript errors
+- [x] Inspect Home page visual rendering, cyberpunk styling, and navigation links
+- [x] Inspect Anom's Corner (`/anoms-corner`) rendering, VideoPlayer component, and layout
+- [x] Capture desktop and mobile screenshots for visual validation
+- [x] Review `.manus-logs/` (devserver.log, browserConsole.log, networkRequests.log) for errors or warnings
+- [ ] Fix the first Anom's Corner MP4 endpoint returning zero-byte content and HTTP 416 Range Not Satisfiable responses
+- [ ] Inspect the Pixel profile `View Episodes` control, which did not navigate back to Anom's Corner during verification
+- [ ] Resolve the existing 33 TypeScript errors reported by the copied project
+
+- [x] Superseded duplicate: mobile Home header overflow was fixed and verified at 375px width
+
+- [x] Fix Home page mobile header clipping so the right-side owner/sign-out controls remain visible at narrow widths (verified at 375px and 1280px)
+- [x] Document that direct sandbox admin login is unavailable for bethmarieshanley6@gmail.com; use managed authenticated preview evidence for this responsive QA
