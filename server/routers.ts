@@ -6,7 +6,7 @@ import { membershipRouter } from "./membership.procedures";
 import { settingsRouter } from "./settings.procedures";
 import { gamesRouter } from "./games.procedures";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
-import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
+import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getActivityEvents, logActivityEvent, likeActivityEvent, rateActivityEvent, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "../shared/const";
@@ -192,10 +192,13 @@ export const appRouter = router({
         z.object({
           loungeId: z.number(),
           content: z.string().min(1, "Message cannot be empty"),
+          imageUrl: z.string().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        return await addLoungeMessage(input.loungeId, ctx.user.id, input.content);
+        const res = await addLoungeMessage(input.loungeId, ctx.user.id, input.content, input.imageUrl);
+        await logActivityEvent(ctx.user.id, input.loungeId, "New Lounge Message", `${ctx.user.name || "A member"} posted a message in lounge #${input.loungeId}`, "milestone");
+        return res;
       }),
 
     getMessages: protectedProcedure
@@ -234,7 +237,11 @@ export const appRouter = router({
         if (!lounge || lounge.ownerId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Only the lounge owner can pin messages" });
         }
-        return await pinMessage(input.messageId, input.isPinned);
+        const res = await pinMessage(input.messageId, input.isPinned);
+        if (input.isPinned) {
+          await logActivityEvent(ctx.user.id, input.loungeId, "Pinned Announcement", `Owner pinned an announcement in lounge #${input.loungeId}`, "pinned_announcement");
+        }
+        return res;
       }),
 
     markRead: protectedProcedure
@@ -247,6 +254,26 @@ export const appRouter = router({
       .input(z.object({ loungeIds: z.array(z.number()) }))
       .query(async ({ ctx, input }) => {
         return await getUnreadLoungeCounts(ctx.user.id, input.loungeIds);
+      }),
+  }),
+
+  activityFeed: router({
+    list: publicProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        return await getActivityEvents(input?.limit || 20);
+      }),
+    like: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await likeActivityEvent(input.eventId, ctx.user.id);
+        return { success: true };
+      }),
+    rate: protectedProcedure
+      .input(z.object({ eventId: z.number(), rating: z.number().min(1).max(5) }))
+      .mutation(async ({ ctx, input }) => {
+        await rateActivityEvent(input.eventId, ctx.user.id, input.rating);
+        return { success: true };
       }),
   }),
 

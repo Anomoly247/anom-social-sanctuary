@@ -43,20 +43,20 @@
 }
 
 :root {
-  --color-primary: #ff00cc;
-  --color-secondary: #00eaff;
-  --color-accent: #9d4edd;
-  --primary: #ff00cc;
-  --primary-foreground: #0b0e14;
-  --sidebar-primary: #ff00cc;
-  --sidebar-primary-foreground: #0b0e14;
-  --chart-1: #ff00cc;
-  --chart-2: #00eaff;
-  --chart-3: #8b00ff;
-  --chart-4: #ff00cc;
-  --chart-5: #00eaff;
+  --color-primary: #00eaff;
+  --color-secondary: #ff00cc;
+  --color-accent: #ffd700;
+  --primary: #00eaff;
+  --primary-foreground: #000000;
+  --sidebar-primary: #00eaff;
+  --sidebar-primary-foreground: #000000;
+  --chart-1: #00eaff;
+  --chart-2: #ff00cc;
+  --chart-3: #ffd700;
+  --chart-4: #9d4edd;
+  --chart-5: #00ff88;
   --radius: 0.5rem;
-  --background: #0b0e14;
+  --background: #05070a;
   --foreground: #00eaff;
   --card: #1a1f2e;
   --card-foreground: #00eaff;
@@ -246,4 +246,45 @@
       max-width: 1280px;
     }
   }
+}
+
+.btn-neon-cyan {
+  background-color: #00eaff;
+  color: #000000;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(0, 234, 255, 0.4);
+  transition: all 0.2s ease;
+}
+.btn-neon-cyan:hover {
+  background-color: #00bfff;
+  box-shadow: 0 0 20px rgba(0, 234, 255, 0.7);
+}
+
+.btn-neon-magenta {
+  background-color: #ff00cc;
+  color: #000000;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(255, 0, 204, 0.4);
+  transition: all 0.2s ease;
+}
+.btn-neon-magenta:hover {
+  background-color: #e600b8;
+  box-shadow: 0 0 20px rgba(255, 0, 204, 0.7);
+}
+
+.btn-neon-gold {
+  background-color: #ffd700;
+  color: #000000;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+  transition: all 0.2s ease;
+}
+.btn-neon-gold:hover {
+  background-color: #e6c200;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+}
+
+.neon-text-gold {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }

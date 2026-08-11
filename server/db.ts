@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { eq, and, sql, gt, desc, gte, like, lte, or } from "drizzle-orm";
-import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
+import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, activityEvents, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -455,16 +455,118 @@ export async function removeLoungeMember(loungeId: number, userId: number) {
   }
 }
 
-export async function addLoungeMessage(loungeId: number, userId: number, content: string) {
+export async function addLoungeMessage(loungeId: number, userId: number, content: string, imageUrl?: string) {
   const db = await getDb();
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(loungeMessages).values({ loungeId, userId, content });
+    try {
+      await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS image_url TEXT`);
+    } catch (e) {}
+
+    const result = await db.insert(loungeMessages).values({ loungeId, userId, content, imageUrl: imageUrl || null });
     return result;
   } catch (error) {
     console.error("[Database] Failed to add lounge message:", error);
     throw error;
+  }
+}
+
+export async function getActivityEvents(limit: number = 20) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS activity_events (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      lounge_id INT,
+      title VARCHAR(150) NOT NULL,
+      description TEXT NOT NULL,
+      category VARCHAR(50) DEFAULT 'milestone' NOT NULL,
+      likes_count INT DEFAULT 0 NOT NULL,
+      rating_sum INT DEFAULT 0 NOT NULL,
+      rating_count INT DEFAULT 0 NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+    await db.execute(sql`ALTER TABLE activity_events ADD COLUMN IF NOT EXISTS likes_count INT DEFAULT 0`);
+    await db.execute(sql`ALTER TABLE activity_events ADD COLUMN IF NOT EXISTS rating_sum INT DEFAULT 0`);
+    await db.execute(sql`ALTER TABLE activity_events ADD COLUMN IF NOT EXISTS rating_count INT DEFAULT 0`);
+
+    return await db
+      .select({
+        id: activityEvents.id,
+        userId: activityEvents.userId,
+        loungeId: activityEvents.loungeId,
+        title: activityEvents.title,
+        description: activityEvents.description,
+        category: activityEvents.category,
+        likesCount: activityEvents.likesCount,
+        ratingSum: activityEvents.ratingSum,
+        ratingCount: activityEvents.ratingCount,
+        createdAt: activityEvents.createdAt,
+        user: {
+          id: users.id,
+          name: users.name,
+        },
+      })
+      .from(activityEvents)
+      .leftJoin(users, eq(users.id, activityEvents.userId))
+      .orderBy(desc(activityEvents.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error("[Database] Failed to get activity events:", error);
+    return [];
+  }
+}
+
+export async function likeActivityEvent(eventId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.update(activityEvents)
+      .set({ likesCount: sql`likes_count + 1` })
+      .where(eq(activityEvents.id, eventId));
+    await addCoinTransaction(userId, 'earn', '5', 'Liked activity feed item');
+  } catch (error) {
+    console.error("[Database] Failed to like activity event:", error);
+  }
+}
+
+export async function rateActivityEvent(eventId: number, userId: number, rating: number) {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.update(activityEvents)
+      .set({
+        ratingSum: sql`rating_sum + ${rating}`,
+        ratingCount: sql`rating_count + 1`,
+      })
+      .where(eq(activityEvents.id, eventId));
+    await addCoinTransaction(userId, 'earn', '10', 'Rated activity feed item');
+  } catch (error) {
+    console.error("[Database] Failed to rate activity event:", error);
+  }
+}
+
+export async function logActivityEvent(userId: number, loungeId: number | null, title: string, description: string, category: string = "milestone") {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS activity_events (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      lounge_id INT,
+      title VARCHAR(150) NOT NULL,
+      description TEXT NOT NULL,
+      category VARCHAR(50) DEFAULT 'milestone' NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await db.insert(activityEvents).values({ userId, loungeId, title, description, category });
+  } catch (error) {
+    console.error("[Database] Failed to log activity event:", error);
   }
 }
 
@@ -485,6 +587,7 @@ export async function getLoungeMessages(loungeId: number, limit: number = 50) {
       )`);
       await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT false`);
       await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS reactions JSON`);
+      await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS image_url TEXT`);
     } catch (e) {}
 
     return await db

@@ -30,3 +30,10 @@
 - [x] Refactor Home.tsx profile/accent palette to cyan/black predominant with user-customizable highlights
 - [x] Run full test suite, type check, build, and capture verification screenshots
 - [x] Save checkpoint with all requested interaction and visual refresh features
+- [x] Create home activity stream feed for lounge milestones and pinned announcements
+- [x] Enable image uploads and sharing within lounge chat messages
+- [x] Implement VIP custom animated emoji reactions and unlock system
+- [x] Update index.css with black, magenta, cyan, gold, and soft accent palette
+- [x] Add rate/like database table and coin rewards for community interactions
+- [x] Add achievement reward showcase customizer and live activity feed with rate & like system on Home.tsx
+- [x] Run test suite, type-check, build, and save final checkpoint

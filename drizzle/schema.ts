@@ -148,10 +148,30 @@ export const loungeMessages = mysqlTable("lounge_messages", {
   loungeId: int("lounge_id").notNull(),
   userId: int("user_id").notNull(),
   content: text("content").notNull(),
+  imageUrl: text("image_url"),
   isPinned: boolean("is_pinned").default(false).notNull(),
   reactions: json("reactions").$type<Record<string, number[]>>(), // emoji -> array of userIds
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+/**
+ * Activity Feed Events — broadcast recent lounge milestones, pinned announcements, and social updates
+ */
+export const activityEvents = mysqlTable("activity_events", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  loungeId: int("lounge_id"),
+  title: varchar("title", { length: 150 }).notNull(),
+  description: text("description").notNull(),
+  category: varchar("category", { length: 50 }).default("milestone").notNull(), // "milestone", "pinned_announcement", "lounge_created"
+  likesCount: int("likes_count").default(0).notNull(),
+  ratingSum: int("rating_sum").default(0).notNull(),
+  ratingCount: int("rating_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ActivityEvent = typeof activityEvents.$inferSelect;
+export type InsertActivityEvent = typeof activityEvents.$inferInsert;
 
 export type LoungeMessage = typeof loungeMessages.$inferSelect;
 export type InsertLoungeMessage = typeof loungeMessages.$inferInsert;
