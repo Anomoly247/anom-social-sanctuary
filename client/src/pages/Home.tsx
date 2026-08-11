@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Zap, Users, Gamepad2, Heart, Sparkles, ShoppingBag, Upload, Palette } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 import { startLogin } from "@/const";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -11,6 +12,10 @@ import HomepageIntegration from "@/components/HomepageIntegration";
 export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [, navigate] = useLocation();
+  const { data: userProfile } = trpc.profile.getMe.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const userAccent = userProfile?.neonTheme === "cyan" ? "#00eaff" : userProfile?.neonTheme === "purple" ? "#b000ff" : "#ff00cc";
   const [backgroundUrl, setBackgroundUrl] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('homepageBackground') || '';
@@ -33,8 +38,8 @@ export default function Home() {
         {/* Navigation */}
         <nav className="border-b border-[#2a2f3e] px-6 py-4">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="text-2xl font-bold neon-text-magenta">Anom Artsy</div>
-            <Button onClick={startLogin} className="btn-neon-magenta">Sign In</Button>
+            <div className="text-2xl font-bold text-[#00eaff]">Anom Artsy</div>
+            <Button onClick={startLogin} className="bg-[#00eaff] hover:bg-[#00eaff]/80 text-black font-bold">Sign In</Button>
           </div>
         </nav>
 
@@ -42,23 +47,23 @@ export default function Home() {
         <section className="flex-1 px-6 py-20">
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="mb-6 inline-block bg-[#ff00cc]/20 border border-[#ff00cc] rounded-lg px-4 py-2">
-                <p className="text-[#ff00cc] font-bold text-sm">🌍 Social Good First</p>
+              <div className="mb-6 inline-block bg-[#00eaff]/20 border border-[#00eaff] rounded-lg px-4 py-2">
+                <p className="text-[#00eaff] font-bold text-sm">🌍 Social Good First</p>
               </div>
               <h1 className="text-5xl font-bold mb-6">
-                <span className="neon-text-magenta">Identity</span>
-                <span className="text-[#00eaff]">, Amplified</span>
+                <span className="text-[#00eaff]">Identity</span>
+                <span className="text-white">, Amplified</span>
               </h1>
               <p className="text-lg text-[#7a7f8e] mb-8">
-                Join the Anom Artsy community — a neon-lit sanctuary where family comes first, creativity thrives, and your identity matters. Every interaction drives real-world social good impact.
+                Join the Anom Artsy community — a cyan-lit sanctuary where family comes first, creativity thrives, and your identity matters. Every interaction drives real-world social good impact.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={startLogin} className="btn-neon-cyan text-lg py-6 px-8">
+                <Button onClick={startLogin} className="bg-[#00eaff] hover:bg-[#00eaff]/80 text-black font-bold text-lg py-6 px-8">
                   Enter the Universe
                 </Button>
                 <a href="/mission-hub">
-                  <Button className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold text-lg py-6 px-8">
-                    💜 Support Our Mission
+                  <Button className="bg-[#1a1f2e] border border-[#ff00cc] text-[#ff00cc] hover:bg-[#ff00cc]/20 font-bold text-lg py-6 px-8">
+                    Explore the Mission
                   </Button>
                 </a>
               </div>
@@ -68,18 +73,18 @@ export default function Home() {
         </section>
 
         {/* Mission Section */}
-        <section className="bg-gradient-to-r from-[#ff00cc]/10 to-[#00eaff]/10 border-t border-[#ff00cc] px-6 py-16">
+        <section className="bg-gradient-to-r from-[#00eaff]/10 to-[#1a1f2e] border-t border-[#00eaff]/30 px-6 py-16">
           <div className="max-w-7xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
-              <span className="neon-text-magenta">Social Good</span>
-              <span className="text-[#00eaff]"> Meets </span>
-              <span className="neon-text-magenta">Creative Power</span>
+              <span className="text-[#00eaff]">Social Good</span>
+              <span className="text-white"> Meets </span>
+              <span style={{ color: userAccent }}>Creative Power</span>
             </h2>
             <p className="text-[#7a7f8e] max-w-2xl mx-auto mb-6">
               Every coin earned, every collaboration started, every voice amplified—it all drives real impact. Join artists, creators, and visionaries building a better world together.
             </p>
             <a href="/mission-hub">
-              <Button className="btn-neon-magenta text-lg py-4 px-8">
+              <Button style={{ backgroundColor: userAccent, color: '#000' }} className="font-bold text-lg py-4 px-8">
                 Explore the Mission
               </Button>
             </a>
@@ -87,15 +92,15 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section className="bg-[#1a1f2e] border-t border-[#2a2f3e] px-6 py-20">
+        <section className="bg-[#0b0e14] border-t border-[#2a2f3e] px-6 py-20">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-16 neon-text-magenta">
+            <h2 className="text-4xl font-bold text-center mb-16 text-[#00eaff]">
               What Awaits You
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {/* Feature 1 */}
-              <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
-                <Zap className="w-8 h-8 text-[#ff00cc] mb-4" />
+              <div className="bg-[#1a1f2e] border border-[#00eaff]/30 rounded-lg p-6" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
+                <Zap className="w-8 h-8 text-[#00eaff] mb-4" />
                 <h3 className="text-xl font-bold text-[#00eaff] mb-2">Anom Coin Economy</h3>
                 <p className="text-[#7a7f8e]">
                   Earn coins through social good actions, games, and community engagement. Spend them on profile decorations and exclusive lounges.
@@ -103,62 +108,23 @@ export default function Home() {
               </div>
 
               {/* Feature 2 */}
-              <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
+              <div className="bg-[#1a1f2e] border border-[#00eaff]/30 rounded-lg p-6" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
                 <Users className="w-8 h-8 text-[#00eaff] mb-4" />
-                <h3 className="text-xl font-bold text-[#ff00cc] mb-2">Private Lounges</h3>
+                <h3 className="text-xl font-bold text-[#00eaff] mb-2">Private Lounges</h3>
                 <p className="text-[#7a7f8e]">
                   Create family, friend, and coworker lounges. Chat, share goals, and customize your space with neon themes.
                 </p>
               </div>
 
               {/* Feature 3 */}
-              <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
-                <Gamepad2 className="w-8 h-8 text-[#ff00cc] mb-4" />
+              <div className="bg-[#1a1f2e] border border-[#00eaff]/30 rounded-lg p-6" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
+                <Gamepad2 className="w-8 h-8 text-[#00eaff] mb-4" />
                 <h3 className="text-xl font-bold text-[#00eaff] mb-2">Mini-Games</h3>
                 <p className="text-[#7a7f8e]">
                   Play Trivia, Memory, Mood Matcher, and Snack Vault Rush. Earn coins and climb the leaderboard.
                 </p>
               </div>
-
-              {/* Feature 4 */}
-              <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
-                <Heart className="w-8 h-8 text-[#00eaff] mb-4" />
-                <h3 className="text-xl font-bold text-[#ff00cc] mb-2">Anom's Corner</h3>
-                <p className="text-[#7a7f8e] text-sm mb-4">
-                  A safe space for children to watch Pixel & Dot episodes, play Off-Grid Adventure, and color.
-                </p>
-              </div>
-
-              {/* Feature 5 */}
-              <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
-                <Sparkles className="w-8 h-8 text-[#ff00cc] mb-4" />
-                <h3 className="text-xl font-bold text-[#00eaff] mb-2">Profile Customization</h3>
-                <p className="text-[#7a7f8e]">
-                  Apply neon themes, character badges, and mood glows to your profile. No coding required.
-                </p>
-              </div>
-
-              {/* Feature 6 */}
-              <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
-                <ShoppingBag className="w-8 h-8 text-[#00eaff] mb-4" />
-                <h3 className="text-xl font-bold text-[#ff00cc] mb-2">Custom Merch</h3>
-                <p className="text-[#7a7f8e]">
-                  Request your bespoke artwork. We create and fulfill it through our trusted partners.
-                </p>
-              </div>
             </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="px-6 py-20">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6 text-[#00eaff]">
-              Ready to join the Anom Universe?
-            </h2>
-            <Button onClick={startLogin} className="btn-neon-magenta text-lg py-6 px-8">
-              Get Started Now
-            </Button>
           </div>
         </section>
 
@@ -187,8 +153,8 @@ export default function Home() {
 
   const handlePresetBackground = (preset: string) => {
     const presets: Record<string, string> = {
-      gradient1: 'linear-gradient(135deg, rgba(255, 0, 204, 0.1) 0%, rgba(0, 234, 255, 0.1) 100%)',
-      gradient2: 'linear-gradient(135deg, rgba(157, 78, 221, 0.1) 0%, rgba(255, 0, 204, 0.1) 100%)',
+      gradient1: 'linear-gradient(135deg, rgba(0, 234, 255, 0.1) 0%, rgba(11, 14, 20, 0.9) 100%)',
+      gradient2: 'linear-gradient(135deg, rgba(176, 0, 255, 0.1) 0%, rgba(11, 14, 20, 0.9) 100%)',
       gradient3: 'linear-gradient(135deg, rgba(0, 234, 255, 0.1) 0%, rgba(0, 255, 136, 0.1) 100%)',
     };
     setBackgroundUrl(presets[preset] || '');
@@ -222,7 +188,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className="sticky top-0 z-40 border-b border-[#2a2f3e] bg-[#0b0e14]/95 px-3 py-3 backdrop-blur sm:px-6 sm:py-4">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="shrink-0 text-xl font-bold neon-text-magenta sm:text-2xl">Anom Artsy</div>
+          <div className="shrink-0 text-xl font-bold text-[#00eaff] sm:text-2xl">Anom Artsy</div>
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-4">
             <span className="col-span-2 min-w-0 truncate text-xs text-[#7a7f8e] sm:col-span-1 sm:text-sm">Welcome, {user?.name}</span>
             <div className="relative min-w-0">
@@ -241,13 +207,13 @@ export default function Home() {
                       onClick={() => handlePresetBackground('gradient1')}
                       className="w-full text-left px-3 py-2 rounded hover:bg-[#2a2f3e] text-[#00eaff] text-sm"
                     >
-                      Magenta-Cyan
+                      Cyan Glow
                     </button>
                     <button
                       onClick={() => handlePresetBackground('gradient2')}
                       className="w-full text-left px-3 py-2 rounded hover:bg-[#2a2f3e] text-[#00eaff] text-sm"
                     >
-                      Purple-Magenta
+                      Purple Ambient
                     </button>
                     <button
                       onClick={() => handlePresetBackground('gradient3')}
@@ -274,7 +240,7 @@ export default function Home() {
                 Owner Panel
               </Button>
             )}
-            <Button variant="outline" onClick={logout} className="w-full text-[#ff00cc] sm:w-auto">
+            <Button variant="outline" onClick={logout} className="w-full text-[#00eaff] border-[#00eaff] sm:w-auto">
               Sign Out
             </Button>
           </div>
@@ -285,18 +251,18 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-4 gap-6 mb-12">
           {/* Coin Balance */}
-          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
+          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: `0 0 15px ${userAccent}33`}}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#7a7f8e] text-sm">Anom Coin Balance</p>
-                <p className="text-3xl font-bold text-[#ff00cc]">0 AC</p>
+                <p className="text-3xl font-bold" style={{ color: userAccent }}>0 AC</p>
               </div>
-              <Zap className="w-8 h-8 text-[#ff00cc]" />
+              <Zap className="w-8 h-8" style={{ color: userAccent }} />
             </div>
           </div>
 
           {/* Level */}
-          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
+          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#7a7f8e] text-sm">Your Level</p>
@@ -307,18 +273,18 @@ export default function Home() {
           </div>
 
           {/* Achievements */}
-          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
+          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#7a7f8e] text-sm">Achievements</p>
-                <p className="text-3xl font-bold text-[#ff00cc]">0</p>
+                <p className="text-3xl font-bold text-[#00eaff]">0</p>
               </div>
-              <Heart className="w-8 h-8 text-[#ff00cc]" />
+              <Heart className="w-8 h-8 text-[#00eaff]" />
             </div>
           </div>
 
           {/* Lounges */}
-          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
+          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#7a7f8e] text-sm">Your Lounges</p>
@@ -331,37 +297,37 @@ export default function Home() {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
-            <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Quick Actions</h3>
+          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-6" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
+            <h3 className="text-xl font-bold mb-4" style={{ color: userAccent }}>Quick Actions</h3>
             <div className="space-y-3">
-              <Button className="w-full btn-neon-magenta" onClick={() => navigate("/profile")}>
-                View Profile
+              <Button style={{ backgroundColor: userAccent, color: '#000' }} className="w-full font-bold" onClick={() => navigate("/profile")}>
+                View Profile & Theme Settings
               </Button>
-              <Button className="w-full btn-neon-cyan" onClick={() => navigate("/lounges")}>
+              <Button className="w-full bg-[#00eaff] hover:bg-[#00eaff]/80 text-black font-bold" onClick={() => navigate("/lounges")}>
                 Browse Lounges
               </Button>
-              <Button className="w-full btn-neon-purple" onClick={() => navigate("/achievements")}>
+              <Button className="w-full bg-[#1a1f2e] border border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 font-bold" onClick={() => navigate("/achievements")}>
                 View Achievements
               </Button>
-              <Button className="w-full btn-neon-magenta" onClick={() => navigate("/kids-corner")}>
+              <Button className="w-full bg-[#1a1f2e] border border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 font-bold" onClick={() => navigate("/kids-corner")}>
                 Anom's Corner
               </Button>
-              <Button className="w-full btn-neon-cyan" onClick={() => navigate("/feed")}>
+              <Button className="w-full bg-[#1a1f2e] border border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 font-bold" onClick={() => navigate("/feed")}>
                 Social Feed
               </Button>
-              <Button className="w-full btn-neon-outline" onClick={() => navigate("/games")}>
+              <Button className="w-full bg-[#1a1f2e] border border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 font-bold" onClick={() => navigate("/games")}>
                 Play Games
               </Button>
-              <Button className="w-full btn-neon-magenta" onClick={() => navigate("/merch")}>
+              <Button className="w-full bg-[#1a1f2e] border border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 font-bold" onClick={() => navigate("/merch")}>
                 Custom Merch
               </Button>
-              <Button className="w-full btn-neon-cyan" onClick={() => navigate("/collaboration")}>
+              <Button className="w-full bg-[#1a1f2e] border border-[#00eaff] text-[#00eaff] hover:bg-[#00eaff]/10 font-bold" onClick={() => navigate("/collaboration")}>
                 Collaboration Station
               </Button>
             </div>
           </div>
 
-          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-4" style={{boxShadow: '0 0 10px rgba(255, 0, 204, 0.5), 0 0 20px rgba(255, 0, 204, 0.3)'}}>
+          <div className="bg-[#1a1f2e] border border-[#2a2f3e] rounded-lg p-6" style={{boxShadow: '0 0 15px rgba(0, 234, 255, 0.15)'}}>
             <h3 className="text-xl font-bold text-[#00eaff] mb-4">Live from the Universe</h3>
             <p className="text-[#7a7f8e] text-sm">
               Check back soon for community highlights, memes, and universe updates!

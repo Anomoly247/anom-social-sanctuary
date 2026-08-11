@@ -1,7 +1,7 @@
-import { and, desc, eq, gte, like, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
+import { eq, and, sql, gt, desc, gte, like, lte, or } from "drizzle-orm";
+import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -473,10 +473,146 @@ export async function getLoungeMessages(loungeId: number, limit: number = 50) {
   if (!db) return [];
 
   try {
-    return await db.select().from(loungeMessages).where(eq(loungeMessages.loungeId, loungeId)).limit(limit);
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS lounge_messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        lounge_id INT NOT NULL,
+        user_id INT NOT NULL,
+        content TEXT NOT NULL,
+        is_pinned BOOLEAN DEFAULT false NOT NULL,
+        reactions JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )`);
+      await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT false`);
+      await db.execute(sql`ALTER TABLE lounge_messages ADD COLUMN IF NOT EXISTS reactions JSON`);
+    } catch (e) {}
+
+    return await db
+      .select({
+        id: loungeMessages.id,
+        loungeId: loungeMessages.loungeId,
+        userId: loungeMessages.userId,
+        content: loungeMessages.content,
+        isPinned: loungeMessages.isPinned,
+        reactions: loungeMessages.reactions,
+        createdAt: loungeMessages.createdAt,
+        user: {
+          id: users.id,
+          name: users.name,
+          email: users.email,
+        },
+      })
+      .from(loungeMessages)
+      .leftJoin(users, eq(users.id, loungeMessages.userId))
+      .where(eq(loungeMessages.loungeId, loungeId))
+      .orderBy(loungeMessages.createdAt)
+      .limit(limit);
   } catch (error) {
     console.error("[Database] Failed to get lounge messages:", error);
     throw error;
+  }
+}
+
+export async function toggleMessageReaction(messageId: number, userId: number, emoji: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  try {
+    const msgList = await db.select().from(loungeMessages).where(eq(loungeMessages.id, messageId)).limit(1);
+    if (msgList.length === 0) return { success: false, error: "Message not found" };
+
+    const msg = msgList[0];
+    const reactions = (msg.reactions || {}) as Record<string, number[]>;
+    const userList = reactions[emoji] || [];
+
+    const idx = userList.indexOf(userId);
+    if (idx >= 0) {
+      userList.splice(idx, 1);
+    } else {
+      userList.push(userId);
+    }
+
+    if (userList.length > 0) {
+      reactions[emoji] = userList;
+    } else {
+      delete reactions[emoji];
+    }
+
+    await db.update(loungeMessages).set({ reactions }).where(eq(loungeMessages.id, messageId));
+    return { success: true, reactions };
+  } catch (error) {
+    console.error("[Database] Failed to toggle reaction:", error);
+    throw error;
+  }
+}
+
+export async function pinMessage(messageId: number, isPinned: boolean) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  try {
+    await db.update(loungeMessages).set({ isPinned }).where(eq(loungeMessages.id, messageId));
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to pin message:", error);
+    throw error;
+  }
+}
+
+export async function markLoungeRead(loungeId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS lounge_read_states (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      lounge_id INT NOT NULL,
+      user_id INT NOT NULL,
+      last_read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await db.insert(loungeReadStates).values({ loungeId, userId, lastReadAt: new Date() })
+      .onDuplicateKeyUpdate({ set: { lastReadAt: new Date() } });
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to mark lounge read:", error);
+    throw error;
+  }
+}
+
+export async function getUnreadLoungeCounts(userId: number, loungeIds: number[]) {
+  const db = await getDb();
+  if (!db || loungeIds.length === 0) return {};
+
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS lounge_read_states (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      lounge_id INT NOT NULL,
+      user_id INT NOT NULL,
+      last_read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    const unreadMap: Record<number, number> = {};
+
+    for (const loungeId of loungeIds) {
+      const readState = await db.select().from(loungeReadStates)
+        .where(and(eq(loungeReadStates.loungeId, loungeId), eq(loungeReadStates.userId, userId)))
+        .limit(1);
+
+      const lastReadAt = readState.length > 0 ? readState[0].lastReadAt : new Date(0);
+
+      const messages = await db.select().from(loungeMessages)
+        .where(and(eq(loungeMessages.loungeId, loungeId), gt(loungeMessages.createdAt, lastReadAt)));
+
+      // Exclude own messages from unread count
+      const unreadCount = messages.filter(m => m.userId !== userId).length;
+      unreadMap[loungeId] = unreadCount;
+    }
+
+    return unreadMap;
+  } catch (error) {
+    console.error("[Database] Failed to get unread lounge counts:", error);
+    return {};
   }
 }
 

@@ -60,6 +60,28 @@ export default function LoungeDetail({ params }: LoungeDetailProps) {
     },
   });
 
+  // Reactions & Pin mutations
+  const toggleReactionMutation = trpc.lounge.toggleReaction.useMutation({
+    onSuccess: () => refetchMessages(),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const pinMessageMutation = trpc.lounge.pinMessage.useMutation({
+    onSuccess: () => {
+      toast.success("Pinned status updated");
+      refetchMessages();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const markReadMutation = trpc.lounge.markRead.useMutation();
+
+  useEffect(() => {
+    if (loungeId) {
+      markReadMutation.mutate({ loungeId });
+    }
+  }, [loungeId, messages.length]);
+
   // Update lounge settings mutation
   const updateSettingsMutation = trpc.lounge.updateSettings.useMutation({
     onSuccess: (updatedLounge) => {
@@ -175,6 +197,19 @@ export default function LoungeDetail({ params }: LoungeDetailProps) {
       <div className="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Chat Area */}
         <div className="lg:col-span-3 space-y-4">
+          {/* Pinned Messages Banner */}
+          {messages.some((m: any) => m.isPinned) && (
+            <Card className="bg-[#1a1f2e] border-2 border-yellow-500 p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-yellow-400">📌 Pinned:</span>
+                <span className="text-sm text-white truncate max-w-xl">
+                  {messages.find((m: any) => m.isPinned)?.content}
+                </span>
+              </div>
+              <span className="text-xs text-[#7a7f8e]">Owner Highlight</span>
+            </Card>
+          )}
+
           <Card className="bg-[#1a1f2e] border-2 h-96 flex flex-col" style={{ borderColor: themeColor }}>
             <ScrollArea ref={scrollRef} className="flex-1 p-4">
               <div className="space-y-3">
@@ -183,13 +218,62 @@ export default function LoungeDetail({ params }: LoungeDetailProps) {
                     <p className="text-[#7a7f8e]">No messages yet. Start the conversation!</p>
                   </div>
                 ) : (
-                  messages.map((msg, idx) => (
-                    <div key={idx} className="bg-[#0b0e14] rounded-lg p-3 border border-[#00eaff]/20">
-                      <p className="text-[#00eaff] font-bold text-sm">User</p>
-                      <p className="text-gray-300 text-sm">{msg.content}</p>
-                      <p className="text-[#7a7f8e] text-xs mt-1">{new Date(msg.createdAt).toLocaleTimeString()}</p>
-                    </div>
-                  ))
+                  messages.map((msg: any, idx: number) => {
+                    const isOwner = lounge.ownerId === user?.id;
+                    const reactions = (msg.reactions || {}) as Record<string, number[]>;
+                    return (
+                      <div key={idx} className={`rounded-lg p-3 border ${msg.isPinned ? 'bg-[#1a1f2e] border-yellow-500' : 'bg-[#0b0e14] border-[#00eaff]/20'}`}>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-[#00eaff] font-bold text-sm">{msg.user?.name || "Member"}</p>
+                            <p className="text-gray-200 text-sm mt-1">{msg.content}</p>
+                          </div>
+                          {isOwner && (
+                            <button
+                              onClick={() => pinMessageMutation.mutate({ messageId: msg.id, isPinned: !msg.isPinned })}
+                              className="text-xs px-2 py-1 rounded bg-[#2a2f3e] text-yellow-400 hover:bg-[#3a3f4e]"
+                            >
+                              {msg.isPinned ? "Unpin" : "Pin"}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Reactions & Emoji Picker */}
+                        <div className="flex flex-wrap items-center gap-2 mt-3 pt-2 border-t border-[#2a2f3e]">
+                          {Object.entries(reactions).map(([emoji, userList]) => {
+                            const hasReacted = userList.includes(user?.id as number);
+                            return (
+                              <button
+                                key={emoji}
+                                onClick={() => toggleReactionMutation.mutate({ messageId: msg.id, emoji })}
+                                className={`text-xs px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                                  hasReacted ? 'border-[#ff00cc] bg-[#ff00cc]/20 text-[#ff00cc]' : 'border-[#2a2f3e] bg-[#1a1f2e] text-gray-300'
+                                }`}
+                              >
+                                <span>{emoji}</span>
+                                <span>{userList.length}</span>
+                              </button>
+                            );
+                          })}
+
+                          <div className="flex gap-1 ml-auto">
+                            {["👍", "❤️", "🔥", "🚀", "✨"].map((emoji) => (
+                              <button
+                                key={emoji}
+                                onClick={() => toggleReactionMutation.mutate({ messageId: msg.id, emoji })}
+                                className="text-xs hover:scale-125 transition-transform px-1"
+                                title={`React with ${emoji}`}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <p className="text-[#7a7f8e] text-xs mt-1">{new Date(msg.createdAt).toLocaleTimeString()}</p>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </ScrollArea>

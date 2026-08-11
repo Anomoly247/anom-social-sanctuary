@@ -28,6 +28,12 @@ export default function Lounges() {
     { enabled: isAuthenticated }
   );
 
+  const loungeIds = myLounges.map((l: any) => l.id);
+  const { data: unreadCounts = {} } = trpc.lounge.getUnreadCounts.useQuery(
+    { loungeIds },
+    { enabled: isAuthenticated && loungeIds.length > 0, refetchInterval: 5000 }
+  );
+
   // Create lounge mutation
   const createMutation = trpc.lounge.create.useMutation({
     onSuccess: (lounge) => {
@@ -302,9 +308,16 @@ export default function Lounges() {
                     <p className="text-[#7a7f8e] text-sm mb-4 line-clamp-2">{lounge.description}</p>
                   )}
 
-                  <div className="flex items-center gap-2 text-[#00eaff] text-sm">
-                    <Users className="w-4 h-4" />
-                    <span>View & Join</span>
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2 text-[#00eaff]">
+                      <Users className="w-4 h-4" />
+                      <span>View & Join</span>
+                    </div>
+                    {unreadCounts[lounge.id] > 0 && (
+                      <span className="bg-[#ff00cc] text-black font-bold px-2 py-0.5 rounded-full text-xs animate-pulse">
+                        {unreadCounts[lounge.id]} new
+                      </span>
+                    )}
                   </div>
                 </Card>
               );

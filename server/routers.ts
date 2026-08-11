@@ -6,7 +6,7 @@ import { membershipRouter } from "./membership.procedures";
 import { settingsRouter } from "./settings.procedures";
 import { gamesRouter } from "./games.procedures";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
-import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
+import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "../shared/const";
@@ -219,6 +219,30 @@ export const appRouter = router({
         if (input.description) updates.description = input.description;
         if (input.neonTheme) updates.neonTheme = input.neonTheme;
         return await updateLounge(input.loungeId, updates);
+      }),
+
+    toggleReaction: protectedProcedure
+      .input(z.object({ messageId: z.number(), emoji: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        return await toggleMessageReaction(input.messageId, ctx.user.id, input.emoji);
+      }),
+
+    pinMessage: protectedProcedure
+      .input(z.object({ messageId: z.number(), isPinned: z.boolean() }))
+      .mutation(async ({ input }) => {
+        return await pinMessage(input.messageId, input.isPinned);
+      }),
+
+    markRead: protectedProcedure
+      .input(z.object({ loungeId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await markLoungeRead(input.loungeId, ctx.user.id);
+      }),
+
+    getUnreadCounts: protectedProcedure
+      .input(z.object({ loungeIds: z.array(z.number()) }))
+      .query(async ({ ctx, input }) => {
+        return await getUnreadLoungeCounts(ctx.user.id, input.loungeIds);
       }),
   }),
 

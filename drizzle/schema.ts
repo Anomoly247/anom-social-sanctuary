@@ -148,11 +148,26 @@ export const loungeMessages = mysqlTable("lounge_messages", {
   loungeId: int("lounge_id").notNull(),
   userId: int("user_id").notNull(),
   content: text("content").notNull(),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  reactions: json("reactions").$type<Record<string, number[]>>(), // emoji -> array of userIds
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export type LoungeMessage = typeof loungeMessages.$inferSelect;
 export type InsertLoungeMessage = typeof loungeMessages.$inferInsert;
+
+/**
+ * Lounge Read States — track last read timestamps per user per lounge for unread badges
+ */
+export const loungeReadStates = mysqlTable("lounge_read_states", {
+  id: int("id").autoincrement().primaryKey(),
+  loungeId: int("lounge_id").notNull(),
+  userId: int("user_id").notNull(),
+  lastReadAt: timestamp("last_read_at").defaultNow().notNull(),
+});
+
+export type LoungeReadState = typeof loungeReadStates.$inferSelect;
+export type InsertLoungeReadState = typeof loungeReadStates.$inferInsert;
 
 /**
  * Merch Requests — customer custom art requests
