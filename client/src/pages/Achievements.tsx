@@ -33,9 +33,17 @@ export default function Achievements() {
     <div className="min-h-screen bg-[#0b0e14] text-white p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#00eaff] mb-2">Achievements & Progress</h1>
-          <p className="text-[#7a7f8e]">Track your journey and unlock badges</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-[#00eaff] mb-2">Achievements & Progress</h1>
+            <p className="text-[#7a7f8e]">Track your journey and unlock badges</p>
+          </div>
+          <button
+            onClick={() => window.location.href = "/"}
+            className="btn-neon-cyan px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+          >
+            🏠 Back to Home
+          </button>
         </div>
 
         {/* Level Card */}

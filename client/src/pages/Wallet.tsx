@@ -29,9 +29,17 @@ export default function Wallet() {
     <div className="min-h-screen bg-[#0b0e14] text-white p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#ff00cc] mb-2">Anom Coin Wallet</h1>
-          <p className="text-[#7a7f8e]">Manage your digital currency and track your earnings</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-[#ff00cc] mb-2">Anom Coin Wallet</h1>
+            <p className="text-[#7a7f8e]">Manage your digital currency and track your earnings</p>
+          </div>
+          <button
+            onClick={() => window.location.href = "/"}
+            className="btn-neon-cyan px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+          >
+            🏠 Back to Home
+          </button>
         </div>
 
         {/* Balance Card */}

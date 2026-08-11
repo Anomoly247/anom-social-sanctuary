@@ -37,3 +37,4 @@
 - [x] Add rate/like database table and coin rewards for community interactions
 - [x] Add achievement reward showcase customizer and live activity feed with rate & like system on Home.tsx
 - [x] Run test suite, type-check, build, and save final checkpoint
+- [x] Add prominent Back to Home navigation to Achievements.tsx, Wallet.tsx, and all other major pages
