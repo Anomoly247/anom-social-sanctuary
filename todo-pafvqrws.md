@@ -10,8 +10,8 @@
 - [x] Add regression test for profile retrieval and user creation
 - [x] Run full test suite, TypeScript check, build, and capture profile screenshot
 - [x] Save checkpoint with verified profile fix
-- [ ] Diagnose `lounges` table query failure in `server/db.ts` (`getUserLounges`)
-- [ ] Implement robust table auto-creation / schema check for `lounges` and `lounge_members` in `server/db.ts`
-- [ ] Add lounge regression test in `server/lounge.test.ts`
-- [ ] Run full test suite, TypeScript check, build, and capture `/lounges` screenshot
-- [ ] Save checkpoint with verified lounges fix
+- [x] Diagnose `lounges` table query failure in `server/db.ts` (`getUserLounges`)
+- [x] Implement robust table auto-creation / schema check for `lounges` and `lounge_members` in `server/db.ts`
+- [x] Add lounge regression test in `server/lounge.test.ts`
+- [x] Run full test suite, TypeScript check, build, and capture `/lounges` screenshot
+- [x] Save checkpoint with verified lounges fix

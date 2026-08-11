@@ -357,11 +357,25 @@ export async function getUserLounges(userId: number) {
         neon_theme VARCHAR(50) DEFAULT 'magenta',
         cost_anom DECIMAL(10, 2) DEFAULT '0',
         cost_real DECIMAL(10, 2) DEFAULT '0',
+        is_public BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
       )`);
+      await db.execute(sql`ALTER TABLE lounges ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT true`);
     } catch (tblErr) {
-      console.warn("[Database] Could not auto-create lounges table:", tblErr);
+      console.warn("[Database] Could not verify/auto-create lounges table:", tblErr);
+    }
+
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS lounge_members (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        lounge_id INT NOT NULL,
+        user_id INT NOT NULL,
+        role ENUM('owner', 'admin', 'member') DEFAULT 'member' NOT NULL,
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )`);
+    } catch (memErr) {
+      console.warn("[Database] Could not auto-create lounge_members table:", memErr);
     }
 
     return await db.select().from(lounges).where(eq(lounges.ownerId, userId));
