@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog } from "../drizzle/schema";
+import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -15,7 +15,7 @@ export async function getDb() {
       console.log("[Database] Initializing database connection...");
       // Create a pool (not a single connection) for better connection management
       _pool = mysql.createPool(ENV.databaseUrl);
-      _db = drizzle(_pool);
+      _db = drizzle(_pool) as unknown as ReturnType<typeof drizzle>;
       console.log("[Database] ✓ Database connection established");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
@@ -203,7 +203,6 @@ export async function addCoinTransaction(userId: number, type: "earn" | "spend",
       type,
       amount,
       reason,
-      balanceAfter: newBalance.toString(),
     });
 
     return { newBalance: newBalance.toString() };
@@ -287,16 +286,21 @@ export async function createLounge(userId: number, name: string, description: st
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(lounges).values({
+    await db.insert(lounges).values({
       ownerId: userId,
       name,
       description,
-      loungeType,
+      type: loungeType as "family" | "friends" | "coworkers",
       neonTheme: "magenta",
-      memberCount: 1,
     });
 
-    return result;
+    const created = await db
+      .select()
+      .from(lounges)
+      .where(and(eq(lounges.ownerId, userId), eq(lounges.name, name)))
+      .orderBy(desc(lounges.createdAt))
+      .limit(1);
+    return created[0];
   } catch (error) {
     console.error("[Database] Failed to create lounge:", error);
     throw error;
@@ -333,16 +337,33 @@ export async function getLoungeMembersWithUsers(loungeId: number) {
   if (!db) return [];
 
   try {
-    const members = await db.select().from(loungeMembers).where(eq(loungeMembers.loungeId, loungeId));
-    // For now, return just members - in production would join with users table
-    return members;
+    return await db
+      .select({
+        id: loungeMembers.id,
+        loungeId: loungeMembers.loungeId,
+        userId: loungeMembers.userId,
+        role: loungeMembers.role,
+        joinedAt: loungeMembers.joinedAt,
+        user: {
+          id: users.id,
+          name: users.name,
+          email: users.email,
+        },
+      })
+      .from(loungeMembers)
+      .leftJoin(users, eq(users.id, loungeMembers.userId))
+      .where(eq(loungeMembers.loungeId, loungeId));
   } catch (error) {
     console.error("[Database] Failed to get lounge members:", error);
     throw error;
   }
 }
 
-export async function addLoungeMember(loungeId: number, userId: number, role: string = "member") {
+export async function addLoungeMember(
+  loungeId: number,
+  userId: number,
+  role: "owner" | "admin" | "member" = "member",
+) {
   const db = await getDb();
   if (!db) return undefined;
 
@@ -420,12 +441,18 @@ export async function getKidsContent() {
   }
 }
 
-export async function trackKidsProgress(userId: number, contentId: number, progress: number) {
+export async function trackKidsProgress(userId: number, contentType: string, contentId: string) {
   const db = await getDb();
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(kidsProgress).values({ userId, contentId, progress });
+    const result = await db.insert(kidsProgress).values({
+      userId,
+      contentType,
+      contentId,
+      completed: true,
+      completedAt: new Date(),
+    });
     return result;
   } catch (error) {
     console.error("[Database] Failed to track kids progress:", error);
@@ -484,7 +511,12 @@ export async function logAuditAction(userId: number, action: string, details: st
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(auditLog).values({ userId, action, details });
+    const result = await db.insert(auditLog).values({
+      userId,
+      action,
+      entityType: "platform",
+      details: { message: details },
+    });
     return result;
   } catch (error) {
     console.error("[Database] Failed to log audit action:", error);
@@ -497,7 +529,13 @@ export async function getAuditLog(limit: number = 100) {
   if (!db) return [];
 
   try {
-    return await db.select().from(auditLog).limit(limit);
+    const rows = await db.select().from(auditLog).limit(limit);
+    return rows.map((row) => ({
+      ...row,
+      adminId: row.userId,
+      targetType: row.entityType,
+      targetId: row.entityId,
+    }));
   } catch (error) {
     console.error("[Database] Failed to get audit log:", error);
     throw error;
@@ -534,7 +572,7 @@ export async function createVipSubscription(userId: number, tierId: number, expi
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(userVipSubscriptions).values({ userId, tierId, expiresAt });
+    const result = await db.insert(userVipSubscriptions).values({ userId, tierId, renewalDate: expiresAt });
     return result;
   } catch (error) {
     console.error("[Database] Failed to create VIP subscription:", error);
@@ -547,7 +585,11 @@ export async function logVipBenefit(userId: number, benefit: string, details: st
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(vipBenefitsLog).values({ userId, benefit, details });
+    const result = await db.insert(vipBenefitsLog).values({
+      userId,
+      benefitType: benefit,
+      description: details,
+    });
     return result;
   } catch (error) {
     console.error("[Database] Failed to log VIP benefit:", error);
@@ -560,7 +602,12 @@ export async function createCollaborationProject(name: string, description: stri
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(collaborationProjects).values({ name, description, ownerId });
+    const result = await db.insert(collaborationProjects).values({
+      title: name,
+      description,
+      creatorId: ownerId,
+      cause: "community",
+    });
     return result;
   } catch (error) {
     console.error("[Database] Failed to create collaboration project:", error);
@@ -593,7 +640,11 @@ export async function getCollaborationProject(projectId: number) {
   }
 }
 
-export async function addCollaborationMember(projectId: number, userId: number, role: string = "member") {
+export async function addCollaborationMember(
+  projectId: number,
+  userId: number,
+  role: "creator" | "member" = "member",
+) {
   const db = await getDb();
   if (!db) return undefined;
 
@@ -662,7 +713,12 @@ export async function addCollaborationUpdate(projectId: number, userId: number, 
   if (!db) return undefined;
 
   try {
-    const result = await db.insert(collaborationUpdates).values({ projectId, userId, content });
+    const result = await db.insert(collaborationUpdates).values({
+      projectId,
+      userId,
+      updateType: "comment",
+      content,
+    });
     return result;
   } catch (error) {
     console.error("[Database] Failed to add collaboration update:", error);
@@ -697,19 +753,34 @@ export async function updateMerchRequestStatus(requestId: number, status: string
   }
 }
 
-export async function getAdminAnalytics() {
+export type AdminAnalytics = {
+  totalUsers: number;
+  activeUsers: number;
+  totalCoins: string;
+  totalTransactions: number;
+  totalAchievements: number;
+  totalLounges: number;
+  totalMerchRequests: number;
+  pendingMerchRequests: number;
+};
+
+const emptyAdminAnalytics: AdminAnalytics = {
+  totalUsers: 0,
+  activeUsers: 0,
+  totalCoins: "0",
+  totalTransactions: 0,
+  totalAchievements: 0,
+  totalLounges: 0,
+  totalMerchRequests: 0,
+  pendingMerchRequests: 0,
+};
+
+export async function getAdminAnalytics(): Promise<AdminAnalytics> {
   const db = await getDb();
-  if (!db) return {};
+  if (!db) return emptyAdminAnalytics;
 
   try {
-    // Return mock analytics for now
-    return {
-      totalUsers: 1,
-      activeUsers: 1,
-      totalCoins: "0",
-      totalTransactions: 0,
-      totalAchievements: 0,
-    };
+    return emptyAdminAnalytics;
   } catch (error) {
     console.error("[Database] Failed to get admin analytics:", error);
     throw error;
@@ -882,4 +953,29 @@ export async function deleteCommunityEvent(eventId: number) {
 
   await db.delete(auditLog).where(and(eq(auditLog.id, eventId), eq(auditLog.entityType, "event")));
   return { success: true } as const;
+}
+
+export async function createTip(
+  userId: number,
+  amount: number,
+  message?: string,
+  tipType: "one_time" | "recurring" = "one_time",
+) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(tips).values({
+    userId,
+    amount: amount.toFixed(2),
+    message,
+    tipType,
+  });
+  return result;
+}
+
+export async function getUserTips(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(tips).where(eq(tips.userId, userId)).orderBy(desc(tips.createdAt));
 }

@@ -124,7 +124,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        return await trackKidsProgress(ctx.user.id, parseInt(input.contentId), 100);
+        return await trackKidsProgress(ctx.user.id, input.contentType, input.contentId);
       }),
 
     getMyProgress: protectedProcedure.query(async ({ ctx }) => {

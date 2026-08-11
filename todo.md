@@ -45,9 +45,9 @@
 - [x] Fix OAuth environment variable handling
 - [x] Test development server startup
 - [x] Verify home page loads correctly
-- [ ] Resolve remaining TypeScript errors in admin pages
-- [ ] Test authentication flow
-- [ ] Test tRPC procedures
+- [x] Resolve remaining TypeScript errors in admin pages
+- [x] Test authentication flow (OAuth state, admin access, and logout regression tests pass)
+- [x] Test tRPC procedures (system, auth, admin guard, and owner-role coverage pass)
 - [x] Test video loading (YouTube switches successfully; MP4 currently fails with HTTP 416)
 - [ ] Test neon-dark theme rendering
 - [x] Test responsive design at the available mobile preview width
@@ -64,7 +64,7 @@
 - [x] Review `.manus-logs/` (devserver.log, browserConsole.log, networkRequests.log) for errors or warnings
 - [ ] Fix the first Anom's Corner MP4 endpoint returning zero-byte content and HTTP 416 Range Not Satisfiable responses
 - [ ] Inspect the Pixel profile `View Episodes` control, which did not navigate back to Anom's Corner during verification
-- [ ] Resolve the existing 33 TypeScript errors reported by the copied project
+- [x] Resolve the existing TypeScript errors reported by the copied project (clean pnpm check)
 
 - [x] Superseded duplicate: mobile Home header overflow was fixed and verified at 375px width
 
@@ -85,3 +85,5 @@
 - [x] Create the reusable copied-project diagnostic and repair skill (`copied-project-diagnostic-repair`)
 - [x] Run the full Vitest suite covering tRPC and database operations (5 test files, 8 tests passed successfully)
 - [x] Run production build and TypeScript diagnostics and document validation baseline (production build succeeded cleanly in 5.15s; 27 TypeScript diagnostics span server/db.ts and auxiliary admin/membership pages)
+- [x] Resolve all 27 TypeScript diagnostics across server/db.ts, admin pages, lounge pages, OwnerSettings.tsx, and membership.procedures.ts
+- [x] Re-run TypeScript, full Vitest suite, and production build after the diagnostic fixes (all passed)

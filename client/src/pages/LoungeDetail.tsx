@@ -224,7 +224,7 @@ export default function LoungeDetail({ params }: LoungeDetailProps) {
               {members.map((member, idx) => (
                 <div key={idx} className="text-sm text-gray-300 p-2 bg-[#0b0e14] rounded">
                   {member.user?.name || 'Member'}
-                  {member.member?.role === 'owner' && <span className="text-[#ff00cc] ml-2 text-xs">(Owner)</span>}
+                  {member.role === 'owner' && <span className="text-[#ff00cc] ml-2 text-xs">(Owner)</span>}
                 </div>
               ))}
             </div>
