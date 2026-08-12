@@ -347,6 +347,17 @@ export async function createLounge(userId: number, name: string, description: st
       .where(and(eq(lounges.ownerId, userId), eq(lounges.name, name)))
       .orderBy(desc(lounges.createdAt))
       .limit(1);
+
+    if (!created[0]) {
+      throw new Error("Lounge creation did not return a lounge record");
+    }
+
+    await db.insert(loungeMembers).values({
+      loungeId: created[0].id,
+      userId,
+      role: "owner",
+    });
+
     return created[0];
   } catch (error) {
     console.error("[Database] Failed to create lounge:", error);
