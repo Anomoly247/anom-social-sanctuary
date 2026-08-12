@@ -44,6 +44,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS age_tier ENUM('unverified', 'sprout', 'explorer', 'builder', 'architect', 'guardian') DEFAULT 'unverified' NOT NULL`);
       await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS tier_override BOOLEAN DEFAULT false NOT NULL`);
       await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS restricted_until TIMESTAMP`);
+      try {
+        await db.execute(sql`ALTER TABLE kids_progress ADD COLUMN IF NOT EXISTS guardian_link_id INT`);
+        await db.execute(sql`ALTER TABLE kids_progress ADD COLUMN IF NOT EXISTS approval_status ENUM('pending_guardian', 'approved', 'rejected') DEFAULT 'pending_guardian' NOT NULL`);
+      } catch (e) {}
     } catch (e) {}
 
     const values: InsertUser = {

@@ -272,8 +272,10 @@ export type InsertFeedPost = typeof feedPosts.$inferInsert;
 export const kidsProgress = mysqlTable("kids_progress", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("user_id").notNull(),
-  contentType: varchar("content_type", { length: 50 }).notNull(), // "video", "lesson", "game", "coloring"
+  guardianLinkId: int("guardian_link_id"),
+  contentType: varchar("content_type", { length: 50 }).notNull(), // "video", "lesson", "game", "coloring", "showcase", "irl_media"
   contentId: varchar("content_id", { length: 100 }).notNull(),
+  approvalStatus: mysqlEnum("approval_status", ["pending_guardian", "approved", "rejected"]).default("pending_guardian").notNull(),
   completed: boolean("completed").default(false),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
