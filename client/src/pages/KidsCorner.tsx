@@ -10,14 +10,24 @@ import { useState } from "react";
 
 // Video Player Component
 function VideoPlayer({ videoUrl, title, onClose }: { videoUrl: string; title: string; onClose: () => void }) {
-  const isYouTube = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be");
+  const isYouTubeEmbed = videoUrl.includes("youtube.com/embed/");
+  const isOfficialChannel = videoUrl === "https://www.youtube.com/@anomoriginals";
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
       <Card className="bg-[#1a1f2e] border border-[#ff00cc] w-full max-w-4xl overflow-hidden neon-glow-magenta">
         <div className="relative">
           <div className="aspect-video bg-black flex items-center justify-center">
-            {isYouTube ? (
+            {isOfficialChannel ? (
+              <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
+                <p className="text-[#7a7f8e]">
+                  Pixel &amp; Dot videos are available on the official Anom Originals YouTube channel.
+                </p>
+                <a href={videoUrl} target="_blank" rel="noreferrer">
+                  <Button className="btn-neon-cyan">Watch on Anom Originals YouTube</Button>
+                </a>
+              </div>
+            ) : isYouTubeEmbed ? (
               <iframe
                 key={videoUrl}
                 width="100%"
@@ -242,7 +252,7 @@ export default function KidsCorner() {
       id: "pixel-dot-full",
       title: "Pixel & Dot's Full Story | Anom's Corner",
       description: "The complete Pixel & Dot story. Join these two characters on their epic journey through a neon-powered universe.",
-      url: "/manus-storage/v8_pixel_dot_full_story_final_45228357.mp4",
+      url: "https://www.youtube.com/@anomoriginals",
       duration: 30,
       ageRating: 4,
     },

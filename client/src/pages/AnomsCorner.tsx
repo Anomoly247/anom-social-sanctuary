@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Share2, Heart, Star, Zap } from "lucide-react";
 import { toast } from "sonner";
-import { trpc } from "@/lib/trpc";
-import { useEffect } from "react";
+
+const ANOM_ORIGINALS_YOUTUBE_URL = "https://www.youtube.com/@anomoriginals";
 
 interface Episode {
   id: string;
   title: string;
   videoId?: string;
-  storageUrl?: string;
+  channelUrl?: string;
   duration: string;
   views: number;
   postedAt: string;
@@ -23,7 +23,7 @@ const episodes: Episode[] = [
   {
     id: "1",
     title: "Pixel & Dot's Full Story | Anom's Corner",
-    storageUrl: "/manus-storage/v8_pixel_dot_full_story_final_45228357.mp4",
+    channelUrl: ANOM_ORIGINALS_YOUTUBE_URL,
     duration: "Full Story",
     views: 1,
     postedAt: "Today",
@@ -44,15 +44,9 @@ const episodes: Episode[] = [
 export default function AnomsCorner() {
   const [selectedEpisode, setSelectedEpisode] = useState<Episode>(episodes[0]);
   const [liked, setLiked] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-
-  useEffect(() => {
-    setVideoError(false);
-  }, [selectedEpisode.id]);
-
   const handleShare = () => {
-    const url = selectedEpisode.storageUrl 
-      ? `${window.location.origin}${selectedEpisode.storageUrl}`
+    const url = selectedEpisode.channelUrl
+      ? selectedEpisode.channelUrl
       : `https://www.youtube.com/watch?v=${selectedEpisode.videoId}`;
     navigator.clipboard.writeText(url);
     toast.success("Episode link copied to clipboard!");
@@ -132,17 +126,23 @@ export default function AnomsCorner() {
               {/* Featured Video Player */}
               <div className="mb-6">
                 <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e]">
-                  {selectedEpisode.storageUrl && !videoError ? (
-                    <video
-                      className="w-full h-auto"
-                      controls
-                      autoPlay
-                      style={{ maxHeight: "600px" }}
-                      onError={() => setVideoError(true)}
-                    >
-                      <source src={selectedEpisode.storageUrl} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                  {selectedEpisode.channelUrl ? (
+                    <div className="flex min-h-64 flex-col items-center justify-center gap-4 bg-black px-6 text-center">
+                      <p className="max-w-lg text-[#7a7f8e]">
+                        Pixel &amp; Dot videos are available on the official Anom Originals YouTube channel.
+                      </p>
+                      <a
+                        href={selectedEpisode.channelUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex"
+                      >
+                        <Button className="btn-neon-cyan flex items-center gap-2">
+                          <Play className="h-5 w-5" />
+                          Watch on Anom Originals YouTube
+                        </Button>
+                      </a>
+                    </div>
                   ) : selectedEpisode.videoId ? (
                     <div className="relative w-full bg-black rounded-lg overflow-hidden" style={{ paddingBottom: "56.25%" }}>
                       <iframe
