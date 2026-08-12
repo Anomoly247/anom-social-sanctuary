@@ -58,3 +58,4 @@
 - [x] Append an unchanged full Vitest suite run after Gate 8 and push the verification result
 - [x] Remove the silent `educationCompletions` insert failure path from the Phase 18 Explorer coverage, rerun the full suite, append raw output, and push one commit
 - [x] Produce and push a read-only audit of the Drizzle tables missing from the live database and all `users.age_bracket` code references
+- [x] Fix 2 of 5: create only the four missing collaboration tables from Drizzle, verify `/collaboration`, append full-suite raw output, and push one commit
