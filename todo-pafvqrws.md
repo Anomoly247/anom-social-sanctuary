@@ -46,3 +46,6 @@
 - [ ] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification
 - [x] Diagnose and permanently resolve recurring OAuth callback failure in server/_core/oauth.ts
 - [x] Fix login button and subpage login state handling across protected routes
+- [ ] Implement GIPHY visual search and preview modal in OwnerControlPanel & Admin Dashboard
+- [ ] Add progress bars and success notifications to media upload forms for video and audio
+- [ ] Build public-facing Anom's Corner feed with category filters (video, audio, storybooks)
