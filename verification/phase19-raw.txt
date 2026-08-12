@@ -1,747 +1,231 @@
-
- RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
-
- ✓ server/adminUserFilters.test.ts > admin user filters > recognizes recent and stale activity using a 30-day window
- ✓ server/adminUserFilters.test.ts > admin user filters > searches by name, email, and ID
- ✓ server/adminUserFilters.test.ts > admin user filters > combines role and activity filters
- ✓ server/adminUserFilters.test.ts > admin user filters > returns an empty list when no users match
- ✓ server/adminUserFilters.test.ts > admin user filters > resolves the exact selected users in selection order for a bulk preview
- ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > refuses ambassador from performing suspend or ban actions
- ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > refuses moderator from performing ban actions or role assignments
- ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > refuses users or lower-tier roles from self-escalation or unauthorized actions
- ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > validates ambassador mute duration limit (max 24h)
- ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > exports getModerationQueue and takeModerationAction successfully
- × server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 1: 13-flag FORBIDDEN rejection when disabled
-   → checkFeatureFlagAccess is not a function
- × server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 2: Prerequisite locks prevent enabling dependent flags without prerequisites
-   → canEnableFeatureFlag is not a function
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 3: Block filtering query behavior (excludes blocked author messages)
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 4: Muted / timed_out / banned restriction enforcement
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 5: Restriction expiry allows access after expiration
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 6: Moderation read-path leak protection
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 7: No hard DELETE exists on loungeMessages or feedPosts
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 8: Explorer education gate enforcement
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 9: Login-time birthday recomputation
- ✓ server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 10: Consent revocation immediately suspends access
- ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > correctly derives age tiers from date of birth
- ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > refuses account creation for under-5 members
- ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > enforces Sprout permission restrictions server-side
- ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > enforces Explorer and Builder DM / external link restrictions
- ✓ server/system.user-management.test.ts > system user management procedures > allows an admin to promote a user and suspend an account
- ✓ server/system.user-management.test.ts > system user management procedures > rejects role and status changes from regular users
- ✓ server/system.user-management.test.ts > system user management procedures > prevents an admin from removing their own access or suspending themselves
- ✓ server/system.user-management.test.ts > system user management procedures > rejects malformed or missing target IDs before calling the database
- ✓ server/system.user-management.test.ts > system user management procedures > allows an admin to promote and suspend multiple selected users atomically at the procedure level
- ✓ server/system.user-management.test.ts > system user management procedures > rejects bulk actions from regular users and protects the admin from self-suspension
- ✓ server/system.user-management.test.ts > system user management procedures > exposes the protected filtered and paginated audit activity query
- ✓ server/system.user-management.test.ts > system user management procedures > exports filtered audit activity as escaped CSV for compliance review
- ✓ server/system.user-management.test.ts > system user management procedures > exposes protected audit summary metrics and timeline data
- ✓ server/system.user-management.test.ts > system user management procedures > blocks suspended users before protected procedures run
-stdout | server/system.procedures.test.ts > system admin procedures > exposes read-only admin dashboard procedures with stable result shapes
+=== SCHEMA DIFF ===
 [Database] Initializing database connection...
 [Database] ✓ Database connection established
-
-stdout | server/audit.log.persistence.test.ts > audit log persistence > persists and retrieves an admin moderation audit entry
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
-stdout | server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > enforces guardian consent requirement for sprouts and explorers
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > refuses account creation for under-5 members
- ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > verifies Sprout and Explorer permission restrictions server-side
- ✓ server/auth.logout.test.ts > auth.logout > clears the session cookie and reports success
-stdout | server/db.owner-role.test.ts > upsertUser owner role assignment > assigns admin to the configured owner open ID
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/db.owner-role.test.ts > upsertUser owner role assignment > assigns admin to the configured owner open ID
- ✓ server/system.procedures.test.ts > system admin procedures > exposes read-only admin dashboard procedures with stable result shapes 344ms
- ✓ server/system.procedures.test.ts > system admin procedures > rejects non-admin sessions before querying dashboard data
- ✓ server/audit.log.persistence.test.ts > audit log persistence > persists and retrieves an admin moderation audit entry 363ms
- ✓ server/admin.access.test.ts > admin access guard > allows an admin session through
- ✓ server/admin.access.test.ts > admin access guard > rejects a regular user session
- ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > enforces guardian consent requirement for sprouts and explorers 316ms
- ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > guarantees parent dashboard privacy (no message contents or transcripts)
- ✓ server/moderationUndo.test.ts > moderation undo operations > reverses an individual role or status change to its captured prior value
- ✓ server/moderationUndo.test.ts > moderation undo operations > preserves the exact selected order for bulk rollback operations
- ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Achievements.tsx
- ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Wallet.tsx
- ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Profile.tsx
- ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Lounges.tsx
- ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > validates OAuth state contract for login redirects
- ✓ server/adminTabShortcuts.test.ts > admin tab shortcuts > maps Alt+1 through Alt+6 to the six control-panel tabs
- ✓ server/adminTabShortcuts.test.ts > admin tab shortcuts > ignores modified shortcuts and non-tab keys
- ✓ server/oauth.state.test.ts > OAuth state contract > round-trips the redirect URI and one-time nonce used by the callback
- ✓ server/oauth.state.test.ts > OAuth state contract > rejects malformed OAuth state instead of silently accepting it
- ✓ server/phase17.ambassador.test.ts > Sanctuary Safety Layer - Phase 17 Ambassador Gate & Moderation Queue > defines getModerationQueue and takeModerationAction functions
- ✓ server/phase17.ambassador.test.ts > Sanctuary Safety Layer - Phase 17 Ambassador Gate & Moderation Queue > refuses ambassador from performing suspend or ban actions
- ✓ server/phase17.ambassador.test.ts > Sanctuary Safety Layer - Phase 17 Ambassador Gate & Moderation Queue > refuses ambassador from muting more than 24 hours
- ✓ server/safety.test.ts > Safety Layer Work Order Tests > calculates age bracket correctly
- ✓ server/safety.test.ts > Safety Layer Work Order Tests > defaults risky UGC features to off
-stdout | server/lounge.features.test.ts > lounge advanced features regression > supports toggle reaction and pinning helpers safely
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
-stdout | server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > returns default flags correctly
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > defines lounge_image_upload and vip_custom_emoji as default off
-stdout | server/user.profile.test.ts > user profile db helper > retrieves or creates a user profile successfully
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/lounge.features.test.ts > lounge advanced features regression > supports toggle reaction and pinning helpers safely 349ms
-stdout | server/phase14.complete.test.ts > Phase 14 Feature Flag Gate Verification > verifies getAllFeatureFlags returns default off for risky flags
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/phase14.complete.test.ts > Phase 14 Feature Flag Gate Verification > verifies default-off status of risky UGC features
- ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > returns default flags correctly 323ms
-stdout | server/oauth.callback.test.ts
-[OAuth] Initialized with baseURL: https://api.manus.im
-
- ✓ server/oauth.callback.test.ts > OAuth Callback Validation > registers OAuth routes successfully
- ✓ server/oauth.callback.test.ts > OAuth Callback Validation > encodes and decodes OAuth state correctly for callback exchange
- ✓ server/user.profile.test.ts > user profile db helper > retrieves or creates a user profile successfully 323ms
- ✓ server/phase14.complete.test.ts > Phase 14 Feature Flag Gate Verification > verifies getAllFeatureFlags returns default off for risky flags 324ms
-stdout | server/user.settings.test.ts > user settings neon theme persistence > successfully updates user neon theme and name color
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
-stdout | server/oauth.execution.test.ts > OAuth User Upsert and Safety Schema Compatibility > successfully performs upsertUser without throwing missing column errors
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
-stdout | server/lounge.test.ts > lounge db helper regression > successfully queries user lounges without missing column errors
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/block.filter.test.ts > Sanctuary Safety Layer - Server Query Block Filtering > defines getLoungeMessages with currentUserId parameter for server-side block filtering
- ✓ server/user.settings.test.ts > user settings neon theme persistence > successfully updates user neon theme and name color 367ms
- ✓ server/oauth.execution.test.ts > OAuth User Upsert and Safety Schema Compatibility > successfully performs upsertUser without throwing missing column errors 348ms
- ✓ server/lounge.test.ts > lounge db helper regression > successfully queries user lounges without missing column errors 320ms
-
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 1: 13-flag FORBIDDEN rejection when disabled
-TypeError: checkFeatureFlagAccess is not a function
- ❯ server/phase19.behavioral.test.ts:11:21
-      9|     const flag = "lounge_image_upload";
-     10|     expect(FEATURE_FLAGS[flag].default).toBe("off");
-     11|     const allowed = checkFeatureFlagAccess(flag, { [flag]: false });
-       |                     ^
-     12|     expect(allowed).toBe(false);
-     13|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 Independent Behavioral Verification Harness > Gate 2: Prerequisite locks prevent enabling dependent flags without prerequisites
-TypeError: canEnableFeatureFlag is not a function
- ❯ server/phase19.behavioral.test.ts:17:24
-     15|   it("Gate 2: Prerequisite locks prevent enabling dependent flags with…
-     16|     const flag = "activity_feed_ratings"; // requires ["reporting", "m…
-     17|     const prereqsMet = canEnableFeatureFlag(flag, { reporting: false, …
-       |                        ^
-     18|     expect(prereqsMet).toBe(false);
-     19|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
-
- Test Files  1 failed | 25 passed (26)
-      Tests  2 failed | 71 passed (73)
-   Start at  05:07:11
-   Duration  3.63s (transform 601ms, setup 0ms, collect 7.50s, tests 3.50s, environment 5ms, prepare 1.97s)
-
-
-> anom-sanctuary-restored@1.0.0 build
-> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
-vite v7.1.9 building for production...
-transforming...
-✓ 2428 modules transformed.
-rendering chunks...
-computing gzip size...
-../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
-../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
-../dist/public/assets/index-CCDCzjjS.js   2,026.18 kB │ gzip: 430.93 kB
-
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 6.65s
-
-  dist/index.js  160.8kb
-
-⚡ Done in 11ms
-
- RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
-
-stdout | server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 1: Feature flag procedure-layer enforcement (asserts whether procedure enforces off state)
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 1: Feature flag procedure-layer enforcement (asserts whether procedure enforces off state) 312ms
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 2: Prerequisite validation before enabling feature flag
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 3: Server-side block filtering query test
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 4 & 5: Restriction expiry and per-request status checks (muted, timed_out, banned)
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 6: Moderation read-path leak protection
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 7: No hard DELETE exists on loungeMessages or feedPosts
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 8: Explorer education gate enforcement
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 9: Login-time birthday promotion recomputation
- ✓ server/phase19.behavioral.test.ts > Phase 19 Strict Behavioral Verification Tests > Gate 10: Guardian consent revocation immediate suspension
-
- Test Files  1 passed (1)
-      Tests  9 passed (9)
-   Start at  05:13:14
-   Duration  1.31s (transform 273ms, setup 0ms, collect 700ms, tests 352ms, environment 0ms, prepare 65ms)
-
-
-> anom-sanctuary-restored@1.0.0 build
-> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
-vite v7.1.9 building for production...
-transforming...
-✓ 2428 modules transformed.
-rendering chunks...
-computing gzip size...
-../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
-../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
-../dist/public/assets/index-CCDCzjjS.js   2,026.18 kB │ gzip: 430.93 kB
-
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 7.58s
-
-  dist/index.js  160.8kb
-
-⚡ Done in 11ms
-
- RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
-
-stdout | server/phase19.behavioral.test.ts
-[OAuth] Initialized with baseURL: https://api.manus.im
-
-stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
-   → expected [ 'activity_feed', …(8) ] to deeply equal [ 'achievement_showcase', …(15) ]
-stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
-[FeatureFlags] Failed to toggle feature flag: DrizzleQueryError: Failed query: select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?
-params: 1
-    at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:18)
-    at Module.setFeatureFlag (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/featureFlags.ts:87:22)
-    at /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/phase19.behavioral.test.ts:73:5
-    at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:533:5
-    at runTest (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1056:11)
-    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
-    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
-    at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
-  query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
-  params: [ 1 ],
-  cause: Error: Unknown column 'logo_url' in 'field list'
-      at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
-      at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
-      at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
-      at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:29)
-      at MySqlSelectBase.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/select.ts:1145:25)
-      at MySqlSelectBase.then (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15)
-      at processTicksAndRejections (node:internal/process/task_queues:105:5) {
-    code: 'ER_BAD_FIELD_ERROR',
-    errno: 1054,
-    sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
-    sqlState: '42S22',
-    sqlMessage: "Unknown column 'logo_url' in 'field list'"
-  }
-}
-
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation 314ms
-   → expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
-(2 matching properties omitted from actual)
- ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
-   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
- ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an expired timed_out restriction is re-evaluated on the next request
- ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
-   → expected 'visible' to be 'removed' // Object.is equality
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
-   → expected true to be false // Object.is equality
-stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
-[Auth] Session payload missing required fields
-
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
-   → Invalid session cookie
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
-   → Failed query: insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?
-params: 3660436,3660437,pending,email_verification,parent,pending,parent
-
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
-AssertionError: expected [ 'activity_feed', …(8) ] to deeply equal [ 'achievement_showcase', …(15) ]
-
-- Expected
-+ Received
-
-  Array [
--   "achievement_showcase",
-    "activity_feed",
-    "activity_feed_likes",
-    "activity_feed_ratings",
--   "audio_soundtracks",
-    "coin_earning_from_engagement",
--   "collaboration_station",
--   "custom_neon_themes",
--   "feed_image_upload",
--   "giphy_search",
-    "kids_corner",
--   "marketplace_store",
--   "mini_games_vault",
-    "profile_customization",
-    "public_profiles",
-    "tipping",
-+   "unread_badges",
-  ]
-
- ❯ server/phase19.behavioral.test.ts:45:32
-     43| 
-     44|     const uiOnlyFlags = Object.keys(FEATURE_REGISTRY).filter((key) => …
-     45|     expect(uiOnlyFlags.sort()).toEqual([
-       |                                ^
-     46|       "achievement_showcase",
-     47|       "activity_feed",
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
-AssertionError: expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
-(2 matching properties omitted from actual)
-
-- Expected
-+ Received
-
-- Object {
--   "code": "FORBIDDEN",
-+ TRPCError {
-+   "code": "INTERNAL_SERVER_ERROR",
-  }
-
- ❯ server/phase19.behavioral.test.ts:73:5
-     71| 
-     72|   it("Gate 2: enabling a flag with unmet prerequisites is refused by t…
-     73|     await expect(setFeatureFlag(1, "activity_feed_ratings", true)).rej…
-       |     ^
-     74|   });
-     75| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
-AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
-
-- Expected
-+ Received
-
-- [Error: rejected promise]
-+ Object {
-+   "anomCoinBalance": "0.00",
-+   "avatarUrl": null,
-+   "bio": "testing",
-+   "coinMultiplier": "1.0",
-+   "createdAt": 2026-08-11T19:56:00.000Z,
-+   "decorationPackageIds": Array [],
-+   "id": 1,
-+   "level": 1,
-+   "membershipTier": "basic",
-+   "nameColor": "#00eaff",
-+   "neonTheme": "cyan",
-+   "tierExpiresAt": null,
-+   "tierUpgradedAt": null,
-+   "updatedAt": 2026-08-12T01:33:32.000Z,
-+   "userId": 1,
-+   "xp": 0,
-+ }
-
- ❯ server/phase19.behavioral.test.ts:95:42
-     93|     for (const status of ["muted", "timed_out", "suspended", "banned"]…
-     94|       const caller = callerFor({ id: 1, role: "user", status, restrict…
-     95|       await expect(caller.profile.getMe()).rejects.toMatchObject({ cod…
-       |                                          ^
-     96|     }
-     97|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
-AssertionError: expected 'visible' to be 'removed' // Object.is equality
-
-Expected: "removed"
-Received: "visible"
-
- ❯ server/phase19.behavioral.test.ts:125:44
-    123|     const afterRows = (after as any)[0] ?? [];
-    124|     expect(afterRows).toHaveLength(1);
-    125|     expect(afterRows[0].moderation_status).toBe("removed");
-       |                                            ^
-    126|   });
-    127| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
-AssertionError: expected true to be false // Object.is equality
-
-- Expected
-+ Received
-
-- false
-+ true
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
-HttpError: Invalid session cookie
- ❯ Module.ForbiddenError shared/_core/errors.ts:18:48
-     16| export const BadRequestError = (msg: string) => new HttpError(400, msg…
-     17| export const UnauthorizedError = (msg: string) => new HttpError(401, m…
-     18| export const ForbiddenError = (msg: string) => new HttpError(403, msg);
-       |                                                ^
-     19| export const NotFoundError = (msg: string) => new HttpError(404, msg);
-     20| 
- ❯ SDKServer.authenticateRequest server/_core/sdk.ts:276:13
- ❯ server/phase19.behavioral.test.ts:146:27
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { statusCode: 403 }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
-Error: Failed query: insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?
-params: 3660436,3660437,pending,email_verification,parent,pending,parent
- ❯ MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11
- ❯ MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:100:16
- ❯ Module.requestGuardianConsent server/ageAssurance.ts:57:3
-     55|   }
-     56| 
-     57|   await db.insert(guardianLinks).values({
-       |   ^
-     58|     guardianUserId: guardian.id,
-     59|     childUserId,
- ❯ server/phase19.behavioral.test.ts:163:5
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { query: 'insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?', params: [ 3660436, 3660437, 'pending', 'email_verification', 'parent', 'pending', 'parent' ] }
-Caused by: Error: Unknown column 'relationship_type' in 'field list'
- ❯ PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22
- ❯ node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:101:25
- ❯ MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18
- ❯ MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:100:27
- ❯ QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/insert.ts:323:25
- ❯ QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, 3660436, 3660437, \'pending\', \'email_verification\', \'parent\', default, default, default, default) on duplicate key update `consent_status` = \'pending\', `relationship_type` = \'parent\'', sqlState: '42S22', sqlMessage: 'Unknown column \'relationship_type\' in \'field list\'' }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
-
- Test Files  1 failed (1)
-      Tests  7 failed | 3 passed (10)
-   Start at  05:21:25
-   Duration  2.11s (transform 293ms, setup 0ms, collect 849ms, tests 1.01s, environment 0ms, prepare 65ms)
-
-
- RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
-
-stdout | server/phase19.behavioral.test.ts
-[OAuth] Initialized with baseURL: https://api.manus.im
-
-stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
-[Database] Initializing database connection...
-[Database] ✓ Database connection established
-
-stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
-[FeatureFlags] Failed to toggle feature flag: DrizzleQueryError: Failed query: select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?
-params: 1
-    at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:18)
-    at Module.setFeatureFlag (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/featureFlags.ts:87:22)
-    at /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/phase19.behavioral.test.ts:58:7
-    at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:533:5
-    at runTest (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1056:11)
-    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
-    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
-    at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
-  query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
-  params: [ 1 ],
-  cause: Error: Unknown column 'logo_url' in 'field list'
-      at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
-      at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
-      at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
-      at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:29)
-      at MySqlSelectBase.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/select.ts:1145:25)
-      at MySqlSelectBase.then (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15)
-      at processTicksAndRejections (node:internal/process/task_queues:105:5) {
-    code: 'ER_BAD_FIELD_ERROR',
-    errno: 1054,
-    sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
-    sqlState: '42S22',
-    sqlMessage: "Unknown column 'logo_url' in 'field list'"
-  }
-}
-
-stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
-[FeatureFlags] Failed to toggle feature flag: DrizzleQueryError: Failed query: select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?
-params: 1
-    at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:18)
-    at Module.setFeatureFlag (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/featureFlags.ts:87:22)
-    at /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/phase19.behavioral.test.ts:66:5
-    at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:533:5
-    at runTest (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1056:11)
-    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
-    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
-    at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
-  query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
-  params: [ 1 ],
-  cause: Error: Unknown column 'logo_url' in 'field list'
-      at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
-      at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
-      at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
-      at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:29)
-      at MySqlSelectBase.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/select.ts:1145:25)
-      at MySqlSelectBase.then (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15)
-      at processTicksAndRejections (node:internal/process/task_queues:105:5) {
-    code: 'ER_BAD_FIELD_ERROR',
-    errno: 1054,
-    sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
-    sqlState: '42S22',
-    sqlMessage: "Unknown column 'logo_url' in 'field list'"
-  }
-}
-
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 460ms
-   → Failed to update feature flag
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
-   → expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
-(2 matching properties omitted from actual)
- ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result 443ms
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
-   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
-   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
- ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
-   → expected 'visible' to be 'removed' // Object.is equality
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
-   → expected true to be false // Object.is equality
-stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
-[Auth] Session payload missing required fields
-
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
-   → Invalid session cookie
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
-   → Failed query: insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?
-params: 3660478,3660479,pending,email_verification,parent,pending,parent
-
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
-TRPCError: Failed to update feature flag
- ❯ Module.setFeatureFlag server/featureFlags.ts:120:11
-    118|   } catch (error) {
-    119|     console.error("[FeatureFlags] Failed to toggle feature flag:", err…
-    120|     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Fai…
-       |           ^
-    121|   }
-    122| }
- ❯ server/phase19.behavioral.test.ts:58:7
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { code: 'INTERNAL_SERVER_ERROR' }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
-AssertionError: expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
-(2 matching properties omitted from actual)
-
-- Expected
-+ Received
-
-- Object {
--   "code": "FORBIDDEN",
-+ TRPCError {
-+   "code": "INTERNAL_SERVER_ERROR",
-  }
-
- ❯ server/phase19.behavioral.test.ts:66:5
-     64| 
-     65|   it("Gate 2: enabling a flag with unmet prerequisites is refused by t…
-     66|     await expect(setFeatureFlag(1, "activity_feed_ratings", true)).rej…
-       |     ^
-     67|   });
-     68| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
-AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
-
-- Expected
-+ Received
-
-- [Error: rejected promise]
-+ Object {
-+   "anomCoinBalance": "0.00",
-+   "avatarUrl": null,
-+   "bio": "testing",
-+   "coinMultiplier": "1.0",
-+   "createdAt": 2026-08-11T19:56:00.000Z,
-+   "decorationPackageIds": Array [],
-+   "id": 1,
-+   "level": 1,
-+   "membershipTier": "basic",
-+   "nameColor": "#00eaff",
-+   "neonTheme": "cyan",
-+   "tierExpiresAt": null,
-+   "tierUpgradedAt": null,
-+   "updatedAt": 2026-08-12T01:33:32.000Z,
-+   "userId": 1,
-+   "xp": 0,
-+ }
-
- ❯ server/phase19.behavioral.test.ts:88:42
-     86|     for (const status of ["muted", "timed_out", "suspended", "banned"]…
-     87|       const caller = callerFor({ id: 1, role: "user", status, restrict…
-     88|       await expect(caller.profile.getMe()).rejects.toMatchObject({ cod…
-       |                                          ^
-     89|     }
-     90|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
-AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
-
-- Expected
-+ Received
-
-- [Error: rejected promise]
-+ Object {
-+   "anomCoinBalance": "0.00",
-+   "avatarUrl": null,
-+   "bio": "testing",
-+   "coinMultiplier": "1.0",
-+   "createdAt": 2026-08-11T19:56:00.000Z,
-+   "decorationPackageIds": Array [],
-+   "id": 1,
-+   "level": 1,
-+   "membershipTier": "basic",
-+   "nameColor": "#00eaff",
-+   "neonTheme": "cyan",
-+   "tierExpiresAt": null,
-+   "tierUpgradedAt": null,
-+   "updatedAt": 2026-08-12T01:33:32.000Z,
-+   "userId": 1,
-+   "xp": 0,
-+ }
-
- ❯ server/phase19.behavioral.test.ts:94:46
-     92|   it("Gate 5: an active timed_out restriction is refused and the same …
-     93|     const activeCaller = callerFor({ id: 1, role: "user", status: "tim…
-     94|     await expect(activeCaller.profile.getMe()).rejects.toMatchObject({…
-       |                                              ^
-     95| 
-     96|     const expiredCaller = callerFor({ id: 1, role: "user", status: "ti…
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
-AssertionError: expected 'visible' to be 'removed' // Object.is equality
-
-Expected: "removed"
-Received: "visible"
-
- ❯ server/phase19.behavioral.test.ts:121:44
-    119|     const afterRows = (after as any)[0] ?? [];
-    120|     expect(afterRows).toHaveLength(1);
-    121|     expect(afterRows[0].moderation_status).toBe("removed");
-       |                                            ^
-    122|   });
-    123| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
-AssertionError: expected true to be false // Object.is equality
-
-- Expected
-+ Received
-
-- false
-+ true
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
-HttpError: Invalid session cookie
- ❯ Module.ForbiddenError shared/_core/errors.ts:18:48
-     16| export const BadRequestError = (msg: string) => new HttpError(400, msg…
-     17| export const UnauthorizedError = (msg: string) => new HttpError(401, m…
-     18| export const ForbiddenError = (msg: string) => new HttpError(403, msg);
-       |                                                ^
-     19| export const NotFoundError = (msg: string) => new HttpError(404, msg);
-     20| 
- ❯ SDKServer.authenticateRequest server/_core/sdk.ts:276:13
- ❯ server/phase19.behavioral.test.ts:142:27
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { statusCode: 403 }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
-Error: Failed query: insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?
-params: 3660478,3660479,pending,email_verification,parent,pending,parent
- ❯ MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11
- ❯ MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:100:16
- ❯ Module.requestGuardianConsent server/ageAssurance.ts:57:3
-     55|   }
-     56| 
-     57|   await db.insert(guardianLinks).values({
-       |   ^
-     58|     guardianUserId: guardian.id,
-     59|     childUserId,
- ❯ server/phase19.behavioral.test.ts:159:5
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { query: 'insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?', params: [ 3660478, 3660479, 'pending', 'email_verification', 'parent', 'pending', 'parent' ] }
-Caused by: Error: Unknown column 'relationship_type' in 'field list'
- ❯ PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22
- ❯ node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:101:25
- ❯ MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18
- ❯ MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:100:27
- ❯ QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/insert.ts:323:25
- ❯ QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, 3660478, 3660479, \'pending\', \'email_verification\', \'parent\', default, default, default, default) on duplicate key update `consent_status` = \'pending\', `relationship_type` = \'parent\'', sqlState: '42S22', sqlMessage: 'Unknown column \'relationship_type\' in \'field list\'' }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
-
- Test Files  1 failed (1)
-      Tests  8 failed | 2 passed (10)
-   Start at  05:22:22
-   Duration  2.37s (transform 281ms, setup 0ms, collect 838ms, tests 1.30s, environment 0ms, prepare 69ms)
-
+=== LIVE DATABASE SCHEMA DIFF ===
+Table: __drizzle_migrations
+  - id (bigint unsigned) [Null: NO, Default: null]
+  - hash (text) [Null: NO, Default: null]
+  - created_at (bigint) [Null: YES, Default: null]
+Table: achievements
+  - id (int) [Null: NO, Default: null]
+  - name (varchar(100)) [Null: NO, Default: null]
+  - description (text) [Null: YES, Default: null]
+  - icon_url (text) [Null: YES, Default: null]
+  - category (varchar(50)) [Null: NO, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: activity_events
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - lounge_id (int) [Null: YES, Default: null]
+  - title (varchar(150)) [Null: NO, Default: null]
+  - description (text) [Null: NO, Default: null]
+  - category (varchar(50)) [Null: NO, Default: milestone]
+  - likes_count (int) [Null: NO, Default: 0]
+  - rating_sum (int) [Null: NO, Default: 0]
+  - rating_count (int) [Null: NO, Default: 0]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: anoms_corner_episodes
+  - id (int) [Null: NO, Default: null]
+  - title (varchar(255)) [Null: NO, Default: null]
+  - description (text) [Null: YES, Default: null]
+  - category (varchar(50)) [Null: NO, Default: video]
+  - media_url (text) [Null: NO, Default: null]
+  - thumbnail_url (text) [Null: YES, Default: null]
+  - duration (varchar(20)) [Null: YES, Default: null]
+  - is_published (tinyint(1)) [Null: NO, Default: 1]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: audit_log
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: YES, Default: null]
+  - action (varchar(100)) [Null: NO, Default: null]
+  - entity_type (varchar(50)) [Null: NO, Default: null]
+  - entity_id (int) [Null: YES, Default: null]
+  - details (json) [Null: YES, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: coin_transactions
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - amount (decimal(10,2)) [Null: NO, Default: null]
+  - type (enum('earn','spend')) [Null: NO, Default: null]
+  - reason (varchar(100)) [Null: NO, Default: null]
+  - related_id (int) [Null: YES, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: decoration_packages
+  - id (int) [Null: NO, Default: null]
+  - name (varchar(100)) [Null: NO, Default: null]
+  - description (text) [Null: YES, Default: null]
+  - category (varchar(50)) [Null: NO, Default: null]
+  - image_url (text) [Null: YES, Default: null]
+  - cost_anom (decimal(10,2)) [Null: YES, Default: 0]
+  - cost_real (decimal(10,2)) [Null: YES, Default: 0]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: feed_posts
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: YES, Default: null]
+  - post_type (varchar(50)) [Null: NO, Default: null]
+  - title (varchar(100)) [Null: YES, Default: null]
+  - content (text) [Null: YES, Default: null]
+  - image_url (text) [Null: YES, Default: null]
+  - likes (int) [Null: YES, Default: 0]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - deleted_at (timestamp) [Null: YES, Default: null]
+  - deleted_by_user_id (int) [Null: YES, Default: null]
+  - moderation_status (varchar(20)) [Null: NO, Default: visible]
+Table: guardian_links
+  - id (int) [Null: NO, Default: null]
+  - guardian_user_id (int) [Null: NO, Default: null]
+  - child_user_id (int) [Null: NO, Default: null]
+  - consent_status (varchar(30)) [Null: NO, Default: pending]
+  - consent_method (varchar(64)) [Null: YES, Default: null]
+  - consent_granted_at (timestamp) [Null: YES, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - relationship_type (enum('parent','legal_guardian','other')) [Null: NO, Default: parent]
+  - dashboard_opt_out (tinyint(1)) [Null: NO, Default: 0]
+Table: kids_progress
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - content_type (varchar(50)) [Null: NO, Default: null]
+  - content_id (varchar(100)) [Null: NO, Default: null]
+  - completed_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - guardian_link_id (int) [Null: YES, Default: null]
+  - approval_status (enum('pending_guardian','approved','rejected')) [Null: NO, Default: pending_guardian]
+Table: lounge_members
+  - id (int) [Null: NO, Default: null]
+  - lounge_id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - role (enum('owner','admin','member')) [Null: NO, Default: member]
+  - joined_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: lounge_messages
+  - id (int) [Null: NO, Default: null]
+  - lounge_id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - content (text) [Null: NO, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - is_pinned (tinyint(1)) [Null: YES, Default: 0]
+  - reactions (json) [Null: YES, Default: null]
+  - deleted_at (timestamp) [Null: YES, Default: null]
+  - deleted_by_user_id (int) [Null: YES, Default: null]
+  - moderation_status (enum('visible','flagged','hidden','removed')) [Null: NO, Default: visible]
+  - image_url (text) [Null: YES, Default: null]
+Table: lounge_read_states
+  - id (int) [Null: NO, Default: null]
+  - lounge_id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - last_read_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: lounges
+  - id (int) [Null: NO, Default: null]
+  - name (varchar(100)) [Null: NO, Default: null]
+  - type (enum('family','friends','coworkers')) [Null: NO, Default: null]
+  - owner_id (int) [Null: NO, Default: null]
+  - description (text) [Null: YES, Default: null]
+  - neon_theme (varchar(50)) [Null: YES, Default: magenta]
+  - cost_anom (decimal(10,2)) [Null: YES, Default: 0]
+  - cost_real (decimal(10,2)) [Null: YES, Default: 0]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - is_public (tinyint(1)) [Null: YES, Default: 1]
+Table: merch_items
+  - id (int) [Null: NO, Default: null]
+  - name (varchar(155)) [Null: NO, Default: null]
+  - description (text) [Null: YES, Default: null]
+  - price (decimal(10,2)) [Null: NO, Default: null]
+  - image_url (text) [Null: NO, Default: null]
+  - category (varchar(50)) [Null: NO, Default: apparel]
+  - in_stock (tinyint(1)) [Null: NO, Default: 1]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: moderation_actions
+  - id (int) [Null: NO, Default: null]
+  - moderator_user_id (int) [Null: NO, Default: null]
+  - target_user_id (int) [Null: YES, Default: null]
+  - target_type (varchar(50)) [Null: YES, Default: null]
+  - target_id (int) [Null: YES, Default: null]
+  - action_type (varchar(50)) [Null: NO, Default: null]
+  - report_id (int) [Null: YES, Default: null]
+  - reason (text) [Null: NO, Default: null]
+  - expires_at (timestamp) [Null: YES, Default: null]
+  - reversed_at (timestamp) [Null: YES, Default: null]
+  - reversed_by_user_id (int) [Null: YES, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: platform_settings
+  - id (int) [Null: NO, Default: null]
+  - site_name (varchar(100)) [Null: YES, Default: Anom Artsy]
+  - site_description (text) [Null: YES, Default: null]
+  - primary_color (varchar(50)) [Null: YES, Default: magenta]
+  - secondary_color (varchar(50)) [Null: YES, Default: cyan]
+  - accent_color (varchar(50)) [Null: YES, Default: purple]
+  - coin_reward_per_action (int) [Null: YES, Default: 10]
+  - coin_reward_per_game (int) [Null: YES, Default: 50]
+  - coin_reward_per_task (int) [Null: YES, Default: 100]
+  - xp_per_level (int) [Null: YES, Default: 500]
+  - enable_merch (tinyint(1)) [Null: YES, Default: 1]
+  - enable_collaboration (tinyint(1)) [Null: YES, Default: 1]
+  - maintenance_mode (tinyint(1)) [Null: YES, Default: 0]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - feature_flags (json) [Null: YES, Default: null]
+  - logo_url (text) [Null: YES, Default: null]
+Table: reports
+  - id (int) [Null: NO, Default: null]
+  - reporter_user_id (int) [Null: NO, Default: null]
+  - target_type (varchar(50)) [Null: NO, Default: null]
+  - target_id (int) [Null: NO, Default: null]
+  - reason (varchar(50)) [Null: NO, Default: null]
+  - details (text) [Null: YES, Default: null]
+  - status (varchar(30)) [Null: NO, Default: open]
+  - assigned_to_user_id (int) [Null: YES, Default: null]
+  - resolution_note (text) [Null: YES, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: user_achievements
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - achievement_id (int) [Null: NO, Default: null]
+  - unlocked_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: user_blocks
+  - id (int) [Null: NO, Default: null]
+  - blocker_user_id (int) [Null: NO, Default: null]
+  - blocked_user_id (int) [Null: NO, Default: null]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: user_profiles
+  - id (int) [Null: NO, Default: null]
+  - user_id (int) [Null: NO, Default: null]
+  - bio (text) [Null: YES, Default: null]
+  - avatar_url (text) [Null: YES, Default: null]
+  - neon_theme (varchar(50)) [Null: YES, Default: magenta]
+  - name_color (varchar(7)) [Null: YES, Default: #00eaff]
+  - decoration_package_ids (json) [Null: YES, Default: null]
+  - level (int) [Null: YES, Default: 1]
+  - xp (int) [Null: YES, Default: 0]
+  - anom_coin_balance (decimal(10,2)) [Null: YES, Default: 0]
+  - membership_tier (enum('basic','vip','super_vip')) [Null: YES, Default: basic]
+  - tier_upgraded_at (timestamp) [Null: YES, Default: null]
+  - tier_expires_at (timestamp) [Null: YES, Default: null]
+  - coin_multiplier (decimal(3,1)) [Null: YES, Default: 1.0]
+  - created_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updated_at (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+Table: users
+  - id (int) [Null: NO, Default: null]
+  - openId (varchar(64)) [Null: NO, Default: null]
+  - name (text) [Null: YES, Default: null]
+  - email (varchar(320)) [Null: YES, Default: null]
+  - loginMethod (varchar(64)) [Null: YES, Default: null]
+  - role (enum('user','ambassador','moderator','admin','owner')) [Null: NO, Default: user]
+  - createdAt (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - updatedAt (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - lastSignedIn (timestamp) [Null: NO, Default: CURRENT_TIMESTAMP]
+  - status (enum('active','muted','timed_out','suspended','banned')) [Null: NO, Default: active]
+  - date_of_birth (timestamp) [Null: YES, Default: null]
+  - age_bracket (enum('under_13','teen_13_17','adult_18_plus','unverified')) [Null: NO, Default: unverified]
+  - restricted_until (timestamp) [Null: YES, Default: null]
+  - moderator_tier (varchar(20)) [Null: YES, Default: none]
+  - age_tier (enum('unverified','sprout','explorer','builder','architect','guardian')) [Null: NO, Default: unverified]
+  - tier_override (tinyint(1)) [Null: NO, Default: 0]
+
+=== TSC ===
+
+=== VITEST ===
 
  RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
 
@@ -767,7 +251,7 @@ params: 1
     at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
   query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
   params: [ 1 ],
-  cause: Error: Unknown column 'logo_url' in 'field list'
+  cause: Error: Unknown column 'favicon_url' in 'field list'
       at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
       at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
       at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
@@ -779,7 +263,7 @@ params: 1
     errno: 1054,
     sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
     sqlState: '42S22',
-    sqlMessage: "Unknown column 'logo_url' in 'field list'"
+    sqlMessage: "Unknown column 'favicon_url' in 'field list'"
   }
 }
 
@@ -798,7 +282,7 @@ params: 1
     at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
   query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
   params: [ 1 ],
-  cause: Error: Unknown column 'logo_url' in 'field list'
+  cause: Error: Unknown column 'favicon_url' in 'field list'
       at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
       at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
       at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
@@ -810,11 +294,11 @@ params: 1
     errno: 1054,
     sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
     sqlState: '42S22',
-    sqlMessage: "Unknown column 'logo_url' in 'field list'"
+    sqlMessage: "Unknown column 'favicon_url' in 'field list'"
   }
 }
 
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 319ms
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 312ms
    → Failed to update feature flag
  × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
    → expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
@@ -831,11 +315,9 @@ params: 1
    → expected true to be false // Object.is equality
  × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
    → expected 'explorer' to be 'builder' // Object.is equality
- × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
-   → Failed query: insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?
-params: 3660520,3660521,pending,email_verification,parent,pending,parent
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
 
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
 TRPCError: Failed to update feature flag
@@ -850,7 +332,7 @@ TRPCError: Failed to update feature flag
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 Serialized Error: { code: 'INTERNAL_SERVER_ERROR' }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
 AssertionError: expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
@@ -873,7 +355,7 @@ AssertionError: expected TRPCError: Failed to update feature flag { code: '…' 
      66|   });
      67| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
 AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
@@ -909,7 +391,7 @@ AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of reje
      88|     }
      89|   });
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
 AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
@@ -945,7 +427,7 @@ AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of reje
      94| 
      95|     const expiredCaller = callerFor({ id: 1, role: "user", status: "ti…
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
 AssertionError: expected 'visible' to be 'removed' // Object.is equality
@@ -961,7 +443,7 @@ Received: "visible"
     121|   });
     122| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
 AssertionError: expected true to be false // Object.is equality
@@ -972,7 +454,7 @@ AssertionError: expected true to be false // Object.is equality
 - false
 + true
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
 
  FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
 AssertionError: expected 'explorer' to be 'builder' // Object.is equality
@@ -988,60 +470,10 @@ Received: "explorer"
     143|   });
     144| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
-
- FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
-Error: Failed query: insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?
-params: 3660520,3660521,pending,email_verification,parent,pending,parent
- ❯ MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11
- ❯ MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:100:16
- ❯ Module.requestGuardianConsent server/ageAssurance.ts:57:3
-     55|   }
-     56| 
-     57|   await db.insert(guardianLinks).values({
-       |   ^
-     58|     guardianUserId: guardian.id,
-     59|     childUserId,
- ❯ server/phase19.behavioral.test.ts:158:5
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { query: 'insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, ?, ?, ?, ?, ?, default, default, default, default) on duplicate key update `consent_status` = ?, `relationship_type` = ?', params: [ 3660520, 3660521, 'pending', 'email_verification', 'parent', 'pending', 'parent' ] }
-Caused by: Error: Unknown column 'relationship_type' in 'field list'
- ❯ PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22
- ❯ node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:101:25
- ❯ MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18
- ❯ MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:100:27
- ❯ QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/insert.ts:323:25
- ❯ QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-Serialized Error: { code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `guardian_links` (`id`, `guardian_user_id`, `child_user_id`, `consent_status`, `consent_method`, `relationship_type`, `dashboard_opt_out`, `consent_granted_at`, `created_at`, `updated_at`) values (default, 3660520, 3660521, \'pending\', \'email_verification\', \'parent\', default, default, default, default) on duplicate key update `consent_status` = \'pending\', `relationship_type` = \'parent\'', sqlState: '42S22', sqlMessage: 'Unknown column \'relationship_type\' in \'field list\'' }
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
 
  Test Files  1 failed (1)
-      Tests  8 failed | 2 passed (10)
-   Start at  05:23:48
-   Duration  2.09s (transform 266ms, setup 0ms, collect 809ms, tests 1.03s, environment 0ms, prepare 66ms)
+      Tests  7 failed | 3 passed (10)
+   Start at  05:35:40
+   Duration  1.99s (transform 251ms, setup 0ms, collect 751ms, tests 993ms, environment 0ms, prepare 68ms)
 
-
-> anom-sanctuary-restored@1.0.0 build
-> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
-vite v7.1.9 building for production...
-transforming...
-✓ 2428 modules transformed.
-rendering chunks...
-computing gzip size...
-../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
-../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
-../dist/public/assets/index-CCDCzjjS.js   2,026.18 kB │ gzip: 430.93 kB
-
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 7.34s
-
-  dist/index.js  160.8kb
-
-⚡ Done in 10ms
