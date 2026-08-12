@@ -156,6 +156,9 @@ export const loungeMessages = mysqlTable("lounge_messages", {
   imageUrl: text("image_url"),
   isPinned: boolean("is_pinned").default(false).notNull(),
   reactions: json("reactions").$type<Record<string, number[]>>(), // emoji -> array of userIds
+  deletedAt: timestamp("deleted_at"),
+  deletedByUserId: int("deleted_by_user_id"),
+  moderationStatus: varchar("moderation_status", { length: 30 }).default("visible").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -259,6 +262,9 @@ export const feedPosts = mysqlTable("feed_posts", {
   content: text("content"),
   imageUrl: text("image_url"),
   likes: int("likes").default(0),
+  deletedAt: timestamp("deleted_at"),
+  deletedByUserId: int("deleted_by_user_id"),
+  moderationStatus: varchar("moderation_status", { length: 30 }).default("visible").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });

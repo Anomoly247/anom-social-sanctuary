@@ -187,28 +187,7 @@ export default function OwnerControlPanel() {
     imageUrl: '',
   });
 
-  // Check if user is admin/owner
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] p-4 flex items-center justify-center">
-        <Card className="border-2 border-[#ff00cc] bg-[#0b0e14]/80 p-8 max-w-md">
-          <div className="flex items-center justify-center mb-4">
-            <Lock className="w-12 h-12 text-[#ff00cc]" />
-          </div>
-          <h1 className="text-2xl font-bold text-center text-[#ff00cc] mb-4">Access Denied</h1>
-          <p className="text-center text-gray-300 mb-6">
-            Only administrators can access the Owner Control Panel.
-          </p>
-          <Button 
-            onClick={() => navigate('/')}
-            className="w-full bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
-          >
-            Return to Home
-          </Button>
-        </Card>
-      </div>
-    );
-  }
+  // Access check handled in render below to maintain stable hook order
 
   const handleSaveSettings = async () => {
     try {
@@ -385,6 +364,28 @@ export default function OwnerControlPanel() {
       toast.error(error instanceof Error ? error.message : 'Audit CSV export failed.');
     }
   };
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] p-4 flex items-center justify-center">
+        <Card className="border-2 border-[#ff00cc] bg-[#0b0e14]/80 p-8 max-w-md">
+          <div className="flex items-center justify-center mb-4">
+            <Lock className="w-12 h-12 text-[#ff00cc]" />
+          </div>
+          <h1 className="text-2xl font-bold text-center text-[#ff00cc] mb-4">Access Denied</h1>
+          <p className="text-center text-gray-300 mb-6">
+            Only administrators can access the Owner Control Panel.
+          </p>
+          <Button 
+            onClick={() => navigate('/')}
+            className="w-full bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
+          >
+            Return to Home
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] p-4 md:p-8">
