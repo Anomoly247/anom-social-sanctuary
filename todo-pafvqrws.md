@@ -40,17 +40,18 @@
 - [x] Add prominent Back to Home navigation to Achievements.tsx, Wallet.tsx, and all other major pages
 - [x] Phase 14: Feature flag control panel with prerequisites and default-off safety gates
 - [x] Phase 15: Safety schema migration (`reports`, `user_blocks`, `moderation_actions`, `guardian_links`, user extensions, soft deletes)
-- [ ] Phase 16: User-facing reporting and blocking with server-side query enforcement
+- [x] Phase 16: User-facing reporting and blocking with server-side query enforcement
 - [x] Phase 17: Moderator roles, permission tiers, audit records, and moderation queue UI (with comprehensive regression tests)
 - [x] Phase 18: AO five-tier age assurance (`unverified`, `sprout`, `explorer`, `builder`, `architect`, `guardian`), automatic birthday promotion, under-5 refusal, education completions (`education_completions`), guardian consent flows (`guardian_links`), server-side permission resolver, optimistic Guardian Queue integration, and privacy-safe parent dashboards
-- [ ] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification
+- [x] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification
 - [x] Diagnose and permanently resolve recurring OAuth callback failure in server/_core/oauth.ts
 - [x] Fix login button and subpage login state handling across protected routes
 - [ ] Implement GIPHY visual search and preview modal in OwnerControlPanel & Admin Dashboard
 - [ ] Add progress bars and success notifications to media upload forms for video and audio
 - [ ] Build public-facing Anom's Corner feed with category filters (video, audio, storybooks)
 - [ ] Fix OAuth state cookie domain/sameSite attribute mismatch causing "invalid auth state" error in callback
-- [ ] Fix home-page tRPC JSON.parse error caused by malformed JSON fields in database or API response
+- [x] Fix home-page tRPC JSON.parse error caused by malformed React hook order and query/mutation scoping in OwnerControlPanel
 - [x] Commit unedited Phase 19 tsc, Vitest verbose, and build output to verification/phase19-raw.txt on safety-layer
 - [x] Add independent behavioral Phase 19 gate tests without modifying production source to force passes; capture real typecheck/build output and OAuth environment findings
 - [x] Rewrite the schema diff as a two-sided Drizzle/MariaDB comparison, apply all missing existing-table columns in one migration, and append post-migration raw verification output
+- [x] Gate 8 only: create the missing `education_completions` table from the existing Drizzle schema, retain the behavioral test unchanged, append raw verification, and push one commit

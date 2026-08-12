@@ -1464,3 +1464,351 @@ Received: "explorer"
    Start at  06:43:57
    Duration  2.76s (transform 246ms, setup 0ms, collect 735ms, tests 1.79s, environment 0ms, prepare 61ms)
 
+
+
+===== Gate 8 education_completions schema diff =====
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+=== TWO-SIDED DRIZZLE VS MARIADB SCHEMA DIFF ===
+
+Table: __drizzle_migrations
+  [EXTRA IN DB] Table exists in DB but not in Drizzle schema.
+
+Table: achievements
+  ✓ Schema in sync.
+
+Table: activity_events
+  ✓ Schema in sync.
+
+Table: anoms_corner_episodes
+  ✓ Schema in sync.
+
+Table: audit_log
+  ✓ Schema in sync.
+
+Table: chat_notifications
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: coin_transactions
+  ✓ Schema in sync.
+
+Table: collaboration_members
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_projects
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_tasks
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_updates
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: decoration_packages
+  ✓ Schema in sync.
+
+Table: education_completions
+  ✓ Schema in sync.
+
+Table: feed_posts
+  ✓ Schema in sync.
+
+Table: game_scores
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: guardian_links
+  ✓ Schema in sync.
+
+Table: kids_progress
+  ✓ Schema in sync.
+
+Table: lounge_members
+  ✓ Schema in sync.
+
+Table: lounge_messages
+  ✓ Schema in sync.
+
+Table: lounge_read_states
+  ✓ Schema in sync.
+
+Table: lounges
+  ✓ Schema in sync.
+
+Table: merch_items
+  ✓ Schema in sync.
+
+Table: merch_orders
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: merch_requests
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: moderation_actions
+  ✓ Schema in sync.
+
+Table: music_library
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: platform_settings
+  Columns in DB but not in Drizzle: [ 'maintenance_mode' ]
+
+Table: reports
+  ✓ Schema in sync.
+
+Table: tier_purchases
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: tips
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: user_achievements
+  ✓ Schema in sync.
+
+Table: user_blocks
+  ✓ Schema in sync.
+
+Table: user_presence
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: user_profiles
+  ✓ Schema in sync.
+
+Table: user_vip_subscriptions
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: users
+  Columns in DB but not in Drizzle: [ 'age_bracket' ]
+
+Table: vip_benefits_log
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: vip_tiers
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+===== npx tsc --noEmit =====
+
+===== npx vitest run server/phase19.behavioral.test.ts --reporter=verbose =====
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 1261ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  07:59:27
+   Duration  3.41s (transform 357ms, setup 0ms, collect 981ms, tests 2.14s, environment 0ms, prepare 81ms)
+
+
+===== npm run build =====
+
+> anom-sanctuary-restored@1.0.0 build
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.1.9 building for production...
+transforming...
+✓ 2428 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
+../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
+../dist/public/assets/index-BYMDWWCs.js   2,026.60 kB │ gzip: 430.87 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.73s
+
+  dist/index.js  163.8kb
+
+⚡ Done in 10ms
+
+
+===== Gate 8 rerun: schema diff =====
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+=== TWO-SIDED DRIZZLE VS MARIADB SCHEMA DIFF ===
+
+Table: __drizzle_migrations
+  [EXTRA IN DB] Table exists in DB but not in Drizzle schema.
+
+Table: achievements
+  ✓ Schema in sync.
+
+Table: activity_events
+  ✓ Schema in sync.
+
+Table: anoms_corner_episodes
+  ✓ Schema in sync.
+
+Table: audit_log
+  ✓ Schema in sync.
+
+Table: chat_notifications
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: coin_transactions
+  ✓ Schema in sync.
+
+Table: collaboration_members
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_projects
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_tasks
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_updates
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: decoration_packages
+  ✓ Schema in sync.
+
+Table: education_completions
+  ✓ Schema in sync.
+
+Table: feed_posts
+  ✓ Schema in sync.
+
+Table: game_scores
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: guardian_links
+  ✓ Schema in sync.
+
+Table: kids_progress
+  ✓ Schema in sync.
+
+Table: lounge_members
+  ✓ Schema in sync.
+
+Table: lounge_messages
+  ✓ Schema in sync.
+
+Table: lounge_read_states
+  ✓ Schema in sync.
+
+Table: lounges
+  ✓ Schema in sync.
+
+Table: merch_items
+  ✓ Schema in sync.
+
+Table: merch_orders
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: merch_requests
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: moderation_actions
+  ✓ Schema in sync.
+
+Table: music_library
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: platform_settings
+  Columns in DB but not in Drizzle: [ 'maintenance_mode' ]
+
+Table: reports
+  ✓ Schema in sync.
+
+Table: tier_purchases
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: tips
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: user_achievements
+  ✓ Schema in sync.
+
+Table: user_blocks
+  ✓ Schema in sync.
+
+Table: user_presence
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: user_profiles
+  ✓ Schema in sync.
+
+Table: user_vip_subscriptions
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: users
+  Columns in DB but not in Drizzle: [ 'age_bracket' ]
+
+Table: vip_benefits_log
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: vip_tiers
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+===== Gate 8 rerun: npx tsc --noEmit =====
+
+===== Gate 8 rerun: npx vitest run server/phase19.behavioral.test.ts --reporter=verbose =====
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 1876ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  08:04:06
+   Duration  3.93s (transform 294ms, setup 0ms, collect 882ms, tests 2.76s, environment 0ms, prepare 68ms)
+
+
+===== Gate 8 rerun: npm run build =====
+
+> anom-sanctuary-restored@1.0.0 build
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.1.9 building for production...
+transforming...
+✓ 2428 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
+../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
+../dist/public/assets/index-BYMDWWCs.js   2,026.60 kB │ gzip: 430.87 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.92s
+
+  dist/index.js  163.8kb
+
+⚡ Done in 11ms
