@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Share2, Heart, Star, Zap } from "lucide-react";
 import { toast } from "sonner";
 
-const ANOM_ORIGINALS_YOUTUBE_URL = "https://www.youtube.com/@anomoriginals";
+const PIXEL_DOT_RAW_ASSET_BASE = "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets";
 
 interface Episode {
   id: string;
   title: string;
   videoId?: string;
-  channelUrl?: string;
+  videoUrl?: string;
   duration: string;
   views: number;
   postedAt: string;
@@ -23,7 +23,7 @@ const episodes: Episode[] = [
   {
     id: "1",
     title: "Pixel & Dot's Full Story | Anom's Corner",
-    channelUrl: ANOM_ORIGINALS_YOUTUBE_URL,
+    videoUrl: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_pixel_dot_full_story_final.mp4`,
     duration: "Full Story",
     views: 1,
     postedAt: "Today",
@@ -45,8 +45,8 @@ export default function AnomsCorner() {
   const [selectedEpisode, setSelectedEpisode] = useState<Episode>(episodes[0]);
   const [liked, setLiked] = useState(false);
   const handleShare = () => {
-    const url = selectedEpisode.channelUrl
-      ? selectedEpisode.channelUrl
+    const url = selectedEpisode.videoUrl
+      ? selectedEpisode.videoUrl
       : `https://www.youtube.com/watch?v=${selectedEpisode.videoId}`;
     navigator.clipboard.writeText(url);
     toast.success("Episode link copied to clipboard!");
@@ -126,23 +126,16 @@ export default function AnomsCorner() {
               {/* Featured Video Player */}
               <div className="mb-6">
                 <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e]">
-                  {selectedEpisode.channelUrl ? (
-                    <div className="flex min-h-64 flex-col items-center justify-center gap-4 bg-black px-6 text-center">
-                      <p className="max-w-lg text-[#7a7f8e]">
-                        Pixel &amp; Dot videos are available on the official Anom Originals YouTube channel.
-                      </p>
-                      <a
-                        href={selectedEpisode.channelUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex"
-                      >
-                        <Button className="btn-neon-cyan flex items-center gap-2">
-                          <Play className="h-5 w-5" />
-                          Watch on Anom Originals YouTube
-                        </Button>
-                      </a>
-                    </div>
+                  {selectedEpisode.videoUrl ? (
+                    <video
+                      key={selectedEpisode.videoUrl}
+                      controls
+                      autoPlay
+                      className="aspect-video w-full bg-black"
+                    >
+                      <source src={selectedEpisode.videoUrl} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
                   ) : selectedEpisode.videoId ? (
                     <div className="relative w-full bg-black rounded-lg overflow-hidden" style={{ paddingBottom: "56.25%" }}>
                       <iframe

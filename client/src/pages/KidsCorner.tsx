@@ -8,26 +8,18 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useState } from "react";
 
+const PIXEL_DOT_RAW_ASSET_BASE = "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets";
+
 // Video Player Component
 function VideoPlayer({ videoUrl, title, onClose }: { videoUrl: string; title: string; onClose: () => void }) {
   const isYouTubeEmbed = videoUrl.includes("youtube.com/embed/");
-  const isOfficialChannel = videoUrl === "https://www.youtube.com/@anomoriginals";
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
       <Card className="bg-[#1a1f2e] border border-[#ff00cc] w-full max-w-4xl overflow-hidden neon-glow-magenta">
         <div className="relative">
           <div className="aspect-video bg-black flex items-center justify-center">
-            {isOfficialChannel ? (
-              <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
-                <p className="text-[#7a7f8e]">
-                  Pixel &amp; Dot videos are available on the official Anom Originals YouTube channel.
-                </p>
-                <a href={videoUrl} target="_blank" rel="noreferrer">
-                  <Button className="btn-neon-cyan">Watch on Anom Originals YouTube</Button>
-                </a>
-              </div>
-            ) : isYouTubeEmbed ? (
+            {isYouTubeEmbed ? (
               <iframe
                 key={videoUrl}
                 width="100%"
@@ -246,62 +238,54 @@ export default function KidsCorner() {
     );
   }
 
-  // Real Pixel & Dot YouTube videos
+  // Verified Pixel & Dot native video files hosted in Anoms-Hub/anom-artsy.
   const videos = [
     {
       id: "pixel-dot-full",
       title: "Pixel & Dot's Full Story | Anom's Corner",
       description: "The complete Pixel & Dot story. Join these two characters on their epic journey through a neon-powered universe.",
-      url: "https://www.youtube.com/@anomoriginals",
-      duration: 30,
+      url: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_pixel_dot_full_story_final.mp4`,
+      duration: null,
       ageRating: 4,
     },
     {
       id: "pixel-dot-1",
-      title: "Pixel & Dot's New Adventure | Anom's Corner",
-      description: "Join Pixel and Dot on their adventure as they welcome their new baby sibling to the family!",
-      url: "https://www.youtube.com/embed/0pBrQUqU0ig",
-      duration: 1.5,
+      title: "v8 Scene 1: Stretched",
+      description: "Pixel and Dot begin their v8 adventure.",
+      url: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_scene_1_stretched.mp4`,
+      duration: null,
       ageRating: 4,
     },
     {
       id: "pixel-dot-scene-1",
-      title: "v4 Scene 1: Meeting",
-      description: "Pixel and Dot meet for the first time in the digital universe!",
-      url: "https://www.youtube.com/embed/ejW3m_YyNoo",
-      duration: 9,
+      title: "v8 Scene 2: Stretched",
+      description: "The second chapter of the v8 Pixel & Dot story.",
+      url: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_scene_2_stretched.mp4`,
+      duration: null,
       ageRating: 4,
     },
     {
       id: "pixel-dot-scene-2",
-      title: "v4 Scene 2: Debugging",
-      description: "Help Pixel and Dot solve digital puzzles and debug code!",
-      url: "https://www.youtube.com/embed/wGEGE4srNhk",
-      duration: 9,
+      title: "v8 Scene 3: Stretched",
+      description: "The third chapter of the v8 Pixel & Dot story.",
+      url: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_scene_3_stretched.mp4`,
+      duration: null,
       ageRating: 4,
     },
     {
       id: "pixel-dot-scene-3",
-      title: "v4 Scene 3: Tickle",
-      description: "A funny moment as Pixel and Dot play together!",
-      url: "https://www.youtube.com/embed/hNZVJKRT5qg",
-      duration: 9,
+      title: "v8 Scene 4: Stretched",
+      description: "The fourth chapter of the v8 Pixel & Dot story.",
+      url: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_scene_4_stretched.mp4`,
+      duration: null,
       ageRating: 4,
     },
     {
-      id: "pixel-dot-scene-4",
-      title: "v4 Scene 4: Sharing Room",
-      description: "Pixel and Dot learn about sharing and teamwork!",
-      url: "https://www.youtube.com/embed/PYov-uiG2mA",
-      duration: 9,
-      ageRating: 4,
-    },
-    {
-      id: "pixel-dot-premiere",
-      title: "Pixel & Dot: Next Episode (Premiere Preview)",
-      description: "Get a sneak peek at the next exciting adventure coming soon!",
-      url: "https://www.youtube.com/embed/LeBoFR2leF8",
-      duration: 12,
+      id: "pixel-dot-scene-5",
+      title: "v8 Scene 5: Stretched",
+      description: "The fifth chapter of the v8 Pixel & Dot story.",
+      url: `${PIXEL_DOT_RAW_ASSET_BASE}/v8_scene_5_stretched.mp4`,
+      duration: null,
       ageRating: 4,
     },
   ];
@@ -383,7 +367,9 @@ export default function KidsCorner() {
                       <p className="text-sm text-[#7a7f8e] mb-4">{video.description}</p>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-[#7a7f8e]">{video.duration} min</span>
+                        <span className="text-xs text-[#7a7f8e]">
+                          {video.duration ? `${video.duration} min` : "Native video"}
+                        </span>
                         <Button
                           className="btn-neon-cyan gap-2 text-sm"
                           onClick={() => setActiveVideo(video.id)}
