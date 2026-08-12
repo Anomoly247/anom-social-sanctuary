@@ -48,6 +48,13 @@ export function filterAdminUsers(
 }
 
 export function selectAdminUsers(users: readonly AdminUserSummary[], userIds: readonly number[]): AdminUserSummary[] {
-  const idSet = new Set(userIds);
-  return users.filter((user) => idSet.has(user.id));
+  const userMap = new Map(users.map((user) => [user.id, user]));
+  const result: AdminUserSummary[] = [];
+  for (const id of userIds) {
+    const user = userMap.get(id);
+    if (user && !result.some((u) => u.id === user.id)) {
+      result.push(user);
+    }
+  }
+  return result;
 }
