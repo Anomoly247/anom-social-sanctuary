@@ -1,71 +1,85 @@
-import { getDb } from "./db";
-import { users, guardianLinks } from "../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { users, guardianLinks, educationCompletions } from "../drizzle/schema";
+import { eq, and, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { getDb } from "./db";
 
-export function calculateAgeBracket(dateOfBirth: Date): "under_13" | "teen_13_17" | "adult_18_plus" {
-  const diffMs = Date.now() - dateOfBirth.getTime();
-  const ageDate = new Date(diffMs);
-  const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+export type AgeTier = "unverified" | "sprout" | "explorer" | "builder" | "architect" | "guardian";
 
-  if (age < 13) return "under_13";
-  if (age >= 13 && age <= 17) return "teen_13_17";
-  return "adult_18_plus";
-}
+export function deriveAgeTier(dateOfBirth: Date | string | null, tierOverride?: boolean): AgeTier {
+  if (!dateOfBirth) return "unverified";
+  const dob = new Date(dateOfBirth);
+  if (isNaN(dob.getTime())) return "unverified";
 
-export async function setUserDateOfBirth(userId: number, dobDate: Date) {
-  const db = await getDb();
-  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-
-  const bracket = calculateAgeBracket(dobDate);
-
-  try {
-    await db.update(users)
-      .set({ dateOfBirth: dobDate, ageBracket: bracket })
-      .where(eq(users.id, userId));
-    return { success: true, ageBracket: bracket };
-  } catch (error) {
-    console.error("[AgeAssurance] Failed to set date of birth:", error);
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update date of birth" });
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
   }
+
+  if (age < 5) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Account creation not permitted for under-5 members." });
+  }
+
+  if (age >= 18) return "guardian";
+  if (age >= 16) return "architect";
+  if (age >= 13) return "builder";
+  if (age >= 9) return "explorer";
+  return "sprout";
 }
 
-export async function requestGuardianConsent(childUserId: number, guardianEmail: string) {
-  const db = await getDb();
-  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-
-  try {
-    // Find guardian user by email
-    const [guardian] = await db.select().from(users).where(eq(users.email, guardianEmail)).limit(1);
-    if (!guardian) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Guardian user account not found for this email." });
+export async function checkAgeTierPermission(
+  userId: number,
+  dateOfBirth: Date | null,
+  action: "chat" | "post" | "comment" | "dm" | "external_link" | "external_video" | "commission"
+): Promise<boolean> {
+  const tier = deriveAgeTier(dateOfBirth);
+  
+  if (tier === "sprout") {
+    if (["chat", "post", "comment", "dm", "external_link", "external_video"].includes(action)) {
+      return false;
     }
-
-    await db.insert(guardianLinks).values({
-      guardianUserId: guardian.id,
-      childUserId,
-      consentStatus: "pending",
-      consentMethod: "email_verification",
-    }).onDuplicateKeyUpdate({ set: { consentStatus: "pending" } });
-
-    return { success: true, message: "Consent request sent to guardian." };
-  } catch (error) {
-    console.error("[AgeAssurance] Failed to request guardian consent:", error);
-    throw error;
+  } else if (tier === "explorer") {
+    if (["dm", "external_link"].includes(action)) {
+      return false;
+    }
+  } else if (tier === "builder") {
+    if (["dm"].includes(action)) {
+      return false;
+    }
   }
+
+  return true;
 }
 
-export async function grantGuardianConsent(guardianId: number, linkId: number) {
+export async function recordEducationCompletion(userId: number, moduleKey: string, score?: number) {
   const db = await getDb();
   if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
   try {
-    await db.update(guardianLinks)
-      .set({ consentStatus: "granted", consentGrantedAt: new Date() })
-      .where(and(eq(guardianLinks.id, linkId), eq(guardianLinks.guardianUserId, guardianId)));
+    await db.insert(educationCompletions).values({
+      userId,
+      moduleKey,
+      score: score ?? null,
+      completedAt: new Date(),
+    }).onDuplicateKeyUpdate({ set: { completedAt: new Date(), score: score ?? null } });
     return { success: true };
   } catch (error) {
-    console.error("[AgeAssurance] Failed to grant consent:", error);
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to grant consent" });
+    console.error("[AgeAssurance] Failed to record education completion:", error);
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to record education completion" });
+  }
+}
+
+export async function checkEducationGate(userId: number, moduleKey: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const [record] = await db.select().from(educationCompletions)
+      .where(and(eq(educationCompletions.userId, userId), eq(educationCompletions.moduleKey, moduleKey)))
+      .limit(1);
+    return !!record;
+  } catch (error) {
+    return false;
   }
 }

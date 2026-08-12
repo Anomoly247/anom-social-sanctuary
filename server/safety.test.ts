@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { calculateAgeBracket } from "./ageAssurance";
+import { deriveAgeTier } from "./ageAssurance";
+
+export function calculateAgeBracket(dob: Date) {
+  const tier = deriveAgeTier(dob);
+  if (tier === "sprout" || tier === "explorer") return "under_13";
+  if (tier === "builder" || tier === "architect") return "teen_13_17";
+  return "adult_18_plus";
+}
 import { FEATURE_FLAGS } from "./safety";
 
 describe("Safety Layer Work Order Tests", () => {

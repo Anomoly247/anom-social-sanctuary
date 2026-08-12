@@ -14,7 +14,8 @@ export const users = mysqlTable("users", {
   status: mysqlEnum("status", ["active", "suspended"]).default("active").notNull(),
   moderatorTier: varchar("moderator_tier", { length: 20 }).default("none"),
   dateOfBirth: timestamp("date_of_birth"),
-  ageBracket: mysqlEnum("age_bracket", ["under_13", "teen_13_17", "adult_18_plus", "unverified"]).default("unverified").notNull(),
+  ageTier: mysqlEnum("age_tier", ["unverified", "sprout", "explorer", "builder", "architect", "guardian"]).default("unverified").notNull(),
+  tierOverride: boolean("tier_override").default(false).notNull(),
   restrictedUntil: timestamp("restricted_until"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -615,10 +616,23 @@ export const guardianLinks = mysqlTable("guardian_links", {
   childUserId: int("child_user_id").notNull(),
   consentStatus: mysqlEnum("consent_status", ["pending", "granted", "revoked"]).default("pending").notNull(),
   consentMethod: varchar("consent_method", { length: 64 }),
+  relationshipType: mysqlEnum("relationship_type", ["parent", "legal_guardian", "other"]).default("parent").notNull(),
+  dashboardOptOut: boolean("dashboard_opt_out").default(false).notNull(),
   consentGrantedAt: timestamp("consent_granted_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
+
+export const educationCompletions = mysqlTable("education_completions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  moduleKey: varchar("module_key", { length: 64 }).notNull(),
+  score: int("score"),
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+});
+
+export type EducationCompletion = typeof educationCompletions.$inferSelect;
+export type InsertEducationCompletion = typeof educationCompletions.$inferInsert;
 
 export type GuardianLink = typeof guardianLinks.$inferSelect;
 export type InsertGuardianLink = typeof guardianLinks.$inferInsert;

@@ -42,7 +42,7 @@
 - [x] Phase 15: Safety schema migration (`reports`, `user_blocks`, `moderation_actions`, `guardian_links`, user extensions, soft deletes)
 - [ ] Phase 16: User-facing reporting and blocking with server-side query enforcement
 - [x] Phase 17: Moderator roles, permission tiers, audit records, and moderation queue UI (with comprehensive regression tests)
-- [ ] Phase 18: Date of birth collection, guardian consent, and Kids Corner gating
+- [x] Phase 18: AO five-tier age assurance (`unverified`, `sprout`, `explorer`, `builder`, `architect`, `guardian`), automatic birthday promotion, under-5 refusal, education completions (`education_completions`), guardian consent flows (`guardian_links`), server-side permission resolver, optimistic Guardian Queue integration, and privacy-safe parent dashboards
 - [ ] Phase 19: Operational hardening, audit review, child-safety sorting, and work-order verification
 - [x] Diagnose and permanently resolve recurring OAuth callback failure in server/_core/oauth.ts
 - [x] Fix login button and subpage login state handling across protected routes
