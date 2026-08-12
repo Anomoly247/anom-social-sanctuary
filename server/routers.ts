@@ -6,7 +6,7 @@ import { membershipRouter } from "./membership.procedures";
 import { settingsRouter } from "./settings.procedures";
 import { gamesRouter } from "./games.procedures";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
-import { getOrCreateUserProfile, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getActivityEvents, logActivityEvent, likeActivityEvent, rateActivityEvent, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
+import { getOrCreateUserProfile, getUserById, getDecorationPackages, updateUserProfile, getCoinBalance, addCoinTransaction, getCoinTransactionHistory, addXP, getAchievements, getUserAchievements, unlockAchievement, createLounge, getUserLounges, getLounge, getLoungeMembersWithUsers, addLoungeMember, removeLoungeMember, addLoungeMessage, getLoungeMessages, updateLounge, toggleMessageReaction, pinMessage, markLoungeRead, getUnreadLoungeCounts, getActivityEvents, logActivityEvent, likeActivityEvent, rateActivityEvent, getKidsContent, trackKidsProgress, getUserKidsProgress } from "./db";
 import { submitReport, blockUser, unblockUser, getBlockedUserIds } from "./safety";
 import { getModerationQueue, takeModerationAction } from "./moderation";
 import { getAllFeatureFlags, setFeatureFlag, disableAllUgc, enforceFeatureFlag } from "./featureFlags";
@@ -35,11 +35,13 @@ export const appRouter = router({
     }),
     getPublic: publicProcedure
       .input(z.object({ userId: z.number() }))
-      .query(async ({ input, ctx }) => {
-        const profile = await getOrCreateUserProfile(input.userId);
-        if (!profile) return null;
-        // Get user name from context
-        const userName = ctx.user?.name || "Anonymous";
+      .query(async ({ input }) => {
+        const [profile, profileOwner, achievements] = await Promise.all([
+          getOrCreateUserProfile(input.userId),
+          getUserById(input.userId),
+          getUserAchievements(input.userId),
+        ]);
+        if (!profile || !profileOwner) return null;
         // Return only public fields
         return {
           id: profile.id,
@@ -49,8 +51,8 @@ export const appRouter = router({
           avatarUrl: profile.avatarUrl,
           coins: profile.anomCoinBalance || "0",
           level: profile.level || 1,
-          achievements: 0,
-          name: userName,
+          achievements: achievements.length,
+          name: profileOwner.name || "Anonymous",
         };
       }),
     updateTheme: protectedProcedure
