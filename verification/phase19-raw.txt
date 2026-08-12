@@ -1277,3 +1277,190 @@ computing gzip size...
   dist/index.js  160.8kb
 
 ⚡ Done in 9ms
+
+=== PHASE19 BEHAVIORAL VITEST AFTER EDUCATION_COMPLETIONS MIGRATION ===
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 949ms
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+   → promise resolved "{ success: true, flags: { …(13) } }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+   → expected 'visible' to be 'removed' // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+   → expected true to be false // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+   → expected 'explorer' to be 'builder' // Object.is equality
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+AssertionError: promise resolved "{ success: true, flags: { …(13) } }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "flags": Object {
++     "activity_feed": false,
++     "activity_feed_likes": false,
++     "activity_feed_ratings": true,
++     "coin_earning_from_engagement": false,
++     "kids_corner": false,
++     "lounge_image_upload": false,
++     "lounge_pinned_messages": false,
++     "lounge_reactions": false,
++     "profile_customization": false,
++     "public_profiles": false,
++     "tipping": false,
++     "unread_badges": false,
++     "vip_custom_emoji": false,
++   },
++   "success": true,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:65:66
+     63| 
+     64|   it("Gate 2: enabling a flag with unmet prerequisites is refused by t…
+     65|     await expect(setFeatureFlag(1, "activity_feed_ratings", true)).rej…
+       |                                                                  ^
+     66|   });
+     67| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:87:42
+     85|     for (const status of ["muted", "timed_out", "suspended", "banned"]…
+     86|       const caller = callerFor({ id: 1, role: "user", status, restrict…
+     87|       await expect(caller.profile.getMe()).rejects.toMatchObject({ cod…
+       |                                          ^
+     88|     }
+     89|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:93:46
+     91|   it("Gate 5: an active timed_out restriction is refused and the same …
+     92|     const activeCaller = callerFor({ id: 1, role: "user", status: "tim…
+     93|     await expect(activeCaller.profile.getMe()).rejects.toMatchObject({…
+       |                                              ^
+     94| 
+     95|     const expiredCaller = callerFor({ id: 1, role: "user", status: "ti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+AssertionError: expected 'visible' to be 'removed' // Object.is equality
+
+Expected: "removed"
+Received: "visible"
+
+ ❯ server/phase19.behavioral.test.ts:120:44
+    118|     const afterRows = (after as any)[0] ?? [];
+    119|     expect(afterRows).toHaveLength(1);
+    120|     expect(afterRows[0].moderation_status).toBe("removed");
+       |                                            ^
+    121|   });
+    122| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+AssertionError: expected 'explorer' to be 'builder' // Object.is equality
+
+Expected: "builder"
+Received: "explorer"
+
+ ❯ server/phase19.behavioral.test.ts:142:35
+    140|     const token = await sdk.createSessionToken(openId, { name: "Birthd…
+    141|     const authenticated = await sdk.authenticateRequest({ headers: { c…
+    142|     expect(authenticated.ageTier).toBe("builder");
+       |                                   ^
+    143|   });
+    144| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 4 passed (10)
+   Start at  06:43:57
+   Duration  2.76s (transform 246ms, setup 0ms, collect 735ms, tests 1.79s, environment 0ms, prepare 61ms)
+
