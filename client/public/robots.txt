@@ -3,7 +3,7 @@ Allow: /
 Disallow: /admin
 Disallow: /owner-settings
 Disallow: /api/
-Sitemap: https://anomsanctuary-bxvj5ftt.manus.space/sitemap.xml
+Sitemap: https://anomartsy.xyz/sitemap.xml
 
 User-agent: Googlebot
 Allow: /
