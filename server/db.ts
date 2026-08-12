@@ -588,6 +588,7 @@ export async function getLoungeMessages(loungeId: number, limit = 100, currentUs
         lounge_id INT NOT NULL,
         user_id INT NOT NULL,
         content TEXT NOT NULL,
+        image_url TEXT,
         is_pinned BOOLEAN DEFAULT false NOT NULL,
         reactions JSON,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -609,6 +610,7 @@ export async function getLoungeMessages(loungeId: number, limit = 100, currentUs
         loungeId: loungeMessages.loungeId,
         userId: loungeMessages.userId,
         content: loungeMessages.content,
+        imageUrl: loungeMessages.imageUrl,
         isPinned: loungeMessages.isPinned,
         reactions: loungeMessages.reactions,
         createdAt: loungeMessages.createdAt,

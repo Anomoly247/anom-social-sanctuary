@@ -50,3 +50,4 @@
 - [ ] Add progress bars and success notifications to media upload forms for video and audio
 - [ ] Build public-facing Anom's Corner feed with category filters (video, audio, storybooks)
 - [ ] Fix OAuth state cookie domain/sameSite attribute mismatch causing "invalid auth state" error in callback
+- [ ] Fix home-page tRPC JSON.parse error caused by malformed JSON fields in database or API response
