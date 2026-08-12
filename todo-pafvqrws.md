@@ -61,3 +61,6 @@
 - [x] Fix 2 of 5: create only the four missing collaboration tables from Drizzle, verify `/collaboration`, append full-suite raw output, and push one commit
 - [x] Produce and push a read-only audit of Manus infrastructure dependencies, including OAuth, sessions, database, hosting, and media access
 - [x] Document all runtime environment variable names required by the project without recording their values
+- [x] Create an out-of-repository database backup, report table metrics, and inventory referenced Manus-storage media without downloading objects
+- [x] Produce a header-only inventory of all `/manus-storage/` media references, including Pixel & Dot and Anom's Corner assets
+- [x] Write and push a complete fresh-server deployment runbook covering environment, build, database, OAuth, and runtime configuration
