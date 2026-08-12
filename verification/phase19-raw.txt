@@ -1956,3 +1956,147 @@ stdout | server/lounge.test.ts > lounge db helper regression > successfully quer
    Start at  08:15:02
    Duration  4.73s (transform 733ms, setup 0ms, collect 8.56s, tests 7.38s, environment 7ms, prepare 2.11s)
 
+
+
+===== Full Vitest suite after removing silent education setup suppression =====
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+ ✓ server/adminUserFilters.test.ts > admin user filters > recognizes recent and stale activity using a 30-day window
+ ✓ server/adminUserFilters.test.ts > admin user filters > searches by name, email, and ID
+ ✓ server/adminUserFilters.test.ts > admin user filters > combines role and activity filters
+ ✓ server/adminUserFilters.test.ts > admin user filters > returns an empty list when no users match
+ ✓ server/adminUserFilters.test.ts > admin user filters > resolves the exact selected users in selection order for a bulk preview
+ ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > refuses ambassador from performing suspend or ban actions
+ ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > refuses moderator from performing ban actions or role assignments
+ ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > refuses users or lower-tier roles from self-escalation or unauthorized actions
+ ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > validates ambassador mute duration limit (max 24h)
+ ✓ server/phase17.regression.test.ts > Sanctuary Safety Layer - Phase 17 Comprehensive Regression Coverage > exports getModerationQueue and takeModerationAction successfully
+stdout | server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > enforces Explorer and Builder DM / external link restrictions
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > correctly derives age tiers from date of birth
+ ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > refuses account creation for under-5 members
+ ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > enforces Sprout permission restrictions server-side
+ ✓ server/system.user-management.test.ts > system user management procedures > allows an admin to promote a user and suspend an account
+ ✓ server/system.user-management.test.ts > system user management procedures > rejects role and status changes from regular users
+ ✓ server/system.user-management.test.ts > system user management procedures > prevents an admin from removing their own access or suspending themselves
+ ✓ server/system.user-management.test.ts > system user management procedures > rejects malformed or missing target IDs before calling the database
+ ✓ server/system.user-management.test.ts > system user management procedures > allows an admin to promote and suspend multiple selected users atomically at the procedure level
+ ✓ server/system.user-management.test.ts > system user management procedures > rejects bulk actions from regular users and protects the admin from self-suspension
+ ✓ server/system.user-management.test.ts > system user management procedures > exposes the protected filtered and paginated audit activity query
+ ✓ server/system.user-management.test.ts > system user management procedures > exports filtered audit activity as escaped CSV for compliance review
+ ✓ server/system.user-management.test.ts > system user management procedures > exposes protected audit summary metrics and timeline data
+ ✓ server/system.user-management.test.ts > system user management procedures > blocks suspended users before protected procedures run
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+stdout | server/system.procedures.test.ts > system admin procedures > exposes read-only admin dashboard procedures with stable result shapes
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+stdout | server/audit.log.persistence.test.ts > audit log persistence > persists and retrieves an admin moderation audit entry
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/auth.logout.test.ts > auth.logout > clears the session cookie and reports success
+ ✓ server/audit.log.persistence.test.ts > audit log persistence > persists and retrieves an admin moderation audit entry
+ ✓ server/audit.log.persistence.test.ts > audit log persistence > persists and retrieves an admin moderation audit entry 422ms
+ ✓ server/system.procedures.test.ts > system admin procedures > exposes read-only admin dashboard procedures with stable result shapes 741ms
+ ✓ server/system.procedures.test.ts > system admin procedures > rejects non-admin sessions before querying dashboard data
+ ✓ server/phase18.ageTiers.test.ts > Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent > enforces Explorer and Builder DM / external link restrictions 1151ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 968ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+ ✓ server/admin.access.test.ts > admin access guard > allows an admin session through
+ ✓ server/admin.access.test.ts > admin access guard > rejects a regular user session
+ ✓ server/moderationUndo.test.ts > moderation undo operations > reverses an individual role or status change to its captured prior value
+ ✓ server/moderationUndo.test.ts > moderation undo operations > preserves the exact selected order for bulk rollback operations
+stdout | server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > enforces guardian consent requirement for sprouts and explorers
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > refuses account creation for under-5 members
+ ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > verifies Sprout and Explorer permission restrictions server-side
+stdout | server/db.owner-role.test.ts > upsertUser owner role assignment > assigns admin to the configured owner open ID
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/db.owner-role.test.ts > upsertUser owner role assignment > assigns admin to the configured owner open ID
+ ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Achievements.tsx
+ ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Wallet.tsx
+ ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Profile.tsx
+ ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > includes startLogin CTA on unauthenticated protected subpage Lounges.tsx
+ ✓ server/subpage.login.test.ts > Subpage Login CTA and OAuth Integration > validates OAuth state contract for login redirects
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result 322ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+ ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > enforces guardian consent requirement for sprouts and explorers 322ms
+ ✓ server/phase18.complete.test.ts > Sanctuary Safety Layer - Phase 18 Complete Gate Verification > guarantees parent dashboard privacy (no message contents or transcripts)
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+ ✓ server/adminTabShortcuts.test.ts > admin tab shortcuts > maps Alt+1 through Alt+6 to the six control-panel tabs
+ ✓ server/adminTabShortcuts.test.ts > admin tab shortcuts > ignores modified shortcuts and non-tab keys
+ ✓ server/phase17.ambassador.test.ts > Sanctuary Safety Layer - Phase 17 Ambassador Gate & Moderation Queue > defines getModerationQueue and takeModerationAction functions
+ ✓ server/phase17.ambassador.test.ts > Sanctuary Safety Layer - Phase 17 Ambassador Gate & Moderation Queue > refuses ambassador from performing suspend or ban actions
+ ✓ server/phase17.ambassador.test.ts > Sanctuary Safety Layer - Phase 17 Ambassador Gate & Moderation Queue > refuses ambassador from muting more than 24 hours
+ ✓ server/oauth.state.test.ts > OAuth state contract > round-trips the redirect URI and one-time nonce used by the callback
+ ✓ server/oauth.state.test.ts > OAuth state contract > rejects malformed OAuth state instead of silently accepting it
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+ ✓ server/safety.test.ts > Safety Layer Work Order Tests > calculates age bracket correctly
+ ✓ server/safety.test.ts > Safety Layer Work Order Tests > defaults risky UGC features to off
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately 303ms
+stdout | server/lounge.features.test.ts > lounge advanced features regression > supports toggle reaction and pinning helpers safely
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+stdout | server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > returns default flags correctly
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > defines lounge_image_upload and vip_custom_emoji as default off
+stdout | server/user.profile.test.ts > user profile db helper > retrieves or creates a user profile successfully
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+stdout | server/oauth.callback.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+ ✓ server/lounge.features.test.ts > lounge advanced features regression > supports toggle reaction and pinning helpers safely 376ms
+ ✓ server/oauth.callback.test.ts > OAuth Callback Validation > registers OAuth routes successfully
+ ✓ server/oauth.callback.test.ts > OAuth Callback Validation > encodes and decodes OAuth state correctly for callback exchange
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > returns default flags correctly 327ms
+stdout | server/phase14.complete.test.ts > Phase 14 Feature Flag Gate Verification > verifies getAllFeatureFlags returns default off for risky flags
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase14.complete.test.ts > Phase 14 Feature Flag Gate Verification > verifies default-off status of risky UGC features
+ ✓ server/user.profile.test.ts > user profile db helper > retrieves or creates a user profile successfully 341ms
+ ✓ server/phase14.complete.test.ts > Phase 14 Feature Flag Gate Verification > verifies getAllFeatureFlags returns default off for risky flags 336ms
+stdout | server/user.settings.test.ts > user settings neon theme persistence > successfully updates user neon theme and name color
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/block.filter.test.ts > Sanctuary Safety Layer - Server Query Block Filtering > defines getLoungeMessages with currentUserId parameter for server-side block filtering
+stdout | server/oauth.execution.test.ts > OAuth User Upsert and Safety Schema Compatibility > successfully performs upsertUser without throwing missing column errors
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+stdout | server/lounge.test.ts > lounge db helper regression > successfully queries user lounges without missing column errors
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/user.settings.test.ts > user settings neon theme persistence > successfully updates user neon theme and name color 385ms
+ ✓ server/oauth.execution.test.ts > OAuth User Upsert and Safety Schema Compatibility > successfully performs upsertUser without throwing missing column errors 367ms
+ ✓ server/lounge.test.ts > lounge db helper regression > successfully queries user lounges without missing column errors 359ms
+
+ Test Files  26 passed (26)
+      Tests  73 passed (73)
+   Start at  08:18:37
+   Duration  4.72s (transform 742ms, setup 0ms, collect 8.69s, tests 7.23s, environment 6ms, prepare 2.21s)
+

@@ -67,7 +67,7 @@ describe("Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent", ()
       await db.insert(educationCompletions).values([
         { userId: 2, moduleKey: "stop_method" },
         { userId: 2, moduleKey: "link_detective" },
-      ]).catch(() => {});
+      ]);
     }
 
     expect(await checkAgeTierPermission(2, explorerDob, "dm")).toBe(false);

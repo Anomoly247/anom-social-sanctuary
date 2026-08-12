@@ -56,3 +56,4 @@
 - [x] Rewrite the schema diff as a two-sided Drizzle/MariaDB comparison, apply all missing existing-table columns in one migration, and append post-migration raw verification output
 - [x] Gate 8 only: create the missing `education_completions` table from the existing Drizzle schema, retain the behavioral test unchanged, append raw verification, and push one commit
 - [x] Append an unchanged full Vitest suite run after Gate 8 and push the verification result
+- [x] Remove the silent `educationCompletions` insert failure path from the Phase 18 Explorer coverage, rerun the full suite, append raw output, and push one commit
