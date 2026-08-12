@@ -60,3 +60,4 @@
 - [x] Produce and push a read-only audit of the Drizzle tables missing from the live database and all `users.age_bracket` code references
 - [x] Fix 2 of 5: create only the four missing collaboration tables from Drizzle, verify `/collaboration`, append full-suite raw output, and push one commit
 - [x] Produce and push a read-only audit of Manus infrastructure dependencies, including OAuth, sessions, database, hosting, and media access
+- [x] Document all runtime environment variable names required by the project without recording their values
