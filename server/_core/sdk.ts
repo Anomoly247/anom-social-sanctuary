@@ -6,6 +6,7 @@ import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
 import * as db from "../db";
+import { recomputeUserAgeTier } from "../ageAssurance";
 import { ENV } from "./env";
 import type {
   ExchangeTokenRequest,
@@ -320,7 +321,9 @@ class SDKServer {
       lastSignedIn: signedInAt,
     });
 
-    return user;
+    await recomputeUserAgeTier(user.id);
+    const refreshedUser = await db.getUserByOpenId(sessionUserId);
+    return refreshedUser || user;
   }
 }
 

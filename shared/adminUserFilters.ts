@@ -1,5 +1,5 @@
 export type AdminUserRole = "user" | "ambassador" | "moderator" | "admin" | "owner";
-export type AdminUserAccountStatus = "active" | "suspended";
+export type AdminUserAccountStatus = "active" | "suspended" | "muted" | "timed_out" | "banned";
 export type AdminUserRoleFilter = "all" | AdminUserRole;
 export type AdminUserStatusFilter = "all" | "active" | "inactive";
 

@@ -1,4 +1,4 @@
-import { users, guardianLinks, educationCompletions, kidsProgress, feedPosts, loungeMessages } from "../drizzle/schema";
+import { users, guardianLinks, kidsProgress, educationCompletions, feedPosts, loungeMessages } from "../drizzle/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "./db";
@@ -171,6 +171,14 @@ export async function checkAgeTierPermission(
       return false;
     }
   } else if (tier === "explorer") {
+    if (action === "chat") {
+      const db = await getDb();
+      if (!db) return false;
+      const comps = await db.select().from(educationCompletions).where(eq(educationCompletions.userId, userId));
+      const hasStopMethod = comps.some(c => c.moduleKey === "stop_method");
+      const hasLinkDetective = comps.some(c => c.moduleKey === "link_detective");
+      return hasStopMethod && hasLinkDetective;
+    }
     if (["dm", "external_link"].includes(action)) {
       return false;
     }

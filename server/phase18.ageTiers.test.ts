@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { deriveAgeTier, checkAgeTierPermission } from "./ageAssurance";
+import { getDb } from "./db";
+import { educationCompletions } from "../drizzle/schema";
 
 describe("Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent", () => {
   it("correctly derives age tiers from date of birth", () => {
@@ -59,6 +61,14 @@ describe("Sanctuary Safety Layer - Phase 18 AO Age Tiers & Guardian Consent", ()
     const today = new Date();
     const explorerDob = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
     const builderDob = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
+
+    const db = await getDb();
+    if (db) {
+      await db.insert(educationCompletions).values([
+        { userId: 2, moduleKey: "stop_method" },
+        { userId: 2, moduleKey: "link_detective" },
+      ]).catch(() => {});
+    }
 
     expect(await checkAgeTierPermission(2, explorerDob, "dm")).toBe(false);
     expect(await checkAgeTierPermission(2, explorerDob, "external_link")).toBe(false);

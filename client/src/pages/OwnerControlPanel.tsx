@@ -65,6 +65,112 @@ const AUDIT_ACTION_TYPES = [
   'bulk_update_user_status_suspended',
 ] as const;
 
+function FeaturesTab() {
+  const flagsQuery = trpc.safety.getFeatureFlags.useQuery(undefined, { refetchInterval: 5000 });
+  const setFlagMutation = trpc.safety.setFeatureFlag.useMutation();
+  const disableAllUgcMutation = trpc.safety.disableAllUgc.useMutation();
+  const flags = flagsQuery.data ?? {
+    lounge_image_upload: false,
+    vip_custom_emoji: false,
+    lounge_reactions: true,
+    lounge_pinned_messages: true,
+    unread_badges: true,
+    activity_feed: true,
+    activity_feed_likes: true,
+    activity_feed_ratings: false,
+    coin_earning_from_engagement: false,
+    profile_customization: true,
+    public_profiles: true,
+    tipping: true,
+    kids_corner: true,
+  };
+
+  const handleToggle = async (flagKey: string, currentVal: boolean) => {
+    try {
+      await setFlagMutation.mutateAsync({ flagKey, value: !currentVal });
+      toast.success(`Feature '${flagKey}' updated to ${!currentVal ? 'ON' : 'OFF'}. Audit record logged.`);
+      await flagsQuery.refetch();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update feature flag.');
+    }
+  };
+
+  const handleDisableAll = async () => {
+    try {
+      await disableAllUgcMutation.mutateAsync();
+      toast.success('All user-generated content features have been disabled.');
+      await flagsQuery.refetch();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to disable UGC features.');
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-[#ff00cc]">Phase 14 Feature Flag Controls</h2>
+          <p className="text-gray-400 text-sm">Owner & Admin feature registry with server enforcement, prerequisite locks, and audit logging.</p>
+        </div>
+        <Button
+          variant="destructive"
+          onClick={handleDisableAll}
+          disabled={disableAllUgcMutation.isPending}
+          className="bg-red-600 hover:bg-red-700 text-white font-bold"
+        >
+          🚨 Disable All User-Generated Content
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[
+          { key: 'lounge_image_upload', label: 'Lounge Image Upload', desc: 'Allows image uploads in lounge chat (requires reporting & blocking)', icon: '📷' },
+          { key: 'vip_custom_emoji', label: 'VIP Custom Animated Emoji', desc: 'Allows custom animated reactions for VIPs (requires reporting & blocking)', icon: '✨' },
+          { key: 'lounge_reactions', label: 'Lounge Emoji Reactions', desc: 'Enables emoji reaction buttons and counts', icon: '👍' },
+          { key: 'lounge_pinned_messages', label: 'Lounge Pinned Messages', desc: 'Allows lounge owners to pin important messages', icon: '📌' },
+          { key: 'unread_badges', label: 'Unread Message Badges', desc: 'Shows unread message counts on lounge links', icon: '🔔' },
+          { key: 'activity_feed', label: 'Community Activity Feed', desc: 'Streams recent lounge milestones and announcements', icon: '📡' },
+          { key: 'activity_feed_likes', label: 'Activity Feed Likes', desc: 'Allows members to like feed items', icon: '❤️' },
+          { key: 'activity_feed_ratings', label: 'Activity Feed Ratings', desc: 'Allows rating feed items for Anom Coins', icon: '⭐' },
+          { key: 'profile_customization', label: 'Profile Customization', desc: 'Allows bio, avatar, and theme customization', icon: '🎨' },
+          { key: 'public_profiles', label: 'Public Profiles', desc: 'Displays public member profiles', icon: '👤' },
+          { key: 'tipping', label: 'Tipping', desc: 'Enables tipping between users', icon: '🪙' },
+          { key: 'kids_corner', label: "Anom's Corner", desc: 'Exposes educational and family content', icon: '📚' },
+        ].map((item) => {
+          const isActive = (flags as Record<string, boolean>)[item.key] ?? false;
+          return (
+            <Card key={item.key} className="border-2 border-[#00eaff]/40 bg-[#0b0e14]/90 p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{item.icon}</span>
+                    <span className="font-bold text-white">{item.label}</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                    {isActive ? 'ON' : 'OFF'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mb-4">{item.desc}</p>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-gray-800">
+                <span className="text-xs text-gray-500 font-mono">{item.key}</span>
+                <Button
+                  size="sm"
+                  onClick={() => handleToggle(item.key, isActive)}
+                  disabled={setFlagMutation.isPending}
+                  className={isActive ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/40 text-xs' : 'bg-green-500/20 text-green-300 hover:bg-green-500/30 border border-green-500/40 text-xs'}
+                >
+                  {isActive ? 'Turn OFF' : 'Turn ON'}
+                </Button>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function OwnerControlPanel() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -115,6 +221,13 @@ export default function OwnerControlPanel() {
     enabled: activeTab === 'audit',
     refetchInterval: activeTab === 'audit' ? 10000 : false,
   });
+
+  const flagsQuery = trpc.safety.getFeatureFlags.useQuery(undefined, {
+    enabled: activeTab === 'features',
+    refetchInterval: activeTab === 'features' ? 5000 : false,
+  });
+  const setFlagMutation = trpc.safety.setFeatureFlag.useMutation();
+  const disableAllUgcMutation = trpc.safety.disableAllUgc.useMutation();
   const auditLogs = auditQuery.data?.logs ?? [];
   const auditTotal = auditQuery.data?.total ?? 0;
   const refetchAuditLogs = auditQuery.refetch;
@@ -365,29 +478,25 @@ export default function OwnerControlPanel() {
     }
   };
 
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] p-4 flex items-center justify-center">
-        <Card className="border-2 border-[#ff00cc] bg-[#0b0e14]/80 p-8 max-w-md">
-          <div className="flex items-center justify-center mb-4">
-            <Lock className="w-12 h-12 text-[#ff00cc]" />
-          </div>
-          <h1 className="text-2xl font-bold text-center text-[#ff00cc] mb-4">Access Denied</h1>
-          <p className="text-center text-gray-300 mb-6">
-            Only administrators can access the Owner Control Panel.
-          </p>
-          <Button 
-            onClick={() => navigate('/')}
-            className="w-full bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
-          >
-            Return to Home
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
+  return user?.role !== 'admin' ? (
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] p-4 flex items-center justify-center">
+      <Card className="border-2 border-[#ff00cc] bg-[#0b0e14]/80 p-8 max-w-md">
+        <div className="flex items-center justify-center mb-4">
+          <Lock className="w-12 h-12 text-[#ff00cc]" />
+        </div>
+        <h1 className="text-2xl font-bold text-center text-[#ff00cc] mb-4">Access Denied</h1>
+        <p className="text-center text-gray-300 mb-6">
+          Only administrators can access the Owner Control Panel.
+        </p>
+        <Button 
+          onClick={() => navigate('/')}
+          className="w-full bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
+        >
+          Return to Home
+        </Button>
+      </Card>
+    </div>
+  ) : (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] p-4 md:p-8">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
@@ -1092,111 +1201,7 @@ export default function OwnerControlPanel() {
       )}
 
       {/* Features Tab */}
-      {activeTab === 'features' && (() => {
-        const flagsQuery = trpc.safety.getFeatureFlags.useQuery(undefined, { refetchInterval: 5000 });
-        const setFlagMutation = trpc.safety.setFeatureFlag.useMutation();
-        const disableAllUgcMutation = trpc.safety.disableAllUgc.useMutation();
-        const flags = flagsQuery.data ?? {
-          lounge_image_upload: false,
-          vip_custom_emoji: false,
-          lounge_reactions: true,
-          lounge_pinned_messages: true,
-          unread_badges: true,
-          activity_feed: true,
-          activity_feed_likes: true,
-          activity_feed_ratings: false,
-          coin_earning_from_engagement: false,
-          profile_customization: true,
-          public_profiles: true,
-          tipping: true,
-          kids_corner: true,
-        };
-
-        const handleToggle = async (flagKey: string, currentVal: boolean) => {
-          try {
-            await setFlagMutation.mutateAsync({ flagKey, value: !currentVal });
-            toast.success(`Feature '${flagKey}' updated to ${!currentVal ? 'ON' : 'OFF'}. Audit record logged.`);
-            await flagsQuery.refetch();
-          } catch (error: any) {
-            toast.error(error?.message || 'Failed to update feature flag.');
-          }
-        };
-
-        const handleDisableAll = async () => {
-          try {
-            await disableAllUgcMutation.mutateAsync();
-            toast.success('All user-generated content features have been disabled.');
-            await flagsQuery.refetch();
-          } catch (error: any) {
-            toast.error(error?.message || 'Failed to disable UGC features.');
-          }
-        };
-
-        return (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-[#ff00cc]">Phase 14 Feature Flag Controls</h2>
-                <p className="text-gray-400 text-sm">Owner & Admin feature registry with server enforcement, prerequisite locks, and audit logging.</p>
-              </div>
-              <Button
-                variant="destructive"
-                onClick={handleDisableAll}
-                disabled={disableAllUgcMutation.isPending}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold"
-              >
-                🚨 Disable All User-Generated Content
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { key: 'lounge_image_upload', label: 'Lounge Image Upload', desc: 'Allows image uploads in lounge chat (requires reporting & blocking)', icon: '📷' },
-                { key: 'vip_custom_emoji', label: 'VIP Custom Animated Emoji', desc: 'Allows custom animated reactions for VIPs (requires reporting & blocking)', icon: '✨' },
-                { key: 'lounge_reactions', label: 'Lounge Emoji Reactions', desc: 'Enables emoji reaction buttons and counts', icon: '👍' },
-                { key: 'lounge_pinned_messages', label: 'Lounge Pinned Messages', desc: 'Allows lounge owners to pin important messages', icon: '📌' },
-                { key: 'unread_badges', label: 'Unread Message Badges', desc: 'Shows unread message counts on lounge links', icon: '🔔' },
-                { key: 'activity_feed', label: 'Community Activity Feed', desc: 'Streams recent lounge milestones and announcements', icon: '📡' },
-                { key: 'activity_feed_likes', label: 'Activity Feed Likes', desc: 'Allows members to like feed items', icon: '❤️' },
-                { key: 'activity_feed_ratings', label: 'Activity Feed Ratings', desc: 'Allows rating feed items for Anom Coins', icon: '⭐' },
-                { key: 'profile_customization', label: 'Profile Customization', desc: 'Allows bio, avatar, and theme customization', icon: '🎨' },
-                { key: 'public_profiles', label: 'Public Profiles', desc: 'Displays public member profiles', icon: '👤' },
-                { key: 'tipping', label: 'Tipping', desc: 'Enables tipping between users', icon: '🪙' },
-                { key: 'kids_corner', label: "Anom's Corner", desc: 'Enables educational and family content', icon: '📚' },
-              ].map((item) => {
-                const isActive = (flags as Record<string, boolean>)[item.key] ?? false;
-                return (
-                  <Card key={item.key} className="border-2 border-[#00eaff]/40 bg-[#0b0e14]/90 p-4 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{item.icon}</span>
-                          <span className="font-bold text-white">{item.label}</span>
-                        </div>
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
-                          {isActive ? 'ON' : 'OFF'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mb-4">{item.desc}</p>
-                    </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-800">
-                      <span className="text-xs text-gray-500 font-mono">{item.key}</span>
-                      <Button
-                        size="sm"
-                        onClick={() => handleToggle(item.key, isActive)}
-                        disabled={setFlagMutation.isPending}
-                        className={isActive ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/40 text-xs' : 'bg-green-500/20 text-green-300 hover:bg-green-500/30 border border-green-500/40 text-xs'}
-                      >
-                        {isActive ? 'Turn OFF' : 'Turn ON'}
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })()}
+      {activeTab === 'features' && <FeaturesTab />}
 
       <Dialog
         open={isBulkModerationAction}

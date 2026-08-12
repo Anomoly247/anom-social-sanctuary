@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { reports, moderationActions, auditLog, users } from "../drizzle/schema";
+import { reports, moderationActions, auditLog, users, loungeMessages, feedPosts } from "../drizzle/schema";
 import { eq, desc, asc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -87,6 +87,18 @@ export async function takeModerationAction(
       await db.update(users)
         .set({ status: newStatus as any, restrictedUntil: expiresAt })
         .where(eq(users.id, targetUserId));
+    }
+
+    if (actionType === "content_remove" && targetId && targetType) {
+      if (targetType === "lounge_message") {
+        await db.update(loungeMessages)
+          .set({ moderationStatus: "removed", deletedAt: new Date(), deletedByUserId: moderatorId })
+          .where(eq(loungeMessages.id, targetId));
+      } else if (targetType === "post" || targetType === "feed_post") {
+        await db.update(feedPosts)
+          .set({ moderationStatus: "removed", deletedAt: new Date(), deletedByUserId: moderatorId })
+          .where(eq(feedPosts.id, targetId));
+      }
     }
 
     // If reportId provided, mark report as actioned

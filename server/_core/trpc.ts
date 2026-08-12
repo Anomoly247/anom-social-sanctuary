@@ -17,8 +17,19 @@ const requireUser = t.middleware(async opts => {
     throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
   }
 
-  if (ctx.user.status === "suspended") {
+  const status = ctx.user.status;
+  const restrictedUntil = (ctx.user as any).restrictedUntil ? new Date((ctx.user as any).restrictedUntil) : null;
+  const now = new Date();
+
+  if (status === "suspended") {
     throw new TRPCError({ code: "FORBIDDEN", message: "Account suspended" });
+  }
+  if (status === "banned" || status === "muted") {
+    throw new TRPCError({ code: "FORBIDDEN", message: `Account is ${status}` });
+  }
+
+  if (status === "timed_out" && restrictedUntil && restrictedUntil > now) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Account is timed out" });
   }
 
   return next({

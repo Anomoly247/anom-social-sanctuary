@@ -74,10 +74,13 @@ export async function setFeatureFlag(userId: number, flagKey: FlagKey, value: bo
   if (value) {
     const config = FEATURE_REGISTRY[flagKey];
     if (config && "requires" in config && config.requires) {
-      // Ensure required safety modules (reporting, blocking, moderation_queue, etc.) are active or present
+      const allFlags = await getAllFeatureFlags();
       for (const req of config.requires) {
-        if (["reporting", "blocking", "moderation_queue", "daily_earn_caps"].includes(req)) {
-          // Mandatory safety prerequisite check passed
+        if (allFlags[req as FlagKey] === false || allFlags[req as FlagKey] === undefined) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Cannot enable '${config.label}': required prerequisite '${req}' is disabled.`,
+          });
         }
       }
     }
