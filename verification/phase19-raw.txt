@@ -2272,3 +2272,31 @@ stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verifica
    Start at  21:10:08
    Duration  2.62s (transform 274ms, setup 0ms, collect 834ms, tests 1.54s, environment 0ms, prepare 65ms)
 
+
+===== Tier purchases fix: Phase 19 behavioral suite =====
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 700ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  21:18:35
+   Duration  2.53s (transform 278ms, setup 0ms, collect 802ms, tests 1.48s, environment 0ms, prepare 69ms)
+

@@ -166,15 +166,16 @@ set +a
 pnpm drizzle-kit migrate
 ```
 
-**Current repository caveat:** `drizzle/meta/_journal.json` records migrations `0000`–`0003` only. `0004_admin_audit_log.sql`, `0005_education_completions.sql`, and `0006_collaboration_tables.sql` are tracked SQL files but are not recorded in that journal. On a **new empty database**, apply them explicitly after `drizzle-kit migrate`:
+**Current repository caveat:** `drizzle/meta/_journal.json` records migrations `0000`–`0003` only. `0004_admin_audit_log.sql`, `0005_education_completions.sql`, `0006_collaboration_tables.sql`, and `0007_tier_purchases.sql` are tracked SQL files but are not recorded in that journal. On a **new empty database**, apply them explicitly after `drizzle-kit migrate`:
 
 ```bash
 mysql --host=DB_HOST --port=3306 --user=anom_app --password --ssl-mode=REQUIRED anom_sanctuary < drizzle/0004_admin_audit_log.sql
 mysql --host=DB_HOST --port=3306 --user=anom_app --password --ssl-mode=REQUIRED anom_sanctuary < drizzle/0005_education_completions.sql
 mysql --host=DB_HOST --port=3306 --user=anom_app --password --ssl-mode=REQUIRED anom_sanctuary < drizzle/0006_collaboration_tables.sql
+mysql --host=DB_HOST --port=3306 --user=anom_app --password --ssl-mode=REQUIRED anom_sanctuary < drizzle/0007_tier_purchases.sql
 ```
 
-For a database restored from a current full dump, inspect tables first. Do not replay the early migrations blindly; the dump already includes its schema and `__drizzle_migrations` history. The three explicit `0004`–`0006` files use `CREATE TABLE IF NOT EXISTS`, but validate the resulting schema rather than assuming all later manual schema changes are captured by these files.
+For a database restored from a current full dump, inspect tables first. Do not replay the early migrations blindly; the dump already includes its schema and `__drizzle_migrations` history. The four explicit `0004`–`0007` files use `CREATE TABLE IF NOT EXISTS`, but validate the resulting schema rather than assuming all later manual schema changes are captured by these files.
 
 ## 5. Build and start
 

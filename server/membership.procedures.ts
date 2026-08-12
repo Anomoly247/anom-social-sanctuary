@@ -146,15 +146,29 @@ export const membershipRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid tier" });
       }
 
-      // Placeholder - return success
-      return { success: true, purchaseId: Math.random() };
+      const { getOrCreateUserProfile, createTierPurchase } = await import("./db");
+      const profile = await getOrCreateUserProfile(ctx.user.id);
+      const fromTier = profile?.membershipTier || "basic";
+      const amount = getTierUpgradePrice(fromTier as any, input.toTier as any);
+      const purchase = await createTierPurchase(
+        ctx.user.id,
+        input.toTier as "basic" | "vip" | "super_vip",
+        amount,
+        input.duration,
+      );
+
+      if (!purchase) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create tier purchase" });
+      }
+
+      return { success: true, purchaseId: purchase.id, purchase };
     }),
 
   /**
    * Get tier purchase history
    */
   getTierPurchaseHistory: protectedProcedure.query(async ({ ctx }) => {
-    // Placeholder - return empty array
-    return [];
+    const { getUserTierPurchases } = await import("./db");
+    return await getUserTierPurchases(ctx.user.id);
   }),
 });

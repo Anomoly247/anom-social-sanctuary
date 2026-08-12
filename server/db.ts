@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { eq, and, sql, gt, desc, gte, like, lte, or } from "drizzle-orm";
-import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, activityEvents, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips, userBlocks } from "../drizzle/schema";
+import { InsertUser, users, userProfiles, decorationPackages, coinTransactions, achievements, userAchievements, lounges, loungeMembers, loungeMessages, loungeReadStates, activityEvents, kidsProgress, collaborationProjects, collaborationMembers, collaborationTasks, collaborationUpdates, platformSettings, InsertPlatformSettings, auditLog, vipTiers, userVipSubscriptions, vipBenefitsLog, tips, tierPurchases, userBlocks } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -1333,6 +1333,58 @@ export async function getUserTips(userId: number) {
   if (!db) return [];
 
   return db.select().from(tips).where(eq(tips.userId, userId)).orderBy(desc(tips.createdAt));
+}
+
+export async function createTierPurchase(
+  userId: number,
+  tier: "basic" | "vip" | "super_vip",
+  amount: number,
+  duration: number,
+) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const expiresAt = new Date(Date.now() + duration * 24 * 60 * 60 * 1000);
+  const inserted = await db
+    .insert(tierPurchases)
+    .values({
+      userId,
+      tier,
+      amount: amount.toFixed(2),
+      currency: "USD",
+      duration,
+      status: "pending",
+      expiresAt,
+    })
+    .$returningId();
+
+  const purchaseId = inserted[0]?.id;
+  if (!purchaseId) {
+    throw new Error("Tier purchase insert did not return an ID");
+  }
+
+  const purchase = await db
+    .select()
+    .from(tierPurchases)
+    .where(eq(tierPurchases.id, purchaseId))
+    .limit(1);
+
+  if (!purchase[0]) {
+    throw new Error("Tier purchase insert did not return a persisted row");
+  }
+
+  return purchase[0];
+}
+
+export async function getUserTierPurchases(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(tierPurchases)
+    .where(eq(tierPurchases.userId, userId))
+    .orderBy(desc(tierPurchases.createdAt), desc(tierPurchases.id));
 }
 
 export async function createAuditLog(entry: {
