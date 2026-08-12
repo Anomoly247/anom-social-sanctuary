@@ -52,3 +52,4 @@
 - [ ] Fix OAuth state cookie domain/sameSite attribute mismatch causing "invalid auth state" error in callback
 - [ ] Fix home-page tRPC JSON.parse error caused by malformed JSON fields in database or API response
 - [x] Commit unedited Phase 19 tsc, Vitest verbose, and build output to verification/phase19-raw.txt on safety-layer
+- [x] Add independent behavioral Phase 19 gate tests without modifying production source to force passes; capture real typecheck/build output and OAuth environment findings
