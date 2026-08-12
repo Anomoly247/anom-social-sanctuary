@@ -39,7 +39,7 @@
 - [x] Run test suite, type-check, build, and save final checkpoint
 - [x] Add prominent Back to Home navigation to Achievements.tsx, Wallet.tsx, and all other major pages
 - [x] Phase 14: Feature flag control panel with prerequisites and default-off safety gates
-- [ ] Phase 15: Safety schema migration (`reports`, `user_blocks`, `moderation_actions`, `guardian_links`, user extensions, soft deletes)
+- [x] Phase 15: Safety schema migration (`reports`, `user_blocks`, `moderation_actions`, `guardian_links`, user extensions, soft deletes)
 - [ ] Phase 16: User-facing reporting and blocking with server-side query enforcement
 - [x] Phase 17: Moderator roles, permission tiers, audit records, and moderation queue UI
 - [ ] Phase 18: Date of birth collection, guardian consent, and Kids Corner gating
