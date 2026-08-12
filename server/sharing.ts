@@ -106,7 +106,7 @@ export function generateMusicShareCard(
   mood: string,
   genre: string,
   license: string,
-  baseUrl: string = "https://anomsanctuary-bxvj5ftt.manus.space"
+  baseUrl: string = "https://anomartsy.xyz"
 ): MusicShareCard {
   const shareUrl = `${baseUrl}/music-library?track=${trackId}`;
 
@@ -128,7 +128,7 @@ export function generateImpactShareCard(
   metric: string,
   value: string,
   description: string,
-  baseUrl: string = "https://anomsanctuary-bxvj5ftt.manus.space"
+  baseUrl: string = "https://anomartsy.xyz"
 ): ImpactShareCard {
   const shareUrl = `${baseUrl}/mission-hub`;
 
@@ -146,7 +146,7 @@ export function generateImpactShareCard(
  */
 export function generateMusicShareUrls(
   card: MusicShareCard,
-  baseUrl: string = "https://anomsanctuary-bxvj5ftt.manus.space"
+  baseUrl: string = "https://anomartsy.xyz"
 ) {
   const description = `Check out "${card.title}" by ${card.artist} - ${card.mood} ${card.genre} music. Copyright-free for creators! 🎵`;
   const hashtags = ["AnonArtsy", "CopyrightFree", "Music", "Creators", card.mood, card.genre];
@@ -187,7 +187,7 @@ export function generateMusicShareUrls(
  */
 export function generateImpactShareUrls(
   card: ImpactShareCard,
-  baseUrl: string = "https://anomsanctuary-bxvj5ftt.manus.space"
+  baseUrl: string = "https://anomartsy.xyz"
 ) {
   const description = `${card.metric}: ${card.value}\n\n${card.description}\n\nJoin us at Anom Artsy to make a real impact! 🌍`;
   const hashtags = ["AnonArtsy", "SocialGood", "Impact", "Community"];
