@@ -624,3 +624,38 @@ export type GuardianLink = typeof guardianLinks.$inferSelect;
 export type InsertGuardianLink = typeof guardianLinks.$inferInsert;
 
 
+/**
+ * Anom's Corner Episodes — managed content for Pixel & Dot series, storybooks, and videos
+ */
+export const anomsCornerEpisodes = mysqlTable("anoms_corner_episodes", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }).default("video").notNull(), // video, audio, storybook, giffy
+  mediaUrl: text("media_url").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
+  duration: varchar("duration", { length: 20 }),
+  isPublished: boolean("is_published").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AnomsCornerEpisode = typeof anomsCornerEpisodes.$inferSelect;
+export type InsertAnomsCornerEpisode = typeof anomsCornerEpisodes.$inferInsert;
+
+/**
+ * Merch Items — managed products for the Custom Merch Store
+ */
+export const merchItems = mysqlTable("merch_items", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 155 }).notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  imageUrl: text("image_url").notNull(),
+  category: varchar("category", { length: 50 }).default("apparel").notNull(),
+  inStock: boolean("in_stock").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type MerchItem = typeof merchItems.$inferSelect;
+export type InsertMerchItem = typeof merchItems.$inferInsert;
