@@ -66,8 +66,12 @@ export const appRouter = router({
         });
       }),
     updateProfile: protectedProcedure
-      .input(z.object({ name: z.string().optional(), bio: z.string().optional() }))
+      .input(z.object({ name: z.string().min(1).max(100).optional(), bio: z.string().max(500).optional() }))
       .mutation(async ({ ctx, input }) => {
+        if (input.name !== undefined) {
+          const { updateUserDisplayName } = await import("./db");
+          await updateUserDisplayName(ctx.user.id, input.name);
+        }
         return await updateUserProfile(ctx.user.id, { bio: input.bio });
       }),
     updateNameColor: protectedProcedure

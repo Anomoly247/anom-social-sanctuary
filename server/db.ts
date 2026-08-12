@@ -211,6 +211,23 @@ export async function updateUserProfile(userId: number, updates: Partial<typeof 
   }
 }
 
+export async function updateUserDisplayName(userId: number, name: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user display name: database not available");
+    return undefined;
+  }
+
+  try {
+    await db.update(users).set({ name }).where(eq(users.id, userId));
+    const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    return result[0];
+  } catch (error) {
+    console.error("[Database] Failed to update user display name:", error);
+    throw error;
+  }
+}
+
 export async function getCoinBalance(userId: number) {
   const db = await getDb();
   if (!db) return undefined;

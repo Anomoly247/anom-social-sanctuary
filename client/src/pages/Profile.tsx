@@ -30,6 +30,7 @@ const NAME_COLORS = [
 export default function Profile() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
   const [activeTab, setActiveTab] = useState<"dashboard" | "customize" | "settings" | "share">("dashboard");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string>("magenta");
@@ -49,13 +50,20 @@ export default function Profile() {
   useEffect(() => {
     if (profile?.neonTheme) setSelectedTheme(profile.neonTheme);
     if (profile?.nameColor) setSelectedNameColor(profile.nameColor);
-    if (profile?.bio) setEditData(prev => ({ ...prev, bio: profile.bio || "" }));
-  }, [profile]);
+    setEditData(prev => ({ ...prev, name: user?.name || "", bio: profile?.bio || "" }));
+  }, [profile, user?.name]);
+
+  const refreshProfileData = async () => {
+    await Promise.all([
+      utils.profile.getMe.invalidate(),
+      utils.auth.me.invalidate(),
+    ]);
+  };
 
   // Mutations
-  const updateThemeMutation = trpc.settings.updateTheme.useMutation();
-  const updateNameColorMutation = trpc.settings.updateNameColor.useMutation();
-  const updateBioMutation = trpc.settings.updateBio.useMutation();
+  const updateThemeMutation = trpc.settings.updateTheme.useMutation({ onSuccess: refreshProfileData });
+  const updateNameColorMutation = trpc.settings.updateNameColor.useMutation({ onSuccess: refreshProfileData });
+  const updateProfileMutation = trpc.profile.updateProfile.useMutation({ onSuccess: refreshProfileData });
 
   if (loading || profileLoading) {
     return (
@@ -120,7 +128,8 @@ export default function Profile() {
 
   const handleUpdateProfile = async () => {
     try {
-      await updateBioMutation.mutateAsync({
+      await updateProfileMutation.mutateAsync({
+        name: editData.name,
         bio: editData.bio,
       });
       toast.success("Profile updated!");
@@ -131,21 +140,25 @@ export default function Profile() {
   };
 
   const handleThemeChange = async (theme: string) => {
+    const previousTheme = selectedTheme;
     setSelectedTheme(theme);
     try {
       await updateThemeMutation.mutateAsync({ theme: theme as "magenta" | "cyan" | "purple" });
       toast.success("Theme updated!");
     } catch (error) {
+      setSelectedTheme(previousTheme);
       toast.error("Failed to update theme");
     }
   };
 
   const handleNameColorChange = async (color: string) => {
+    const previousNameColor = selectedNameColor;
     setSelectedNameColor(color);
     try {
       await updateNameColorMutation.mutateAsync({ nameColor: color });
       toast.success("Name color updated!");
     } catch (error) {
+      setSelectedNameColor(previousNameColor);
       toast.error("Failed to update name color");
     }
   };
