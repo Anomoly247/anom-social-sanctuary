@@ -477,3 +477,803 @@ Received: "explorer"
    Start at  05:35:40
    Duration  1.99s (transform 251ms, setup 0ms, collect 751ms, tests 993ms, environment 0ms, prepare 68ms)
 
+
+=== TSC ===
+
+=== VITEST ===
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[FeatureFlags] Failed to toggle feature flag: DrizzleQueryError: Failed query: select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?
+params: 1
+    at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:18)
+    at Module.setFeatureFlag (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/featureFlags.ts:87:22)
+    at /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/phase19.behavioral.test.ts:57:7
+    at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:533:5
+    at runTest (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1056:11)
+    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
+  query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
+  params: [ 1 ],
+  cause: Error: Unknown column 'favicon_url' in 'field list'
+      at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
+      at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
+      at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
+      at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:29)
+      at MySqlSelectBase.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/select.ts:1145:25)
+      at MySqlSelectBase.then (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+    code: 'ER_BAD_FIELD_ERROR',
+    errno: 1054,
+    sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
+    sqlState: '42S22',
+    sqlMessage: "Unknown column 'favicon_url' in 'field list'"
+  }
+}
+
+stderr | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+[FeatureFlags] Failed to toggle feature flag: DrizzleQueryError: Failed query: select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?
+params: 1
+    at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:79:11)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:18)
+    at Module.setFeatureFlag (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/featureFlags.ts:87:22)
+    at /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/server/phase19.behavioral.test.ts:65:5
+    at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:533:5
+    at runTest (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1056:11)
+    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/@vitest+runner@2.1.9/node_modules/@vitest/runner/dist/index.js:1262:5) {
+  query: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit ?',
+  params: [ 1 ],
+  cause: Error: Unknown column 'favicon_url' in 'field list'
+      at PromisePool.query (/home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:36:22)
+      at file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:133:24
+      at MySql2PreparedQuery.queryWithCache (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/session.ts:77:18)
+      at MySql2PreparedQuery.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql2/session.ts:132:29)
+      at MySqlSelectBase.execute (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/mysql-core/query-builders/select.ts:1145:25)
+      at MySqlSelectBase.then (file:///home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary/node_modules/.pnpm/drizzle-orm@0.44.6_mysql2@3.15.1/node_modules/src/query-promise.ts:31:15)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+    code: 'ER_BAD_FIELD_ERROR',
+    errno: 1054,
+    sql: 'select `id`, `site_name`, `site_description`, `logo_url`, `favicon_url`, `primary_color`, `secondary_color`, `accent_color`, `coin_reward_per_action`, `coin_reward_per_game`, `coin_reward_per_task`, `xp_per_level`, `enable_merch`, `enable_lounges`, `enable_games`, `enable_collaboration`, `enable_kids_corner`, `feature_flags`, `stripe_public_key`, `stripe_secret_key`, `created_at`, `updated_at` from `platform_settings` limit 1',
+    sqlState: '42S22',
+    sqlMessage: "Unknown column 'favicon_url' in 'field list'"
+  }
+}
+
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 311ms
+   → Failed to update feature flag
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+   → expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
+(2 matching properties omitted from actual)
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+   → expected 'visible' to be 'removed' // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+   → expected true to be false // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+   → expected 'explorer' to be 'builder' // Object.is equality
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+TRPCError: Failed to update feature flag
+ ❯ Module.setFeatureFlag server/featureFlags.ts:120:11
+    118|   } catch (error) {
+    119|     console.error("[FeatureFlags] Failed to toggle feature flag:", err…
+    120|     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Fai…
+       |           ^
+    121|   }
+    122| }
+ ❯ server/phase19.behavioral.test.ts:57:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'INTERNAL_SERVER_ERROR' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+AssertionError: expected TRPCError: Failed to update feature flag { code: '…' } to match object { code: 'FORBIDDEN' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- Object {
+-   "code": "FORBIDDEN",
++ TRPCError {
++   "code": "INTERNAL_SERVER_ERROR",
+  }
+
+ ❯ server/phase19.behavioral.test.ts:65:5
+     63| 
+     64|   it("Gate 2: enabling a flag with unmet prerequisites is refused by t…
+     65|     await expect(setFeatureFlag(1, "activity_feed_ratings", true)).rej…
+       |     ^
+     66|   });
+     67| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:87:42
+     85|     for (const status of ["muted", "timed_out", "suspended", "banned"]…
+     86|       const caller = callerFor({ id: 1, role: "user", status, restrict…
+     87|       await expect(caller.profile.getMe()).rejects.toMatchObject({ cod…
+       |                                          ^
+     88|     }
+     89|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:93:46
+     91|   it("Gate 5: an active timed_out restriction is refused and the same …
+     92|     const activeCaller = callerFor({ id: 1, role: "user", status: "tim…
+     93|     await expect(activeCaller.profile.getMe()).rejects.toMatchObject({…
+       |                                              ^
+     94| 
+     95|     const expiredCaller = callerFor({ id: 1, role: "user", status: "ti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+AssertionError: expected 'visible' to be 'removed' // Object.is equality
+
+Expected: "removed"
+Received: "visible"
+
+ ❯ server/phase19.behavioral.test.ts:120:44
+    118|     const afterRows = (after as any)[0] ?? [];
+    119|     expect(afterRows).toHaveLength(1);
+    120|     expect(afterRows[0].moderation_status).toBe("removed");
+       |                                            ^
+    121|   });
+    122| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+AssertionError: expected 'explorer' to be 'builder' // Object.is equality
+
+Expected: "builder"
+Received: "explorer"
+
+ ❯ server/phase19.behavioral.test.ts:142:35
+    140|     const token = await sdk.createSessionToken(openId, { name: "Birthd…
+    141|     const authenticated = await sdk.authenticateRequest({ headers: { c…
+    142|     expect(authenticated.ageTier).toBe("builder");
+       |                                   ^
+    143|   });
+    144| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 3 passed (10)
+   Start at  05:37:34
+   Duration  1.99s (transform 248ms, setup 0ms, collect 761ms, tests 1.00s, environment 0ms, prepare 61ms)
+
+
+=== TWO-SIDED SCHEMA DIFF AFTER MIGRATION ===
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+=== TWO-SIDED DRIZZLE VS MARIADB SCHEMA DIFF ===
+
+Table: __drizzle_migrations
+  [EXTRA IN DB] Table exists in DB but not in Drizzle schema.
+
+Table: achievements
+  ✓ Schema in sync.
+
+Table: activity_events
+  ✓ Schema in sync.
+
+Table: anoms_corner_episodes
+  ✓ Schema in sync.
+
+Table: audit_log
+  ✓ Schema in sync.
+
+Table: chat_notifications
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: coin_transactions
+  ✓ Schema in sync.
+
+Table: collaboration_members
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_projects
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_tasks
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: collaboration_updates
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: decoration_packages
+  ✓ Schema in sync.
+
+Table: education_completions
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: feed_posts
+  Columns in DB but not in Drizzle: [ 'deleted_at', 'deleted_by_user_id', 'moderation_status' ]
+
+Table: game_scores
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: guardian_links
+  ✓ Schema in sync.
+
+Table: kids_progress
+  ✓ Schema in sync.
+
+Table: lounge_members
+  ✓ Schema in sync.
+
+Table: lounge_messages
+  Columns in DB but not in Drizzle: [ 'deleted_at', 'deleted_by_user_id', 'moderation_status' ]
+
+Table: lounge_read_states
+  ✓ Schema in sync.
+
+Table: lounges
+  ✓ Schema in sync.
+
+Table: merch_items
+  ✓ Schema in sync.
+
+Table: merch_orders
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: merch_requests
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: moderation_actions
+  ✓ Schema in sync.
+
+Table: music_library
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: platform_settings
+  Columns in DB but not in Drizzle: [ 'maintenance_mode' ]
+
+Table: reports
+  ✓ Schema in sync.
+
+Table: tier_purchases
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: tips
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: user_achievements
+  ✓ Schema in sync.
+
+Table: user_blocks
+  ✓ Schema in sync.
+
+Table: user_presence
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: user_profiles
+  ✓ Schema in sync.
+
+Table: user_vip_subscriptions
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: users
+  Columns in DB but not in Drizzle: [ 'age_bracket' ]
+
+Table: vip_benefits_log
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+Table: vip_tiers
+  [MISSING IN DB] Table exists in Drizzle schema but not in DB.
+
+=== TSC --NO-EMIT AFTER MIGRATION ===
+
+=== PHASE19 BEHAVIORAL VITEST AFTER MIGRATION ===
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 921ms
+
+=== TSC --NO-EMIT AFTER MIGRATION ===
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+   → promise resolved "{ success: true, flags: { …(13) } }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+   → expected 'visible' to be 'removed' // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+   → expected true to be false // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+   → expected 'explorer' to be 'builder' // Object.is equality
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+AssertionError: promise resolved "{ success: true, flags: { …(13) } }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "flags": Object {
++     "activity_feed": false,
++     "activity_feed_likes": false,
++     "activity_feed_ratings": true,
++     "coin_earning_from_engagement": false,
++     "kids_corner": false,
++     "lounge_image_upload": false,
++     "lounge_pinned_messages": false,
++     "lounge_reactions": false,
++     "profile_customization": false,
++     "public_profiles": false,
++     "tipping": false,
++     "unread_badges": false,
++     "vip_custom_emoji": false,
++   },
++   "success": true,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:65:66
+     63| 
+     64|   it("Gate 2: enabling a flag with unmet prerequisites is refused by t…
+     65|     await expect(setFeatureFlag(1, "activity_feed_ratings", true)).rej…
+       |                                                                  ^
+     66|   });
+     67| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:87:42
+     85|     for (const status of ["muted", "timed_out", "suspended", "banned"]…
+     86|       const caller = callerFor({ id: 1, role: "user", status, restrict…
+     87|       await expect(caller.profile.getMe()).rejects.toMatchObject({ cod…
+       |                                          ^
+     88|     }
+     89|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:93:46
+     91|   it("Gate 5: an active timed_out restriction is refused and the same …
+     92|     const activeCaller = callerFor({ id: 1, role: "user", status: "tim…
+     93|     await expect(activeCaller.profile.getMe()).rejects.toMatchObject({…
+       |                                              ^
+     94| 
+     95|     const expiredCaller = callerFor({ id: 1, role: "user", status: "ti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+AssertionError: expected 'visible' to be 'removed' // Object.is equality
+
+Expected: "removed"
+Received: "visible"
+
+ ❯ server/phase19.behavioral.test.ts:120:44
+    118|     const afterRows = (after as any)[0] ?? [];
+    119|     expect(afterRows).toHaveLength(1);
+    120|     expect(afterRows[0].moderation_status).toBe("removed");
+       |                                            ^
+    121|   });
+    122| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+AssertionError: expected 'explorer' to be 'builder' // Object.is equality
+
+Expected: "builder"
+Received: "explorer"
+
+ ❯ server/phase19.behavioral.test.ts:142:35
+    140|     const token = await sdk.createSessionToken(openId, { name: "Birthd…
+    141|     const authenticated = await sdk.authenticateRequest({ headers: { c…
+    142|     expect(authenticated.ageTier).toBe("builder");
+       |                                   ^
+    143|   });
+    144| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 4 passed (10)
+   Start at  06:27:55
+   Duration  2.67s (transform 236ms, setup 0ms, collect 708ms, tests 1.74s, environment 0ms, prepare 60ms)
+
+
+=== PHASE19 BEHAVIORAL VITEST AFTER MIGRATION ===
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 707ms
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+   → promise resolved "{ success: true, flags: { …(13) } }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+   → promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+   → expected 'visible' to be 'removed' // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+   → expected true to be false // Object.is equality
+ × server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+   → expected 'explorer' to be 'builder' // Object.is equality
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+AssertionError: promise resolved "{ success: true, flags: { …(13) } }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "flags": Object {
++     "activity_feed": false,
++     "activity_feed_likes": false,
++     "activity_feed_ratings": true,
++     "coin_earning_from_engagement": false,
++     "kids_corner": false,
++     "lounge_image_upload": false,
++     "lounge_pinned_messages": false,
++     "lounge_reactions": false,
++     "profile_customization": false,
++     "public_profiles": false,
++     "tipping": false,
++     "unread_badges": false,
++     "vip_custom_emoji": false,
++   },
++   "success": true,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:65:66
+     63| 
+     64|   it("Gate 2: enabling a flag with unmet prerequisites is refused by t…
+     65|     await expect(setFeatureFlag(1, "activity_feed_ratings", true)).rej…
+       |                                                                  ^
+     66|   });
+     67| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:87:42
+     85|     for (const status of ["muted", "timed_out", "suspended", "banned"]…
+     86|       const caller = callerFor({ id: 1, role: "user", status, restrict…
+     87|       await expect(caller.profile.getMe()).rejects.toMatchObject({ cod…
+       |                                          ^
+     88|     }
+     89|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+AssertionError: promise resolved "{ id: 1, userId: 1, …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- [Error: rejected promise]
++ Object {
++   "anomCoinBalance": "0.00",
++   "avatarUrl": null,
++   "bio": "testing",
++   "coinMultiplier": "1.0",
++   "createdAt": 2026-08-11T19:56:00.000Z,
++   "decorationPackageIds": Array [],
++   "id": 1,
++   "level": 1,
++   "membershipTier": "basic",
++   "nameColor": "#00eaff",
++   "neonTheme": "cyan",
++   "tierExpiresAt": null,
++   "tierUpgradedAt": null,
++   "updatedAt": 2026-08-12T01:33:32.000Z,
++   "userId": 1,
++   "xp": 0,
++ }
+
+ ❯ server/phase19.behavioral.test.ts:93:46
+     91|   it("Gate 5: an active timed_out restriction is refused and the same …
+     92|     const activeCaller = callerFor({ id: 1, role: "user", status: "tim…
+     93|     await expect(activeCaller.profile.getMe()).rejects.toMatchObject({…
+       |                                              ^
+     94| 
+     95|     const expiredCaller = callerFor({ id: 1, role: "user", status: "ti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+AssertionError: expected 'visible' to be 'removed' // Object.is equality
+
+Expected: "removed"
+Received: "visible"
+
+ ❯ server/phase19.behavioral.test.ts:120:44
+    118|     const afterRows = (after as any)[0] ?? [];
+    119|     expect(afterRows).toHaveLength(1);
+    120|     expect(afterRows[0].moderation_status).toBe("removed");
+       |                                            ^
+    121|   });
+    122| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+AssertionError: expected 'explorer' to be 'builder' // Object.is equality
+
+Expected: "builder"
+Received: "explorer"
+
+ ❯ server/phase19.behavioral.test.ts:142:35
+    140|     const token = await sdk.createSessionToken(openId, { name: "Birthd…
+    141|     const authenticated = await sdk.authenticateRequest({ headers: { c…
+    142|     expect(authenticated.ageTier).toBe("builder");
+       |                                   ^
+    143|   });
+    144| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 4 passed (10)
+   Start at  06:28:00
+   Duration  2.51s (transform 242ms, setup 0ms, collect 719ms, tests 1.56s, environment 0ms, prepare 59ms)
+
+
+=== BUILD AFTER MIGRATION ===
+
+> anom-sanctuary-restored@1.0.0 build
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.1.9 building for production...
+transforming...
+
+=== BUILD AFTER MIGRATION ===
+
+> anom-sanctuary-restored@1.0.0 build
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.1.9 building for production...
+transforming...
+✓ 2428 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
+../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
+../dist/public/assets/index-CCDCzjjS.js   2,026.18 kB │ gzip: 430.93 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.32s
+
+  dist/index.js  160.8kb
+
+⚡ Done in 12ms
+✓ 2428 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   368.24 kB │ gzip: 105.77 kB
+../dist/public/assets/index-CSbz757E.css    146.31 kB │ gzip:  22.61 kB
+../dist/public/assets/index-CCDCzjjS.js   2,026.18 kB │ gzip: 430.93 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.35s
+
+  dist/index.js  160.8kb
+
+⚡ Done in 9ms

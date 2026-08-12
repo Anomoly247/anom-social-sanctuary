@@ -8,23 +8,29 @@ async function run() {
     process.exit(1);
   }
 
-  console.log("Applying schema migrations...");
+  console.log("Applying combined schema migration for all missing columns...");
   try {
-    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS logo_url TEXT`);
-    console.log("✓ Added logo_url to platform_settings");
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS favicon_url TEXT`);
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS enable_lounges BOOLEAN DEFAULT true NOT NULL`);
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS enable_games BOOLEAN DEFAULT true NOT NULL`);
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS enable_kids_corner BOOLEAN DEFAULT true NOT NULL`);
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS stripe_public_key TEXT`);
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS stripe_secret_key TEXT`);
+    await db.execute(sql`ALTER TABLE platform_settings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL`);
+    console.log("✓ Updated platform_settings columns");
   } catch (e) {
-    console.error("Error adding logo_url:", e);
+    console.error("Error updating platform_settings:", e);
   }
 
   try {
-    await db.execute(sql`ALTER TABLE guardian_links ADD COLUMN IF NOT EXISTS relationship_type ENUM('parent', 'legal_guardian', 'other') DEFAULT 'parent' NOT NULL`);
-    await db.execute(sql`ALTER TABLE guardian_links ADD COLUMN IF NOT EXISTS dashboard_opt_out BOOLEAN DEFAULT false NOT NULL`);
-    console.log("✓ Added relationship_type and dashboard_opt_out to guardian_links");
+    await db.execute(sql`ALTER TABLE kids_progress ADD COLUMN IF NOT EXISTS completed BOOLEAN DEFAULT false NOT NULL`);
+    await db.execute(sql`ALTER TABLE kids_progress ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL`);
+    console.log("✓ Updated kids_progress columns");
   } catch (e) {
-    console.error("Error adding guardian_links columns:", e);
+    console.error("Error updating kids_progress:", e);
   }
 
-  console.log("Migrations applied successfully.");
+  console.log("Combined migration applied successfully.");
 }
 
 run().catch(console.error);
