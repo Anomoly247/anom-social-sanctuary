@@ -562,30 +562,42 @@ export async function getActivityEvents(limit: number = 20) {
 
 export async function likeActivityEvent(eventId: number, userId: number) {
   const db = await getDb();
-  if (!db) return;
-  try {
-    await db.update(activityEvents)
-      .set({ likesCount: sql`likes_count + 1` })
-      .where(eq(activityEvents.id, eventId));
-    await addCoinTransaction(userId, 'earn', '5', 'Liked activity feed item');
-  } catch (error) {
-    console.error("[Database] Failed to like activity event:", error);
+  if (!db) throw new Error("Database unavailable while liking activity event");
+
+  const result = await db.update(activityEvents)
+    .set({ likesCount: sql`likes_count + 1` })
+    .where(eq(activityEvents.id, eventId));
+  const header = Array.isArray(result) ? result[0] : result;
+  const affectedRows = Number((header as { affectedRows?: number }).affectedRows ?? 0);
+  if (affectedRows !== 1) {
+    throw new Error("Activity event not found while liking");
+  }
+
+  const coinResult = await addCoinTransaction(userId, 'earn', '5', 'Liked activity feed item');
+  if (!coinResult) {
+    throw new Error("Could not persist activity like reward");
   }
 }
 
 export async function rateActivityEvent(eventId: number, userId: number, rating: number) {
   const db = await getDb();
-  if (!db) return;
-  try {
-    await db.update(activityEvents)
-      .set({
-        ratingSum: sql`rating_sum + ${rating}`,
-        ratingCount: sql`rating_count + 1`,
-      })
-      .where(eq(activityEvents.id, eventId));
-    await addCoinTransaction(userId, 'earn', '10', 'Rated activity feed item');
-  } catch (error) {
-    console.error("[Database] Failed to rate activity event:", error);
+  if (!db) throw new Error("Database unavailable while rating activity event");
+
+  const result = await db.update(activityEvents)
+    .set({
+      ratingSum: sql`rating_sum + ${rating}`,
+      ratingCount: sql`rating_count + 1`,
+    })
+    .where(eq(activityEvents.id, eventId));
+  const header = Array.isArray(result) ? result[0] : result;
+  const affectedRows = Number((header as { affectedRows?: number }).affectedRows ?? 0);
+  if (affectedRows !== 1) {
+    throw new Error("Activity event not found while rating");
+  }
+
+  const coinResult = await addCoinTransaction(userId, 'earn', '10', 'Rated activity feed item');
+  if (!coinResult) {
+    throw new Error("Could not persist activity rating reward");
   }
 }
 
