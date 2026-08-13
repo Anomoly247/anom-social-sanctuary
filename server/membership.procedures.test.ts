@@ -1,6 +1,7 @@
 import type { TrpcContext } from "./_core/context";
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
+import { getOrCreateUserProfile } from "./db";
 
 function createContext(): TrpcContext {
   const now = new Date();
@@ -34,9 +35,15 @@ describe("membership tier purchase procedures", () => {
         userId: 1,
         tier: "vip",
         duration: 14,
-        status: "pending",
+        status: "completed",
+        completedAt: expect.any(Date),
       }),
     });
+
+    const updatedProfile = await getOrCreateUserProfile(1);
+    expect(updatedProfile).toMatchObject({ membershipTier: "vip" });
+    expect(updatedProfile?.tierUpgradedAt).toEqual(expect.any(Date));
+    expect(updatedProfile?.tierExpiresAt).toEqual(expect.any(Date));
 
     const history = await caller.membership.getTierPurchaseHistory();
     expect(history).toEqual(

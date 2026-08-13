@@ -1362,35 +1362,49 @@ export async function createTierPurchase(
   if (!db) return undefined;
 
   const expiresAt = new Date(Date.now() + duration * 24 * 60 * 60 * 1000);
-  const inserted = await db
-    .insert(tierPurchases)
-    .values({
-      userId,
-      tier,
-      amount: amount.toFixed(2),
-      currency: "USD",
-      duration,
-      status: "pending",
-      expiresAt,
-    })
-    .$returningId();
+  const completedAt = new Date();
 
-  const purchaseId = inserted[0]?.id;
-  if (!purchaseId) {
-    throw new Error("Tier purchase insert did not return an ID");
-  }
+  return await db.transaction(async (tx) => {
+    const inserted = await tx
+      .insert(tierPurchases)
+      .values({
+        userId,
+        tier,
+        amount: amount.toFixed(2),
+        currency: "USD",
+        duration,
+        status: "completed",
+        expiresAt,
+        completedAt,
+      })
+      .$returningId();
 
-  const purchase = await db
-    .select()
-    .from(tierPurchases)
-    .where(eq(tierPurchases.id, purchaseId))
-    .limit(1);
+    const purchaseId = inserted[0]?.id;
+    if (!purchaseId) {
+      throw new Error("Tier purchase insert did not return an ID");
+    }
 
-  if (!purchase[0]) {
-    throw new Error("Tier purchase insert did not return a persisted row");
-  }
+    await tx
+      .update(userProfiles)
+      .set({
+        membershipTier: tier,
+        tierUpgradedAt: completedAt,
+        tierExpiresAt: expiresAt,
+      })
+      .where(eq(userProfiles.userId, userId));
 
-  return purchase[0];
+    const purchase = await tx
+      .select()
+      .from(tierPurchases)
+      .where(eq(tierPurchases.id, purchaseId))
+      .limit(1);
+
+    if (!purchase[0]) {
+      throw new Error("Tier purchase insert did not return a persisted row");
+    }
+
+    return purchase[0];
+  });
 }
 
 export async function getUserTierPurchases(userId: number) {
