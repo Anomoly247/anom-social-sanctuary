@@ -11,7 +11,7 @@ export const FEATURE_REGISTRY = {
   unread_badges: { default: "on", label: "Unread Message Badges", description: "Shows unread message counts on lounge navigation links." },
   activity_feed: { default: "on", label: "Community Activity Feed", description: "Streams recent lounge milestones and announcements." },
   activity_feed_likes: { default: "on", label: "Activity Feed Likes", description: "Allows members to like feed items." },
-  activity_feed_ratings: { default: "off", label: "Activity Feed Ratings", requires: ["reporting", "moderation_queue"], description: "Allows rating feed items for Anom Coins." },
+  activity_feed_ratings: { default: "off", label: "Activity Feed Ratings", requires: ["activity_feed", "reporting", "moderation_queue"], description: "Allows rating feed items for Anom Coins." },
   coin_earning_from_engagement: { default: "off", label: "Coin Earning from Engagement", requires: ["daily_earn_caps"], description: "Earn Anom Coins through engagement." },
   profile_customization: { default: "on", label: "Profile Customization", description: "Allows bio, avatar, and theme customization." },
   public_profiles: { default: "on", label: "Public Profiles", description: "Displays public member profiles." },
@@ -21,9 +21,22 @@ export const FEATURE_REGISTRY = {
 
 export type FlagKey = keyof typeof FEATURE_REGISTRY;
 
+/**
+ * These are required safety systems implemented at the server layer, not
+ * administrator-controlled product features. Keeping them outside the public
+ * registry prevents an admin from disabling the report, block, moderation, or
+ * engagement-cap safeguards that gated features rely on.
+ */
+export const BUILT_IN_SAFETY_PREREQUISITES = {
+  reporting: true,
+  blocking: true,
+  moderation_queue: true,
+  daily_earn_caps: true,
+} as const;
+
 export async function getAllFeatureFlags(): Promise<Record<FlagKey, boolean>> {
   const db = await getDb();
-  const flags: Record<string, boolean> = {};
+  const flags: Record<string, boolean> = { ...BUILT_IN_SAFETY_PREREQUISITES };
 
   // Initialize defaults
   for (const [key, config] of Object.entries(FEATURE_REGISTRY)) {
