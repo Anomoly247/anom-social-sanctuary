@@ -100,3 +100,8 @@
 - [ ] Implement fallback mapping for openId in server/_core/oauth.ts
 - [ ] Add regression test for OAuth callbacks returning sub or id instead of openId
 - [ ] Commit and push the isolated OAuth fallback fix
+
+- [x] Trace setFeatureFlag and getFeatureFlags prerequisite checks in server/featureFlags.ts
+- [x] Remove hardcoded prerequisite restrictions on feature flags in server/featureFlags.ts
+- [x] Verify setFeatureFlag succeeds for vip_custom_emoji and lounge_image_upload
+- [x] Commit and push the updated featureFlags implementation
