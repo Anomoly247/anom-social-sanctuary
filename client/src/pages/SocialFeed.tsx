@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, MessageCircle, Share2, Zap, Play, Volume2, VolumeX, Maximize, ArrowLeft, Loader2, Send, X } from "lucide-react";
+import { Heart, MessageCircle, Share2, Zap, Play, Volume2, VolumeX, Maximize, ArrowLeft, Loader2, Send, X, Bookmark } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ interface ReelComment {
   avatar: string;
   text: string;
   timestamp: string;
+  likes: number;
+  liked: boolean;
 }
 
 interface Reel {
@@ -37,6 +39,7 @@ interface Reel {
   videoUrl: string;
   likes: number;
   liked: boolean;
+  bookmarked: boolean;
   comments: ReelComment[];
 }
 
@@ -110,9 +113,10 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_pixel_dot_full_story_final.mp4",
       likes: 1420,
       liked: false,
+      bookmarked: false,
       comments: [
-        { id: "c1", author: "Eliza Wood", avatar: "👩", text: "Absolute masterpiece! The neon aesthetics are incredible.", timestamp: "1 hour ago" },
-        { id: "c2", author: "Cosmic Fan", avatar: "🌌", text: "Watched this three times already. Tater and Clifford are the best!", timestamp: "30 mins ago" },
+        { id: "c1", author: "Eliza Wood", avatar: "👩", text: "Absolute masterpiece! The neon aesthetics are incredible.", timestamp: "1 hour ago", likes: 12, liked: false },
+        { id: "c2", author: "Cosmic Fan", avatar: "🌌", text: "Watched this three times already. Tater and Clifford are the best!", timestamp: "30 mins ago", likes: 8, liked: false },
       ],
     },
     {
@@ -126,8 +130,9 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_1_stretched.mp4",
       likes: 890,
       liked: false,
+      bookmarked: false,
       comments: [
-        { id: "c3", author: "Neon Explorer", avatar: "⚡", text: "That opening transition is so smooth!", timestamp: "2 hours ago" },
+        { id: "c3", author: "Neon Explorer", avatar: "⚡", text: "That opening transition is so smooth!", timestamp: "2 hours ago", likes: 5, liked: false },
       ],
     },
     {
@@ -141,6 +146,7 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_2_stretched.mp4",
       likes: 640,
       liked: false,
+      bookmarked: false,
       comments: [],
     },
     {
@@ -154,8 +160,9 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_3_stretched.mp4",
       likes: 1850,
       liked: false,
+      bookmarked: false,
       comments: [
-        { id: "c4", author: "Sanctuary Guardian", avatar: "🛡️", text: "Such a heartwarming end to this sequence.", timestamp: "10 mins ago" },
+        { id: "c4", author: "Sanctuary Guardian", avatar: "🛡️", text: "Such a heartwarming end to this sequence.", timestamp: "10 mins ago", likes: 19, liked: false },
       ],
     },
   ]);
@@ -179,7 +186,6 @@ export default function SocialFeed() {
         setAutoplayCountdown(autoplayCountdown - 1);
       }, 1000);
     } else if (autoplayCountdown === 0) {
-      // Advance to next reel
       const currentIndex = reels.findIndex(r => r.id === activeReel.id);
       const nextIndex = (currentIndex + 1) % reels.length;
       handlePlayReel(reels[nextIndex]);
@@ -224,11 +230,49 @@ export default function SocialFeed() {
     );
   };
 
+  const handleBookmarkReel = (reelId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setReels(
+      reels.map((reel) => {
+        if (reel.id === reelId) {
+          const nextBookmarked = !reel.bookmarked;
+          const updated = {
+            ...reel,
+            bookmarked: nextBookmarked,
+          };
+          if (activeReel.id === reelId) {
+            setActiveReel(updated);
+          }
+          toast.success(nextBookmarked ? "Reel saved to your profile bookmarks! 🔖" : "Removed from bookmarks");
+          return updated;
+        }
+        return reel;
+      })
+    );
+  };
+
+  const handleLikeComment = (commentId: string) => {
+    const updatedComments = activeReel.comments.map((comment) => {
+      if (comment.id === commentId) {
+        const nextLiked = !comment.liked;
+        return {
+          ...comment,
+          liked: nextLiked,
+          likes: nextLiked ? comment.likes + 1 : comment.likes - 1,
+        };
+      }
+      return comment;
+    });
+
+    const updatedActiveReel = { ...activeReel, comments: updatedComments };
+    setActiveReel(updatedActiveReel);
+    setReels(reels.map(r => r.id === activeReel.id ? updatedActiveReel : r));
+  };
+
   const handleVideoDoubleTap = () => {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      // Double tap detected! Like active reel if not already liked
       if (!activeReel.liked) {
         handleLikeReel(activeReel.id);
       }
@@ -254,6 +298,8 @@ export default function SocialFeed() {
       avatar: "👤",
       text: newCommentText.trim(),
       timestamp: "Just now",
+      likes: 0,
+      liked: false,
     };
 
     const updatedReels = reels.map((reel) => {
@@ -333,6 +379,11 @@ export default function SocialFeed() {
               Back
             </Button>
             <h1 className="text-2xl font-bold neon-text-cyan">Live from the Universe</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="border-[#00eaff] text-[#00eaff] bg-black/40 text-xs" onClick={() => navigate("/profile")}>
+              My Profile & Bookmarks
+            </Button>
           </div>
         </div>
       </nav>
@@ -456,6 +507,16 @@ export default function SocialFeed() {
                 <Button
                   size="sm"
                   variant="outline"
+                  className={`border-[#00ff88] ${activeReel.bookmarked ? 'bg-[#00ff88] text-black font-bold' : 'text-[#00ff88] bg-black/40 hover:bg-[#00ff88]/20'}`}
+                  onClick={(e) => handleBookmarkReel(activeReel.id, e)}
+                  title="Save to bookmarks"
+                >
+                  <Bookmark className={`w-4 h-4 mr-1 ${activeReel.bookmarked ? 'fill-black' : ''}`} />
+                  {activeReel.bookmarked ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   className="border-[#00eaff] text-[#00eaff] bg-black/40 hover:bg-[#00eaff]/20"
                   onClick={() => setShowComments(!showComments)}
                 >
@@ -520,7 +581,18 @@ export default function SocialFeed() {
                           <span className="font-bold text-xs text-[#00eaff]">{comment.author}</span>
                           <span className="text-[10px] text-gray-500">{comment.timestamp}</span>
                         </div>
-                        <p className="text-sm text-gray-300">{comment.text}</p>
+                        <p className="text-sm text-gray-300 mb-2">{comment.text}</p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={`h-6 px-2 text-xs gap-1 ${comment.liked ? 'text-[#ff00cc]' : 'text-gray-400 hover:text-[#ff00cc]'}`}
+                            onClick={() => handleLikeComment(comment.id)}
+                          >
+                            <Heart className={`w-3 h-3 ${comment.liked ? 'fill-[#ff00cc]' : ''}`} />
+                            <span>{comment.likes}</span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -551,8 +623,17 @@ export default function SocialFeed() {
                       {reel.duration}
                     </div>
 
-                    {/* Overlay Like & Share Buttons */}
+                    {/* Overlay Bookmark, Like & Share Buttons */}
                     <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className={`h-8 w-8 rounded-full bg-black/70 hover:bg-black ${reel.bookmarked ? 'text-[#00ff88]' : 'text-white'}`}
+                        onClick={(e) => handleBookmarkReel(reel.id, e)}
+                        title="Bookmark Reel"
+                      >
+                        <Bookmark className={`w-4 h-4 ${reel.bookmarked ? 'fill-[#00ff88]' : ''}`} />
+                      </Button>
                       <Button
                         size="icon"
                         variant="secondary"
@@ -699,18 +780,6 @@ export default function SocialFeed() {
               </div>
             </Card>
           ))}
-        </div>
-
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <Button
-            variant="outline"
-            className="text-[#00eaff] border-[#2a2f3e] gap-2"
-            onClick={() => toast.info("More posts loading...")}
-          >
-            <Zap className="w-4 h-4" />
-            Load More Posts
-          </Button>
         </div>
       </main>
     </div>

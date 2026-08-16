@@ -121,3 +121,8 @@
 - [x] Implement double-tap to like interaction on the active video player with floating heart animation
 - [x] Implement auto-play next reel feature with a brief countdown timer when video finishes playing
 - [x] Run full test suite, build, checkpoint, and push to GitHub
+
+- [x] Add Bookmark/Save button to the video player overlay in SocialFeed.tsx
+- [x] Enhance comment section with per-comment like button and like count display
+- [x] Locate public profile route in App.tsx / profile pages and ensure clear navigation entry points
+- [x] Run full test suite, build, checkpoint, and push to GitHub
