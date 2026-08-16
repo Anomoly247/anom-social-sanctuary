@@ -105,3 +105,9 @@
 - [x] Remove hardcoded prerequisite restrictions on feature flags in server/featureFlags.ts
 - [x] Verify setFeatureFlag succeeds for vip_custom_emoji and lounge_image_upload
 - [x] Commit and push the updated featureFlags implementation
+
+- [x] Inspect client/src/pages/CommunityFeed.tsx or equivalent feed page for reels implementation
+- [x] Check video sources, iframe embeds, and media rendering on the feed page
+- [x] Fix non-playing reels or embed URLs to point to valid working video streams / raw GitHub media
+- [x] Verify feed route in browser preview and check console logs
+- [x] Commit, push, and publish the verified feed reels fix

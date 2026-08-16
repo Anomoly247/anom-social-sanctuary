@@ -26,6 +26,7 @@ interface Reel {
   thumbnail: string;
   duration: string;
   views: number;
+  videoUrl: string;
 }
 
 export default function SocialFeed() {
@@ -89,41 +90,47 @@ export default function SocialFeed() {
   const reels: Reel[] = [
     {
       id: "reel-1",
-      title: "Tater & Clifford: The Quest Begins",
+      title: "Pixel & Dot's Full Story | Anom Studios",
       creator: "Anom Studios",
-      description: "Join Tater and Clifford on their first adventure in the Anom Universe!",
+      description: "The complete Pixel & Dot story. Join these two characters on their epic journey through a neon-powered universe.",
       thumbnail: "🎬",
-      duration: "3:45",
+      duration: "Full Story",
       views: 12543,
+      videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_pixel_dot_full_story_final.mp4",
     },
     {
       id: "reel-2",
-      title: "Clifford's Comedy Hour",
+      title: "Pixel & Dot: Scene 1",
       creator: "Anom Studios",
-      description: "Laugh along with Clifford's hilarious takes on digital life!",
-      thumbnail: "😂",
-      duration: "2:30",
+      description: "Explore the first major scene and discovery in the Anom Universe series.",
+      thumbnail: "✨",
+      duration: "Scene 1",
       views: 8234,
+      videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_1_stretched.mp4",
     },
     {
       id: "reel-3",
-      title: "Tater's Cooking Show",
+      title: "Pixel & Dot: Scene 2",
       creator: "Anom Studios",
-      description: "Learn to cook digital dishes with Tater!",
-      thumbnail: "🍳",
-      duration: "4:15",
+      description: "Deep dive into neon mechanics and cooperative challenges.",
+      thumbnail: "⚡",
+      duration: "Scene 2",
       views: 5678,
+      videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_2_stretched.mp4",
     },
     {
       id: "reel-4",
-      title: "Tater & Clifford: Best Friends Forever",
+      title: "Pixel & Dot: Scene 3",
       creator: "Anom Studios",
-      description: "A heartwarming episode about friendship and loyalty.",
+      description: "A heartwarming journey across futuristic digital landscapes.",
       thumbnail: "💜",
-      duration: "5:20",
+      duration: "Scene 3",
       views: 15234,
+      videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_3_stretched.mp4",
     },
   ];
+
+  const [activeReel, setActiveReel] = useState<Reel>(reels[0]);
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -148,31 +155,14 @@ export default function SocialFeed() {
     if (!post) return;
 
     const shareUrl = `${window.location.origin}/feed/post/${postId}`;
-    const shareText = `${post.content} - Check out this post on Anom Artsy!`;
-
-    // Social media share options
-    const shareOptions = [
-      {
-        name: 'Twitter',
-        url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}&hashtags=AnonArtsy,SocialGood`,
-      },
-      {
-        name: 'Facebook',
-        url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-      },
-      {
-        name: 'LinkedIn',
-        url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-      },
-    ];
-
-    // Copy to clipboard
     navigator.clipboard.writeText(shareUrl);
     toast.success('Link copied! Share on social media or paste anywhere.');
   };
 
-  const handlePlayReel = (reelId: string) => {
-    toast.success("Playing reel! 🎥");
+  const handlePlayReel = (reel: Reel) => {
+    setActiveReel(reel);
+    toast.success(`Now playing: ${reel.title}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading) {
@@ -213,55 +203,91 @@ export default function SocialFeed() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-6 py-8">
-        {/* Reels Section */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-[#ff00cc] mb-6 flex items-center gap-2">
+        {/* Active Reel Video Player Section */}
+        <div className="mb-10">
+          <h2 className="text-3xl font-bold text-[#ff00cc] mb-4 flex items-center gap-2">
             <Play className="w-6 h-6" />
-            Featured Reels: Tater & Clifford Series
+            Featured Reels Player: {activeReel.title}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {reels.map((reel) => (
-              <Card
-                key={reel.id}
-                className="bg-[#1a1f2e] border border-[#2a2f3e] overflow-hidden hover:border-[#ff00cc] transition-all cursor-pointer group"
-                style={{
-                  boxShadow: "0 0 10px rgba(255, 0, 204, 0.3), 0 0 20px rgba(255, 0, 204, 0.1)",
-                }}
-                onClick={() => handlePlayReel(reel.id)}
+          <Card className="bg-[#1a1f2e] border-2 border-[#ff00cc]/60 overflow-hidden p-4 shadow-[0_0_20px_rgba(255,0,204,0.3)]">
+            <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e] aspect-video">
+              <video
+                key={activeReel.videoUrl}
+                controls
+                autoPlay
+                className="w-full h-full object-contain bg-black"
               >
-                {/* Reel Thumbnail */}
-                <div className="relative bg-gradient-to-br from-[#1a1f2e] to-[#0b0e14] aspect-video flex items-center justify-center overflow-hidden">
-                  <div className="text-8xl group-hover:scale-110 transition-transform">{reel.thumbnail}</div>
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors flex items-center justify-center">
-                    <Play className="w-16 h-16 text-[#ff00cc] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-[#00eaff] font-bold">
-                    {reel.duration}
-                  </div>
-                </div>
+                <source src={activeReel.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div className="mt-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-[#00eaff]">{activeReel.title}</h3>
+                <p className="text-sm text-gray-300 mt-1">{activeReel.description}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-400">👁️ {activeReel.views.toLocaleString()} views</span>
+                <Button
+                  size="sm"
+                  className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
+                  onClick={() => {
+                    navigator.clipboard.writeText(activeReel.videoUrl);
+                    toast.success("Reel direct video URL copied!");
+                  }}
+                >
+                  <Share2 className="w-3 h-3 mr-1" />
+                  Share Reel
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
 
-                {/* Reel Info */}
-                <div className="p-4">
-                  <h3 className="font-bold text-[#ff00cc] mb-1 line-clamp-2">{reel.title}</h3>
-                  <p className="text-sm text-[#7a7f8e] mb-2">{reel.creator}</p>
-                  <p className="text-sm text-[#00eaff] line-clamp-2 mb-3">{reel.description}</p>
-                  <div className="flex items-center justify-between text-xs text-[#7a7f8e]">
-                    <span>👁️ {reel.views.toLocaleString()} views</span>
-                    <Button
-                      size="sm"
-                      className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePlayReel(reel.id);
-                      }}
-                    >
-                      <Play className="w-3 h-3 mr-1" />
-                      Play
-                    </Button>
+        {/* Reels Gallery Grid */}
+        <div className="mb-12">
+          <h3 className="text-2xl font-bold text-[#00eaff] mb-6">Select a Reel to Play</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {reels.map((reel) => {
+              const isSelected = activeReel.id === reel.id;
+              return (
+                <Card
+                  key={reel.id}
+                  className={`bg-[#1a1f2e] border overflow-hidden transition-all cursor-pointer group ${isSelected ? 'border-[#ff00cc] shadow-[0_0_15px_rgba(255,0,204,0.5)]' : 'border-[#2a2f3e] hover:border-[#00eaff]'}`}
+                  onClick={() => handlePlayReel(reel)}
+                >
+                  <div className="relative bg-gradient-to-br from-[#1a1f2e] to-[#0b0e14] aspect-video flex items-center justify-center overflow-hidden">
+                    <div className="text-8xl group-hover:scale-110 transition-transform">{reel.thumbnail}</div>
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors flex items-center justify-center">
+                      <Play className="w-16 h-16 text-[#ff00cc] group-hover:scale-110 transition-transform" />
+                    </div>
+                    <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-[#00eaff] font-bold">
+                      {reel.duration}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+
+                  <div className="p-4">
+                    <h4 className="font-bold text-[#ff00cc] mb-1 line-clamp-2">{reel.title}</h4>
+                    <p className="text-sm text-[#7a7f8e] mb-2">{reel.creator}</p>
+                    <p className="text-sm text-[#00eaff] line-clamp-2 mb-3">{reel.description}</p>
+                    <div className="flex items-center justify-between text-xs text-[#7a7f8e]">
+                      <span>👁️ {reel.views.toLocaleString()} views</span>
+                      <Button
+                        size="sm"
+                        className={`${isSelected ? 'bg-[#00eaff] text-black' : 'bg-[#ff00cc] text-black'} font-bold hover:opacity-90`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlayReel(reel);
+                        }}
+                      >
+                        <Play className="w-3 h-3 mr-1" />
+                        {isSelected ? 'Playing Now' : 'Play'}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         </div>
 
