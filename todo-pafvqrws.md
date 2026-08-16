@@ -116,3 +116,8 @@
 - [x] Implement buffering state and loading spinner / skeleton while video streams load
 - [x] Add interactive 'like' and 'share' button overlays directly on featured reels
 - [x] Run full test suite, build, and save checkpoint
+
+- [x] Add slide-out comment section overlay to the featured video player in SocialFeed.tsx
+- [x] Implement double-tap to like interaction on the active video player with floating heart animation
+- [x] Implement auto-play next reel feature with a brief countdown timer when video finishes playing
+- [x] Run full test suite, build, checkpoint, and push to GitHub

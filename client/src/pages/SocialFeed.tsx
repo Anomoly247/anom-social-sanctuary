@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, MessageCircle, Share2, Zap, Play, Volume2, VolumeX, Maximize, ArrowLeft, Loader2, ThumbsUp } from "lucide-react";
+import { Heart, MessageCircle, Share2, Zap, Play, Volume2, VolumeX, Maximize, ArrowLeft, Loader2, Send, X } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -18,6 +18,14 @@ interface FeedPost {
   liked: boolean;
 }
 
+interface ReelComment {
+  id: string;
+  author: string;
+  avatar: string;
+  text: string;
+  timestamp: string;
+}
+
 interface Reel {
   id: string;
   title: string;
@@ -29,10 +37,11 @@ interface Reel {
   videoUrl: string;
   likes: number;
   liked: boolean;
+  comments: ReelComment[];
 }
 
 export default function SocialFeed() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const [, navigate] = useLocation();
   const [posts, setPosts] = useState<FeedPost[]>([
     {
@@ -101,6 +110,10 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_pixel_dot_full_story_final.mp4",
       likes: 1420,
       liked: false,
+      comments: [
+        { id: "c1", author: "Eliza Wood", avatar: "👩", text: "Absolute masterpiece! The neon aesthetics are incredible.", timestamp: "1 hour ago" },
+        { id: "c2", author: "Cosmic Fan", avatar: "🌌", text: "Watched this three times already. Tater and Clifford are the best!", timestamp: "30 mins ago" },
+      ],
     },
     {
       id: "reel-2",
@@ -113,6 +126,9 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_1_stretched.mp4",
       likes: 890,
       liked: false,
+      comments: [
+        { id: "c3", author: "Neon Explorer", avatar: "⚡", text: "That opening transition is so smooth!", timestamp: "2 hours ago" },
+      ],
     },
     {
       id: "reel-3",
@@ -125,6 +141,7 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_2_stretched.mp4",
       likes: 640,
       liked: false,
+      comments: [],
     },
     {
       id: "reel-4",
@@ -137,13 +154,39 @@ export default function SocialFeed() {
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_3_stretched.mp4",
       likes: 1850,
       liked: false,
+      comments: [
+        { id: "c4", author: "Sanctuary Guardian", avatar: "🛡️", text: "Such a heartwarming end to this sequence.", timestamp: "10 mins ago" },
+      ],
     },
   ]);
 
   const [activeReel, setActiveReel] = useState<Reel>(reels[0]);
   const [isBuffering, setIsBuffering] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [showComments, setShowComments] = useState<boolean>(false);
+  const [newCommentText, setNewCommentText] = useState<string>("");
+  const [showHeartAnimation, setShowHeartAnimation] = useState<boolean>(false);
+  const [autoplayCountdown, setAutoplayCountdown] = useState<number | null>(null);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const lastTapRef = useRef<number>(0);
+
+  // Autoplay countdown timer effect
+  useEffect(() => {
+    let timer: any;
+    if (autoplayCountdown !== null && autoplayCountdown > 0) {
+      timer = setTimeout(() => {
+        setAutoplayCountdown(autoplayCountdown - 1);
+      }, 1000);
+    } else if (autoplayCountdown === 0) {
+      // Advance to next reel
+      const currentIndex = reels.findIndex(r => r.id === activeReel.id);
+      const nextIndex = (currentIndex + 1) % reels.length;
+      handlePlayReel(reels[nextIndex]);
+      setAutoplayCountdown(null);
+    }
+    return () => clearTimeout(timer);
+  }, [autoplayCountdown, activeReel, reels]);
 
   const handleLikePost = (postId: string) => {
     setPosts(
@@ -181,27 +224,58 @@ export default function SocialFeed() {
     );
   };
 
+  const handleVideoDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double tap detected! Like active reel if not already liked
+      if (!activeReel.liked) {
+        handleLikeReel(activeReel.id);
+      }
+      setShowHeartAnimation(true);
+      setTimeout(() => setShowHeartAnimation(false), 900);
+    }
+    lastTapRef.current = now;
+  };
+
   const handleShareReel = (reel: Reel, e?: React.MouseEvent) => {
     e?.stopPropagation();
     navigator.clipboard.writeText(reel.videoUrl);
     toast.success(`Copied direct video link for '${reel.title}'!`);
   };
 
-  const handleComment = (postId: string) => {
-    toast.info("Comments feature coming soon!");
-  };
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
 
-  const handleShare = (postId: string) => {
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
+    const newComment: ReelComment = {
+      id: `c-${Date.now()}`,
+      author: user?.name || "Anonymous Member",
+      avatar: "👤",
+      text: newCommentText.trim(),
+      timestamp: "Just now",
+    };
 
-    const shareUrl = `${window.location.origin}/feed/post/${postId}`;
-    navigator.clipboard.writeText(shareUrl);
-    toast.success('Link copied! Share on social media or paste anywhere.');
+    const updatedReels = reels.map((reel) => {
+      if (reel.id === activeReel.id) {
+        const updated = {
+          ...reel,
+          comments: [newComment, ...reel.comments],
+        };
+        setActiveReel(updated);
+        return updated;
+      }
+      return reel;
+    });
+
+    setReels(updatedReels);
+    setNewCommentText("");
+    toast.success("Comment posted successfully!");
   };
 
   const handlePlayReel = (reel: Reel) => {
     setIsBuffering(true);
+    setAutoplayCountdown(null);
     setActiveReel(reel);
     toast.success(`Now playing: ${reel.title}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -266,19 +340,44 @@ export default function SocialFeed() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Active Reel Video Player Section */}
-        <div className="mb-10">
+        <div className="mb-10 relative">
           <h2 className="text-3xl font-bold text-[#ff00cc] mb-4 flex items-center gap-2">
             <Play className="w-6 h-6" />
             Featured Reels Player: {activeReel.title}
           </h2>
           <Card className="bg-[#1a1f2e] border-2 border-[#ff00cc]/60 overflow-hidden p-4 shadow-[0_0_20px_rgba(255,0,204,0.3)]">
-            <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e] aspect-video flex items-center justify-center">
+            <div 
+              className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e] aspect-video flex items-center justify-center cursor-pointer select-none"
+              onClick={handleVideoDoubleTap}
+            >
               {isBuffering && (
                 <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-10 gap-3">
                   <Loader2 className="w-12 h-12 animate-spin text-[#00eaff]" />
                   <span className="text-sm text-[#00eaff] font-bold tracking-wide animate-pulse">Buffering Reel Stream...</span>
                 </div>
               )}
+
+              {/* Double-tap Heart Animation Overlay */}
+              {showHeartAnimation && (
+                <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none animate-ping">
+                  <Heart className="w-28 h-28 text-[#ff00cc] fill-[#ff00cc] drop-shadow-[0_0_25px_rgba(255,0,204,0.8)]" />
+                </div>
+              )}
+
+              {/* Autoplay Next Reel Countdown Notification */}
+              {autoplayCountdown !== null && (
+                <div className="absolute bottom-16 right-4 bg-black/85 border border-[#ff00cc] px-4 py-2 rounded-lg z-30 flex items-center gap-3 shadow-lg">
+                  <span className="text-xs text-white">Next reel in <strong className="text-[#ff00cc] text-sm">{autoplayCountdown}s</strong></span>
+                  <Button
+                    size="sm"
+                    className="bg-[#ff00cc] text-black h-7 text-xs font-bold"
+                    onClick={() => setAutoplayCountdown(null)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+
               <video
                 ref={videoRef}
                 key={activeReel.videoUrl}
@@ -289,6 +388,10 @@ export default function SocialFeed() {
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => setIsBuffering(false)}
                 onCanPlay={() => setIsBuffering(false)}
+                onEnded={() => {
+                  setAutoplayCountdown(3);
+                  toast.info("Video finished. Next reel starting soon...");
+                }}
               >
                 <source src={activeReel.videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
@@ -300,7 +403,7 @@ export default function SocialFeed() {
                   size="sm"
                   variant="secondary"
                   className="bg-black/40 hover:bg-black/80 text-white h-7 px-2"
-                  onClick={toggleMute}
+                  onClick={(e) => { e.stopPropagation(); toggleMute(); }}
                   title={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00eaff]" />}
@@ -312,6 +415,7 @@ export default function SocialFeed() {
                   step="0.05"
                   defaultValue="1"
                   className="w-20 accent-[#00eaff] cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) => {
                     const val = parseFloat(e.target.value);
                     if (videoRef.current) {
@@ -325,7 +429,7 @@ export default function SocialFeed() {
                   size="sm"
                   variant="secondary"
                   className="bg-black/40 hover:bg-black/80 text-white h-7 px-2"
-                  onClick={toggleFullscreen}
+                  onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
                   title="Fullscreen"
                 >
                   <Maximize className="w-4 h-4 text-[#00eaff]" />
@@ -338,7 +442,7 @@ export default function SocialFeed() {
                 <h3 className="text-xl font-bold text-[#00eaff]">{activeReel.title}</h3>
                 <p className="text-sm text-gray-300 mt-1">{activeReel.description}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-xs text-gray-400">👁️ {activeReel.views.toLocaleString()} views</span>
                 <Button
                   size="sm"
@@ -351,6 +455,15 @@ export default function SocialFeed() {
                 </Button>
                 <Button
                   size="sm"
+                  variant="outline"
+                  className="border-[#00eaff] text-[#00eaff] bg-black/40 hover:bg-[#00eaff]/20"
+                  onClick={() => setShowComments(!showComments)}
+                >
+                  <MessageCircle className="w-4 h-4 mr-1" />
+                  Comments ({activeReel.comments.length})
+                </Button>
+                <Button
+                  size="sm"
                   className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
                   onClick={(e) => handleShareReel(activeReel, e)}
                 >
@@ -360,6 +473,61 @@ export default function SocialFeed() {
               </div>
             </div>
           </Card>
+
+          {/* Slide-out Comments Section Overlay */}
+          {showComments && (
+            <div className="mt-4 bg-[#141923] border-2 border-[#00eaff]/40 rounded-xl p-6 shadow-[0_0_25px_rgba(0,234,255,0.2)] transition-all animate-in fade-in slide-in-from-top-4">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#2a2f3e]">
+                <h4 className="font-bold text-lg text-[#00eaff] flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-[#ff00cc]" />
+                  Comments on "{activeReel.title}"
+                </h4>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white"
+                  onClick={() => setShowComments(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Add Comment Form */}
+              <form onSubmit={handleAddComment} className="flex gap-2 mb-6">
+                <input
+                  type="text"
+                  placeholder="Share your thoughts or feedback..."
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                  className="flex-1 bg-[#0b0e14] border border-[#2a2f3e] rounded-lg px-4 py-2.5 text-sm text-[#00eaff] placeholder-gray-500 focus:outline-none focus:border-[#ff00cc]"
+                />
+                <Button type="submit" className="bg-[#00eaff] text-black hover:bg-[#00eaff]/80 font-bold px-4">
+                  <Send className="w-4 h-4 mr-1" />
+                  Post
+                </Button>
+              </form>
+
+              {/* Comments List */}
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                {activeReel.comments.length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center py-6">No comments yet. Be the first to share your thoughts!</p>
+                ) : (
+                  activeReel.comments.map((comment) => (
+                    <div key={comment.id} className="bg-[#0b0e14] border border-[#2a2f3e] p-3.5 rounded-lg flex items-start gap-3">
+                      <div className="text-2xl">{comment.avatar}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-xs text-[#00eaff]">{comment.author}</span>
+                          <span className="text-[10px] text-gray-500">{comment.timestamp}</span>
+                        </div>
+                        <p className="text-sm text-gray-300">{comment.text}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Reels Gallery Grid */}
@@ -411,7 +579,7 @@ export default function SocialFeed() {
                     <p className="text-sm text-[#7a7f8e] mb-2">{reel.creator}</p>
                     <p className="text-sm text-[#00eaff] line-clamp-2 mb-3">{reel.description}</p>
                     <div className="flex items-center justify-between text-xs text-[#7a7f8e]">
-                      <span>👁️ {reel.views.toLocaleString()} views · ❤️ {reel.likes}</span>
+                      <span>👁️ {reel.views.toLocaleString()} · ❤️ {reel.likes} · 💬 {reel.comments.length}</span>
                       <Button
                         size="sm"
                         className={`${isSelected ? 'bg-[#00eaff] text-black' : 'bg-[#ff00cc] text-black'} font-bold hover:opacity-90`}
@@ -511,7 +679,7 @@ export default function SocialFeed() {
                 <Button
                   variant="ghost"
                   className="flex-1 text-[#7a7f8e] hover:text-[#00eaff] gap-2"
-                  onClick={() => handleComment(post.id)}
+                  onClick={() => toast.info("Comments feature coming soon!")}
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span className="text-sm">Comment</span>
@@ -519,7 +687,11 @@ export default function SocialFeed() {
                 <Button
                   variant="ghost"
                   className="flex-1 text-[#7a7f8e] hover:text-[#9d4edd] gap-2"
-                  onClick={() => handleShare(post.id)}
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/feed/post/${post.id}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    toast.success("Post link copied!");
+                  }}
                 >
                   <Share2 className="w-4 h-4" />
                   <span className="text-sm">Share</span>
