@@ -2656,3 +2656,81 @@ computing gzip size...
   dist/index.js  167.8kb
 
 ⚡ Done in 10ms
+
+===== Feature Controls UI dependency lock verification 2026-08-16T18:16:58Z =====
+
+===== tsc =====
+
+===== targeted Feature Controls suites =====
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+ ✓ server/featureFlagPrerequisites.test.ts > Feature Controls configurable prerequisites > locks activity feed ratings only when the configurable activity feed is off
+ ✓ server/featureFlagPrerequisites.test.ts > Feature Controls configurable prerequisites > does not invent a configurable lock for features gated only by built-in safety safeguards
+stdout | server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > returns default flags correctly
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > defines lounge_image_upload and vip_custom_emoji as default off
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > returns default flags correctly 314ms
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > treats required reporting, blocking, moderation, and cap systems as built-in safeguards
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > keeps activity feed ratings locked when the configurable activity feed is off
+ ✓ server/featureFlags.test.ts > Sanctuary Safety Layer - Phase 14 Feature Flag Registry > allows a safety-gated feature to be enabled when mandatory safeguards are active
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  18:17:02
+   Duration  1.12s (transform 196ms, setup 0ms, collect 494ms, tests 439ms, environment 0ms, prepare 139ms)
+
+
+===== phase19 behavioral suite =====
+
+ RUN  v2.1.9 /home/ubuntu/copy-of-anom-artsy---the-official-ao-sanctuary
+
+stdout | server/phase19.behavioral.test.ts
+[OAuth] Initialized with baseURL: https://api.manus.im
+
+stdout | server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified
+[Database] Initializing database connection...
+[Database] ✓ Database connection established
+
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 1: every registered flag is off and its governing procedure rejects, while UI-only flags are identified 768ms
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 2: enabling a flag with unmet prerequisites is refused by the direct mutation
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 3: blocked authors are excluded from the DB-backed lounge message result
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 4: muted, timed_out, suspended, and banned users are refused by protected procedures
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 5: an active timed_out restriction is refused and the same status after expiry is allowed
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 6: non-moderator lounge reads do not return removed moderation content
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 7: content removal preserves the row and marks moderation status instead of hard deleting
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 8: an Explorer cannot chat until both education completions are recorded
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 9: login-time authentication recomputes and persists a birthday promotion
+ ✓ server/phase19.behavioral.test.ts > Phase 19 strict behavioral verification > Gate 10: consent revocation suspends the child and removes child content immediately
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  18:17:04
+   Duration  2.68s (transform 285ms, setup 0ms, collect 832ms, tests 1.60s, environment 0ms, prepare 67ms)
+
+
+===== build =====
+
+> anom-sanctuary-restored@1.0.0 build
+> vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v7.1.9 building for production...
+transforming...
+✓ 2429 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   368.24 kB │ gzip: 105.76 kB
+../dist/public/assets/index-Bfu4gLsj.css    146.40 kB │ gzip:  22.64 kB
+../dist/public/assets/index-Pbb_7_VW.js   2,027.10 kB │ gzip: 430.99 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.03s
+
+  dist/index.js  168.0kb
+
+⚡ Done in 10ms

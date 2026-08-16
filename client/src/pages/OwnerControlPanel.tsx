@@ -41,6 +41,7 @@ import {
 } from '../../../shared/adminUserFilters';
 import { ADMIN_TAB_IDS, resolveAdminTabShortcut, type AdminTabId } from '../../../shared/adminTabShortcuts';
 import { buildModerationUndoOperations, type ModerationUndoAction } from '../../../shared/moderationUndo';
+import { getUnmetConfigurablePrerequisites } from '../../../shared/featureFlagPrerequisites';
 import { Settings, Users, BarChart3, Package, Zap, Lock, ArrowLeft, Plus, Trash2, ShieldCheck, ShieldOff, ScrollText, CheckSquare, Square, Download, Search, CalendarDays, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
@@ -138,6 +139,12 @@ function FeaturesTab() {
           { key: 'kids_corner', label: "Anom's Corner", desc: 'Exposes educational and family content', icon: '📚' },
         ].map((item) => {
           const isActive = (flags as Record<string, boolean>)[item.key] ?? false;
+          const unmetPrerequisites = getUnmetConfigurablePrerequisites(item.key, flags as Record<string, boolean>);
+          const isDependencyLocked = !isActive && unmetPrerequisites.length > 0;
+          const prerequisiteLabels = unmetPrerequisites.map((prerequisite) => {
+            if (prerequisite === 'activity_feed') return 'Community Activity Feed';
+            return prerequisite;
+          });
           return (
             <Card key={item.key} className="border-2 border-[#00eaff]/40 bg-[#0b0e14]/90 p-4 flex flex-col justify-between">
               <div>
@@ -151,16 +158,22 @@ function FeaturesTab() {
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mb-4">{item.desc}</p>
+                {isDependencyLocked && (
+                  <p className="text-xs text-amber-300 mb-4" role="status">
+                    Turn on {prerequisiteLabels.join(' and ')} before enabling this feature.
+                  </p>
+                )}
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-gray-800">
                 <span className="text-xs text-gray-500 font-mono">{item.key}</span>
                 <Button
                   size="sm"
                   onClick={() => handleToggle(item.key, isActive)}
-                  disabled={setFlagMutation.isPending}
+                  disabled={setFlagMutation.isPending || isDependencyLocked}
+                  title={isDependencyLocked ? `Requires ${prerequisiteLabels.join(' and ')} to be enabled first.` : undefined}
                   className={isActive ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/40 text-xs' : 'bg-green-500/20 text-green-300 hover:bg-green-500/30 border border-green-500/40 text-xs'}
                 >
-                  {isActive ? 'Turn OFF' : 'Turn ON'}
+                  {isActive ? 'Turn OFF' : isDependencyLocked ? 'Prerequisite Required' : 'Turn ON'}
                 </Button>
               </div>
             </Card>

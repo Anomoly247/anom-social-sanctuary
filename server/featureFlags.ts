@@ -2,6 +2,7 @@ import { getDb } from "./db";
 import { platformSettings, auditLog } from "../drizzle/schema";
 import { sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { CONFIGURABLE_FEATURE_PREREQUISITES } from "../shared/featureFlagPrerequisites";
 
 export const FEATURE_REGISTRY = {
   lounge_image_upload: { default: "off", label: "Lounge Image Upload", requires: ["reporting", "blocking"], description: "Allows members to upload and share images in lounge chat." },
@@ -11,7 +12,7 @@ export const FEATURE_REGISTRY = {
   unread_badges: { default: "on", label: "Unread Message Badges", description: "Shows unread message counts on lounge navigation links." },
   activity_feed: { default: "on", label: "Community Activity Feed", description: "Streams recent lounge milestones and announcements." },
   activity_feed_likes: { default: "on", label: "Activity Feed Likes", description: "Allows members to like feed items." },
-  activity_feed_ratings: { default: "off", label: "Activity Feed Ratings", requires: ["activity_feed", "reporting", "moderation_queue"], description: "Allows rating feed items for Anom Coins." },
+  activity_feed_ratings: { default: "off", label: "Activity Feed Ratings", requires: [...CONFIGURABLE_FEATURE_PREREQUISITES.activity_feed_ratings, "reporting", "moderation_queue"], description: "Allows rating feed items for Anom Coins." },
   coin_earning_from_engagement: { default: "off", label: "Coin Earning from Engagement", requires: ["daily_earn_caps"], description: "Earn Anom Coins through engagement." },
   profile_customization: { default: "on", label: "Profile Customization", description: "Allows bio, avatar, and theme customization." },
   public_profiles: { default: "on", label: "Public Profiles", description: "Displays public member profiles." },
