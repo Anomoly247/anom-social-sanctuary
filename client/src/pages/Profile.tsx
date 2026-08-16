@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { User, Zap, Award, Palette, Settings, LogOut, Edit2, Save, Share2, Copy, Check, AlertCircle } from "lucide-react";
+import { User, Zap, Award, Palette, Settings, LogOut, Edit2, Save, Share2, Copy, Check, AlertCircle, Bookmark, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ export default function Profile() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "customize" | "settings" | "share">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "saved" | "customize" | "settings" | "share">("dashboard");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string>("magenta");
   const [selectedNameColor, setSelectedNameColor] = useState<string>("#00eaff");
@@ -86,7 +86,7 @@ export default function Profile() {
             <h2 className="text-xl font-bold text-[#ff00cc]">Unable to Load Profile</h2>
           </div>
           <p className="text-[#7a7f8e] text-sm mb-6">
-            We're having trouble connecting to your profile data. This might be a temporary issue. Please try again later or contact support if the problem persists.
+            We're having trouble connecting to your profile data. Please try again later.
           </p>
           <div className="flex gap-3">
             <Button 
@@ -168,33 +168,17 @@ export default function Profile() {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(profileUrl);
     setCopied(true);
-    toast.success("Profile link copied!");
+    toast.success("Profile link copied to clipboard! 📋");
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleShareProfile = (platform: string) => {
-    const message = `Check out my Anom Artsy profile: ${profileUrl}`;
-    const encodedMessage = encodeURIComponent(message);
-    
-    const urls: Record<string, string> = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodedMessage}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`,
-    };
-
-    if (urls[platform]) {
-      window.open(urls[platform], "_blank", "width=600,height=400");
-      toast.success(`Shared on ${platform}!`);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0e14] to-[#1a1f2e] text-[#00eaff]">
       {/* Header */}
       <div className="border-b border-[#2a2f3e] bg-[#0b0e14]/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-[#ff00cc]">My Profile</h1>
+            <h1 className="text-3xl font-bold text-[#ff00cc]">My Profile & Hub</h1>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => navigate("/")} className="text-[#00eaff] border-[#00eaff] hover:bg-[#00eaff]/10">
                 ← Back to Home
@@ -209,9 +193,10 @@ export default function Profile() {
         <div className="flex gap-2 mb-8 flex-wrap">
           {[
             { id: "dashboard", label: "Dashboard", icon: "📊" },
+            { id: "saved", label: "Saved Reels", icon: "🔖" },
             { id: "customize", label: "Customize", icon: "🎨" },
             { id: "settings", label: "Settings", icon: "⚙️" },
-            { id: "share", label: "Share", icon: "📤" },
+            { id: "share", label: "Share Profile", icon: "📤" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -255,6 +240,52 @@ export default function Profile() {
             <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-6">
               <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Bio</h3>
               <p className="text-[#7a7f8e]">{profile?.bio || "No bio yet. Add one in the Customize tab!"}</p>
+            </Card>
+          </div>
+        )}
+
+        {/* Saved Reels Tab */}
+        {activeTab === "saved" && (
+          <div className="space-y-6">
+            <Card className="bg-[#1a1f2e] border border-[#ff00cc]/50 p-6 shadow-[0_0_20px_rgba(255,0,204,0.2)]">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-[#ff00cc] flex items-center gap-2">
+                  <Bookmark className="w-6 h-6 fill-[#ff00cc]" />
+                  Your Saved Reels & Videos
+                </h3>
+                <Button className="btn-neon-cyan" onClick={() => navigate("/feed")}>
+                  Browse More Reels
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Sample / Bookmarked Reels Display */}
+                <div className="bg-[#0b0e14] border border-[#2a2f3e] rounded-xl p-4 flex gap-4 items-center">
+                  <div className="w-24 h-16 bg-gradient-to-br from-[#ff00cc] to-[#00eaff] rounded-lg flex items-center justify-center text-3xl">
+                    🎬
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-[#00eaff] text-sm mb-1">Pixel & Dot's Full Story</h4>
+                    <p className="text-xs text-gray-400 mb-2">Anom Studios · 12,543 views</p>
+                    <Button size="sm" className="bg-[#ff00cc] text-black h-7 text-xs font-bold" onClick={() => navigate("/feed")}>
+                      <Play className="w-3 h-3 mr-1" /> Watch Now
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-[#0b0e14] border border-[#2a2f3e] rounded-xl p-4 flex gap-4 items-center">
+                  <div className="w-24 h-16 bg-gradient-to-br from-[#00ff88] to-[#00eaff] rounded-lg flex items-center justify-center text-3xl">
+                    ✨
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-[#00eaff] text-sm mb-1">Pixel & Dot: Scene 1</h4>
+                    <p className="text-xs text-gray-400 mb-2">Anom Studios · 8,234 views</p>
+                    <Button size="sm" className="bg-[#ff00cc] text-black h-7 text-xs font-bold" onClick={() => navigate("/feed")}>
+                      <Play className="w-3 h-3 mr-1" /> Watch Now
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </Card>
           </div>
         )}
@@ -311,126 +342,34 @@ export default function Profile() {
         {activeTab === "settings" && (
           <div className="space-y-6">
             <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-6">
-              <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Color & Theme Settings</h3>
-              <p className="text-[#7a7f8e] text-sm mb-4">
-                Choose your signature neon accent color and theme, just like creating a private lounge.
-              </p>
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {[
-                  { id: "magenta", name: "Neon Magenta", color: "#ff00cc", preview: "🌸" },
-                  { id: "cyan", name: "Neon Cyan", color: "#00eaff", preview: "💎" },
-                  { id: "purple", name: "Neon Purple", color: "#b000ff", preview: "👾" },
-                ].map((theme) => (
-                  <button
-                    key={theme.id}
-                    onClick={() => {
-                      setSelectedTheme(theme.id);
-                      updateThemeMutation.mutate({ theme: theme.id as any }, {
-                        onSuccess: () => toast.success(`Neon theme updated to ${theme.name}!`),
-                        onError: () => toast.error("Failed to update neon theme")
-                      });
-                    }}
-                    className={`p-4 rounded-lg border-2 transition-all text-center ${
-                      selectedTheme === theme.id
-                        ? "border-[#ff00cc] bg-[#ff00cc]/20 text-[#ff00cc]"
-                        : "border-[#2a2f3e] hover:border-[#ff00cc] text-[#7a7f8e]"
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{theme.preview}</div>
-                    <p className="text-xs font-bold">{theme.name}</p>
-                  </button>
-                ))}
-              </div>
-
-              <h4 className="text-lg font-bold text-[#00eaff] mb-3">Name Accent Color</h4>
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                {NAME_COLORS.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => {
-                      setSelectedNameColor(color.id);
-                      updateNameColorMutation.mutate({ nameColor: color.id }, {
-                        onSuccess: () => toast.success(`Name color updated!`),
-                        onError: () => toast.error("Failed to update name color")
-                      });
-                    }}
-                    className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                      selectedNameColor === color.id
-                        ? "border-[#00eaff] bg-[#00eaff]/20"
-                        : "border-[#2a2f3e] hover:border-[#00eaff]"
-                    }`}
-                  >
-                    <div className="w-6 h-6 rounded-full border border-white/20" style={{ backgroundColor: color.color }} />
-                    <span className="text-xs text-[#7a7f8e]">{color.name}</span>
-                  </button>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-6">
-              <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Edit Bio</h3>
-              {isEditingProfile ? (
-                <div className="space-y-4">
-                  <textarea
-                    value={editData.bio}
-                    onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                    className="w-full bg-[#0b0e14] border border-[#2a2f3e] rounded-lg p-3 text-[#00eaff] placeholder-[#7a7f8e] focus:border-[#ff00cc] focus:outline-none"
-                    placeholder="Tell us about yourself..."
-                    rows={4}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={handleUpdateProfile} className="flex-1 bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold">
-                      Save Bio
-                    </Button>
-                    <Button onClick={() => setIsEditingProfile(false)} variant="outline" className="flex-1 text-[#00eaff] border-[#00eaff]">
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Button onClick={() => setIsEditingProfile(true)} className="w-full bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold">
-                  Edit Bio
-                </Button>
-              )}
+              <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Account Settings</h3>
+              <p className="text-[#7a7f8e] text-sm mb-4">Manage your Sanctuary credentials and session.</p>
+              <Button onClick={() => startLogin()} className="btn-neon-magenta">
+                Switch Account / Re-authenticate
+              </Button>
             </Card>
           </div>
         )}
 
-        {/* Share Tab */}
+        {/* Share Profile Tab */}
         {activeTab === "share" && (
           <div className="space-y-6">
-            <Card className="bg-[#1a1f2e] border border-[#2a2f3e] p-6">
-              <h3 className="text-xl font-bold text-[#ff00cc] mb-4">Share Your Profile</h3>
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <Input
-                    value={profileUrl}
-                    readOnly
-                    className="bg-[#0b0e14] border border-[#2a2f3e] text-[#00eaff]"
-                  />
-                  <Button
-                    onClick={handleCopyLink}
-                    className="bg-[#00eaff] hover:bg-[#00eaff]/80 text-black font-bold"
-                  >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  {[
-                    { platform: "twitter", icon: "𝕏", label: "Twitter" },
-                    { platform: "facebook", icon: "f", label: "Facebook" },
-                    { platform: "linkedin", icon: "in", label: "LinkedIn" },
-                  ].map((social) => (
-                    <Button
-                      key={social.platform}
-                      onClick={() => handleShareProfile(social.platform)}
-                      className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
-                    >
-                      {social.icon}
-                    </Button>
-                  ))}
-                </div>
+            <Card className="bg-[#1a1f2e] border border-[#00eaff]/50 p-8 shadow-[0_0_20px_rgba(0,234,255,0.2)] text-center">
+              <h3 className="text-2xl font-bold text-[#00eaff] mb-3">Share Your Sanctuary Profile</h3>
+              <p className="text-[#7a7f8e] max-w-md mx-auto mb-6">
+                Invite friends and fellow explorers to view your progress, achievement badges, and neon theme.
+              </p>
+              <div className="flex max-w-md mx-auto gap-2 mb-6">
+                <input
+                  type="text"
+                  readOnly
+                  value={profileUrl}
+                  className="flex-1 bg-[#0b0e14] border border-[#2a2f3e] rounded-lg px-4 py-2 text-sm text-[#00eaff]"
+                />
+                <Button onClick={handleCopyLink} className="btn-neon-cyan">
+                  {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
+                  {copied ? "Copied!" : "Copy Link"}
+                </Button>
               </div>
             </Card>
           </div>
