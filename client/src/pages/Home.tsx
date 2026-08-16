@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Zap, Users, Gamepad2, Heart, Sparkles, ShoppingBag, Upload, Palette } from "lucide-react";
-import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
@@ -34,7 +33,7 @@ export default function Home() {
         <nav className="border-b border-[#2a2f3e] px-6 py-4">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="text-2xl font-bold neon-text-magenta">Anom Artsy</div>
-            <a href={getLoginUrl()}>
+            <a href="/api/auth/google">
               <Button className="btn-neon-magenta">Sign In</Button>
             </a>
           </div>
@@ -55,7 +54,7 @@ export default function Home() {
                 Join the Anom Artsy community — a neon-lit sanctuary where family comes first, creativity thrives, and your identity matters. Every interaction drives real-world social good impact.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <a href={getLoginUrl()}>
+                <a href="/api/auth/google">
                   <Button className="btn-neon-cyan text-lg py-6 px-8">
                     Enter the Universe
                   </Button>
@@ -160,7 +159,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-6 text-[#00eaff]">
               Ready to join the Anom Universe?
             </h2>
-            <a href={getLoginUrl()}>
+            <a href="/api/auth/google">
               <Button className="btn-neon-magenta text-lg py-6 px-8">
                 Get Started Now
               </Button>
