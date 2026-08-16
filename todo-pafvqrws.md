@@ -64,3 +64,39 @@
 - [x] Create an out-of-repository database backup, report table metrics, and inventory referenced Manus-storage media without downloading objects
 - [x] Produce a header-only inventory of all `/manus-storage/` media references, including Pixel & Dot and Anom's Corner assets
 - [x] Write and push a complete fresh-server deployment runbook covering environment, build, database, OAuth, and runtime configuration
+- [x] Create, upload, and deliver fresh full and schema-only Sanctuary database exports outside the repository
+- [x] Add the lounge creator to lounge_members with owner role during server-side lounge creation and verify the full suite
+- [x] Create tier_purchases and replace membership purchase placeholders with database-backed persistence and history
+- [x] Replace dead Pixel & Dot Manus-storage players with the official Anom Originals YouTube channel link
+- [x] Produce and push a read-only project-status audit covering routes, procedures, placeholders, missing tables, and dead client URLs
+- [x] Persist Profile theme, name color, bio, and accepted display-name updates through the active settings router
+- [x] Produce and push a read-only cross-account GitHub image and media asset inventory
+- [x] Return the profile owner’s actual name and achievement count from profile.getPublic
+- [x] Produce and push a read-only complete root-and-assets catalogue for Anoms-Hub/anom-artsy
+- [x] Verify six Pixel & Dot raw GitHub videos and restore native playback in Anom's Corner and Kids Corner
+- [x] Produce and push a read-only inventory of membership_tier reads, writes, and hardcoded tier names
+- [x] Update user_profiles.membership_tier when createTierUpgrade records a completed tier purchase
+- [x] Produce and push a read-only audit of mounted tRPC procedures that claim success without persisting their stated action
+- [x] Make activity-feed likes and ratings reject unavailable, failed, and zero-row database writes with regression coverage
+- [ ] Produce and push a read-only consolidation comparison of the four specified sanctuary repositories
+- [x] Produce and push a read-only divergent-repository source review covering the requested hosting and AO Universe implementations
+- [x] Produce and push a read-only inventory of games and interactive projects across Anomoly247, Anom-Originals, and Anoms-Hub
+- [x] Produce and push a read-only Off Grid Terminal port-readiness review for the canonical Sanctuary Arcade
+- [x] Stage only the specified anomartsy.xyz homepage replacement, backup, and AO Universe Seal root assets without publishing
+- [x] Commit and push only the six approved anomartsy.xyz root files to main and verify GitHub Pages deployment status
+- [x] Replace only anomartsy.xyz root index.html and add ao-og-card.png, then push main and verify GitHub Pages deployment status
+- [ ] Verify the live anomartsy.xyz homepage and ao-og-card.png delivery after the SEO publication
+- [x] Inspect latest GitHub Pages workflow logs and commit checks for a deployment-blocking build error
+- [ ] Diagnose and repair non-working Featured Reels links on the anomartsy.xyz homepage, then push and verify the deployment
+- [x] Make Feature Controls explain and prevent dependent-toggle errors while preserving server-side prerequisite enforcement
+- [x] Run full regression, inspect anomartsy.xyz GitHub Pages status, and verify no false Feature Controls prerequisite errors remain
+- [x] Replace the shared-database Feature Controls regression with deterministic coverage so the full suite remains stable
+
+- [ ] Reproduce OAuth login flow from local preview and inspect callback handling
+- [ ] Trace OAuth callback server logs for state mismatch or invalid code errors
+- [ ] Deliver diagnostic report and fix for the Sanctuary login failure
+
+- [ ] Inspect getUserInfo return type and SDK handling of standard OAuth provider claims (sub / id / email)
+- [ ] Implement fallback mapping for openId in server/_core/oauth.ts
+- [ ] Add regression test for OAuth callbacks returning sub or id instead of openId
+- [ ] Commit and push the isolated OAuth fallback fix
