@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, MessageCircle, Share2, Zap, Play, Volume2, ArrowLeft } from "lucide-react";
+import { Heart, MessageCircle, Share2, Zap, Play, Volume2, VolumeX, Maximize, ArrowLeft, Loader2, ThumbsUp } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -27,6 +27,8 @@ interface Reel {
   duration: string;
   views: number;
   videoUrl: string;
+  likes: number;
+  liked: boolean;
 }
 
 export default function SocialFeed() {
@@ -87,7 +89,7 @@ export default function SocialFeed() {
     },
   ]);
 
-  const reels: Reel[] = [
+  const [reels, setReels] = useState<Reel[]>([
     {
       id: "reel-1",
       title: "Pixel & Dot's Full Story | Anom Studios",
@@ -97,6 +99,8 @@ export default function SocialFeed() {
       duration: "Full Story",
       views: 12543,
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_pixel_dot_full_story_final.mp4",
+      likes: 1420,
+      liked: false,
     },
     {
       id: "reel-2",
@@ -107,6 +111,8 @@ export default function SocialFeed() {
       duration: "Scene 1",
       views: 8234,
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_1_stretched.mp4",
+      likes: 890,
+      liked: false,
     },
     {
       id: "reel-3",
@@ -117,6 +123,8 @@ export default function SocialFeed() {
       duration: "Scene 2",
       views: 5678,
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_2_stretched.mp4",
+      likes: 640,
+      liked: false,
     },
     {
       id: "reel-4",
@@ -127,12 +135,17 @@ export default function SocialFeed() {
       duration: "Scene 3",
       views: 15234,
       videoUrl: "https://raw.githubusercontent.com/Anoms-Hub/anom-artsy/main/assets/v8_scene_3_stretched.mp4",
+      likes: 1850,
+      liked: false,
     },
-  ];
+  ]);
 
   const [activeReel, setActiveReel] = useState<Reel>(reels[0]);
+  const [isBuffering, setIsBuffering] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const handleLike = (postId: string) => {
+  const handleLikePost = (postId: string) => {
     setPosts(
       posts.map((post) =>
         post.id === postId
@@ -144,6 +157,34 @@ export default function SocialFeed() {
           : post
       )
     );
+  };
+
+  const handleLikeReel = (reelId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setReels(
+      reels.map((reel) => {
+        if (reel.id === reelId) {
+          const nextLiked = !reel.liked;
+          const updated = {
+            ...reel,
+            liked: nextLiked,
+            likes: nextLiked ? reel.likes + 1 : reel.likes - 1,
+          };
+          if (activeReel.id === reelId) {
+            setActiveReel(updated);
+          }
+          toast.success(nextLiked ? "Liked reel! ❤️" : "Unliked reel");
+          return updated;
+        }
+        return reel;
+      })
+    );
+  };
+
+  const handleShareReel = (reel: Reel, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    navigator.clipboard.writeText(reel.videoUrl);
+    toast.success(`Copied direct video link for '${reel.title}'!`);
   };
 
   const handleComment = (postId: string) => {
@@ -160,15 +201,36 @@ export default function SocialFeed() {
   };
 
   const handlePlayReel = (reel: Reel) => {
+    setIsBuffering(true);
     setActiveReel(reel);
     toast.success(`Now playing: ${reel.title}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      } else if ((videoRef.current as any).webkitRequestFullscreen) {
+        (videoRef.current as any).webkitRequestFullscreen();
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b0e14] flex items-center justify-center">
-        <div className="text-[#00eaff] text-xl">Loading Feed...</div>
+        <div className="text-[#00eaff] text-xl flex items-center gap-3">
+          <Loader2 className="w-6 h-6 animate-spin text-[#ff00cc]" />
+          Loading Feed...
+        </div>
       </div>
     );
   }
@@ -210,17 +272,67 @@ export default function SocialFeed() {
             Featured Reels Player: {activeReel.title}
           </h2>
           <Card className="bg-[#1a1f2e] border-2 border-[#ff00cc]/60 overflow-hidden p-4 shadow-[0_0_20px_rgba(255,0,204,0.3)]">
-            <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e] aspect-video">
+            <div className="relative w-full bg-black rounded-lg overflow-hidden border border-[#2a2f3e] aspect-video flex items-center justify-center">
+              {isBuffering && (
+                <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-10 gap-3">
+                  <Loader2 className="w-12 h-12 animate-spin text-[#00eaff]" />
+                  <span className="text-sm text-[#00eaff] font-bold tracking-wide animate-pulse">Buffering Reel Stream...</span>
+                </div>
+              )}
               <video
+                ref={videoRef}
                 key={activeReel.videoUrl}
                 controls
                 autoPlay
+                playsInline
                 className="w-full h-full object-contain bg-black"
+                onWaiting={() => setIsBuffering(true)}
+                onPlaying={() => setIsBuffering(false)}
+                onCanPlay={() => setIsBuffering(false)}
               >
                 <source src={activeReel.videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+
+              {/* Floating Custom Video Overlays */}
+              <div className="absolute top-3 right-3 flex items-center gap-2 z-25 bg-black/70 p-1.5 rounded-lg border border-[#00eaff]/30 backdrop-blur">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-black/40 hover:bg-black/80 text-white h-7 px-2"
+                  onClick={toggleMute}
+                  title={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00eaff]" />}
+                </Button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  defaultValue="1"
+                  className="w-20 accent-[#00eaff] cursor-pointer"
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (videoRef.current) {
+                      videoRef.current.volume = val;
+                      setIsMuted(val === 0);
+                    }
+                  }}
+                  title="Volume Slider"
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-black/40 hover:bg-black/80 text-white h-7 px-2"
+                  onClick={toggleFullscreen}
+                  title="Fullscreen"
+                >
+                  <Maximize className="w-4 h-4 text-[#00eaff]" />
+                </Button>
+              </div>
             </div>
+
             <div className="mt-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h3 className="text-xl font-bold text-[#00eaff]">{activeReel.title}</h3>
@@ -230,14 +342,20 @@ export default function SocialFeed() {
                 <span className="text-xs text-gray-400">👁️ {activeReel.views.toLocaleString()} views</span>
                 <Button
                   size="sm"
+                  variant="outline"
+                  className={`border-[#ff00cc] ${activeReel.liked ? 'bg-[#ff00cc] text-black font-bold' : 'text-[#ff00cc] bg-black/40 hover:bg-[#ff00cc]/20'}`}
+                  onClick={(e) => handleLikeReel(activeReel.id, e)}
+                >
+                  <Heart className={`w-4 h-4 mr-1 ${activeReel.liked ? 'fill-black' : ''}`} />
+                  {activeReel.likes}
+                </Button>
+                <Button
+                  size="sm"
                   className="bg-[#ff00cc] hover:bg-[#ff00cc]/80 text-black font-bold"
-                  onClick={() => {
-                    navigator.clipboard.writeText(activeReel.videoUrl);
-                    toast.success("Reel direct video URL copied!");
-                  }}
+                  onClick={(e) => handleShareReel(activeReel, e)}
                 >
                   <Share2 className="w-3 h-3 mr-1" />
-                  Share Reel
+                  Share
                 </Button>
               </div>
             </div>
@@ -264,6 +382,28 @@ export default function SocialFeed() {
                     <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-[#00eaff] font-bold">
                       {reel.duration}
                     </div>
+
+                    {/* Overlay Like & Share Buttons */}
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className={`h-8 w-8 rounded-full bg-black/70 hover:bg-black ${reel.liked ? 'text-[#ff00cc]' : 'text-white'}`}
+                        onClick={(e) => handleLikeReel(reel.id, e)}
+                        title="Like Reel"
+                      >
+                        <Heart className={`w-4 h-4 ${reel.liked ? 'fill-[#ff00cc]' : ''}`} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8 rounded-full bg-black/70 hover:bg-black text-white"
+                        onClick={(e) => handleShareReel(reel, e)}
+                        title="Share Reel"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="p-4">
@@ -271,7 +411,7 @@ export default function SocialFeed() {
                     <p className="text-sm text-[#7a7f8e] mb-2">{reel.creator}</p>
                     <p className="text-sm text-[#00eaff] line-clamp-2 mb-3">{reel.description}</p>
                     <div className="flex items-center justify-between text-xs text-[#7a7f8e]">
-                      <span>👁️ {reel.views.toLocaleString()} views</span>
+                      <span>👁️ {reel.views.toLocaleString()} views · ❤️ {reel.likes}</span>
                       <Button
                         size="sm"
                         className={`${isSelected ? 'bg-[#00eaff] text-black' : 'bg-[#ff00cc] text-black'} font-bold hover:opacity-90`}
@@ -361,7 +501,7 @@ export default function SocialFeed() {
                 <Button
                   variant="ghost"
                   className="flex-1 text-[#7a7f8e] hover:text-[#ff00cc] gap-2"
-                  onClick={() => handleLike(post.id)}
+                  onClick={() => handleLikePost(post.id)}
                 >
                   <Heart
                     className={`w-4 h-4 ${post.liked ? "fill-[#ff00cc] text-[#ff00cc]" : ""}`}

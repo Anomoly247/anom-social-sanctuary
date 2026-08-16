@@ -111,3 +111,8 @@
 - [x] Fix non-playing reels or embed URLs to point to valid working video streams / raw GitHub media
 - [x] Verify feed route in browser preview and check console logs
 - [x] Commit, push, and publish the verified feed reels fix
+
+- [x] Add volume controls, mute toggle, and full-screen toggle to the video player in SocialFeed.tsx
+- [x] Implement buffering state and loading spinner / skeleton while video streams load
+- [x] Add interactive 'like' and 'share' button overlays directly on featured reels
+- [x] Run full test suite, build, and save checkpoint
