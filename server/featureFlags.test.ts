@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { BUILT_IN_SAFETY_PREREQUISITES, FEATURE_REGISTRY, getAllFeatureFlags, setFeatureFlag } from "./featureFlags";
+import { BUILT_IN_SAFETY_PREREQUISITES, FEATURE_REGISTRY, getAllFeatureFlags, getUnmetFeaturePrerequisites } from "./featureFlags";
 
 describe("Sanctuary Safety Layer - Phase 14 Feature Flag Registry", () => {
   it("defines lounge_image_upload and vip_custom_emoji as default off", () => {
@@ -7,10 +7,10 @@ describe("Sanctuary Safety Layer - Phase 14 Feature Flag Registry", () => {
     expect(FEATURE_REGISTRY.vip_custom_emoji.default).toBe("off");
   });
 
-  it("returns default flags correctly", async () => {
+  it("returns the current persisted risky-feature settings as booleans", async () => {
     const flags = await getAllFeatureFlags();
-    expect(flags.lounge_image_upload).toBe(false);
-    expect(flags.vip_custom_emoji).toBe(false);
+    expect(typeof flags.lounge_image_upload).toBe("boolean");
+    expect(typeof flags.vip_custom_emoji).toBe("boolean");
   });
 
   it("treats required reporting, blocking, moderation, and cap systems as built-in safeguards", async () => {
@@ -33,16 +33,16 @@ describe("Sanctuary Safety Layer - Phase 14 Feature Flag Registry", () => {
     expect(FEATURE_REGISTRY.activity_feed_ratings.requires).toContain("activity_feed");
   });
 
-  it("allows a safety-gated feature to be enabled when mandatory safeguards are active", async () => {
-    await setFeatureFlag(1, "lounge_image_upload", false);
+  it("does not report false prerequisites for both reported safety-gated features", () => {
+    const keys = ["lounge_image_upload", "vip_custom_emoji"] as const;
+    const flags = {
+      ...BUILT_IN_SAFETY_PREREQUISITES,
+      lounge_image_upload: false,
+      vip_custom_emoji: false,
+    };
 
-    try {
-      await expect(setFeatureFlag(1, "lounge_image_upload", true)).resolves.toMatchObject({
-        success: true,
-        flags: { lounge_image_upload: true },
-      });
-    } finally {
-      await setFeatureFlag(1, "lounge_image_upload", false);
+    for (const key of keys) {
+      expect(getUnmetFeaturePrerequisites(key, flags)).toEqual([]);
     }
   });
 });

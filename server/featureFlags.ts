@@ -35,6 +35,16 @@ export const BUILT_IN_SAFETY_PREREQUISITES = {
   daily_earn_caps: true,
 } as const;
 
+export function getUnmetFeaturePrerequisites(
+  flagKey: FlagKey,
+  flags: Record<string, boolean>,
+): string[] {
+  const config = FEATURE_REGISTRY[flagKey];
+  if (!("requires" in config) || !config.requires) return [];
+
+  return config.requires.filter((prerequisite) => flags[prerequisite] !== true);
+}
+
 export async function getAllFeatureFlags(): Promise<Record<FlagKey, boolean>> {
   const db = await getDb();
   const flags: Record<string, boolean> = { ...BUILT_IN_SAFETY_PREREQUISITES };
@@ -87,16 +97,12 @@ export async function setFeatureFlag(userId: number, flagKey: FlagKey, value: bo
   // Check prerequisites if turning on
   if (value) {
     const config = FEATURE_REGISTRY[flagKey];
-    if (config && "requires" in config && config.requires) {
-      const allFlags = await getAllFeatureFlags();
-      for (const req of config.requires) {
-        if (allFlags[req as FlagKey] === false || allFlags[req as FlagKey] === undefined) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: `Cannot enable '${config.label}': required prerequisite '${req}' is disabled.`,
-          });
-        }
-      }
+    const unmetPrerequisites = getUnmetFeaturePrerequisites(flagKey, await getAllFeatureFlags() as Record<string, boolean>);
+    if (unmetPrerequisites.length > 0) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `Cannot enable '${config.label}': required prerequisite '${unmetPrerequisites[0]}' is disabled.`,
+      });
     }
   }
 
