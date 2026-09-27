@@ -34,6 +34,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          cname: anomartsy.xyz
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -42,6 +44,7 @@ jobs:
         run: |
           pnpm exec vite build --base="/${GITHUB_REPOSITORY#*/}/"
           cp dist/public/index.html dist/public/404.html
+          printf '%s\n' 'anomartsy.xyz' > dist/public/CNAME
           touch dist/public/.nojekyll
 
       - name: Upload Pages artifact
