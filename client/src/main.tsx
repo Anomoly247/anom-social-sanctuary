@@ -26,16 +26,6 @@ function loadUmamiAnalytics() {
 
 loadUmamiAnalytics();
 
-// GitHub Pages serves client-side routes through public/404.html. That page
-// preserves the requested path in `spa`; restore it before Wouter initializes.
-const spaPath = new URLSearchParams(window.location.search).get("spa");
-if (spaPath) {
-  const restored = new URL(window.location.href);
-  restored.searchParams.delete("spa");
-  restored.pathname = spaPath.startsWith("/") ? spaPath : `/${spaPath}`;
-  window.history.replaceState({}, "", restored.pathname + restored.search + restored.hash);
-}
-
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
