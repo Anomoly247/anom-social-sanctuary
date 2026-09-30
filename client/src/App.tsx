@@ -2,7 +2,7 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/_core/hooks/useAuth";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Router, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AOBridgeProvider } from "./contexts/AOBridgeContext";
@@ -36,8 +36,10 @@ import DotProfile from "./pages/DotProfile";
 
 const AppRoutes = () => {
   // make sure to consider if you need authentication for certain routes
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   return (
-    <Switch>
+    <Router base={base}>
+      <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/"} component={Home} />
       <Route path={"/profile"} component={Profile} />
@@ -66,8 +68,9 @@ const AppRoutes = () => {
       <Route path="/owner" component={OwnerControlPanel} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+        <Route component={NotFound} />
+      </Switch>
+    </Router>
   );
 };
 
