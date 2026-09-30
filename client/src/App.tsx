@@ -5,6 +5,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AOBridgeProvider } from "./contexts/AOBridgeContext";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
@@ -27,6 +28,7 @@ import BusinessControlCenter from "./pages/BusinessControlCenter";
 import ChatWidget from "./components/ChatWidget";
 import MissionRally from "./pages/MissionRally";
 import MissionHub from "./pages/MissionHub";
+import GlobalMissions from "./pages/GlobalMissions";
 import MusicLibrary from "./pages/MusicLibrary";
 import AnomsCorner from "./pages/AnomsCorner";
 import PixelProfile from "./pages/PixelProfile";
@@ -59,6 +61,7 @@ const AppRoutes = () => {
       <Route path="/profile/:userId" component={PublicProfile} />
       <Route path="/mission" component={MissionRally} />
       <Route path="/mission-hub" component={MissionHub} />
+      <Route path="/missions" component={GlobalMissions} />
       <Route path="/music-library" component={MusicLibrary} />
       <Route path="/owner" component={OwnerControlPanel} />
       <Route path="/404" component={NotFound} />
@@ -77,17 +80,19 @@ function App() {
   const { isAuthenticated } = useAuth();
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
-        <TooltipProvider>
-          <Toaster />
-          <ColorCustomizer />
-          <AppRoutes />
-          {isAuthenticated && <ChatWidget />}
-        </TooltipProvider>
-      </ThemeProvider>
+      <AOBridgeProvider>
+        <ThemeProvider
+          defaultTheme="light"
+          // switchable
+        >
+          <TooltipProvider>
+            <Toaster />
+            <ColorCustomizer />
+            <AppRoutes />
+            {isAuthenticated && <ChatWidget />}
+          </TooltipProvider>
+        </ThemeProvider>
+      </AOBridgeProvider>
     </ErrorBoundary>
   );
 }

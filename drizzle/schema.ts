@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, json, uniqueIndex } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -70,12 +70,50 @@ export const coinTransactions = mysqlTable("coin_transactions", {
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   type: mysqlEnum("type", ["earn", "spend"]).notNull(),
   reason: varchar("reason", { length: 100 }).notNull(), // "game_completion", "lesson_finish", "package_purchase", etc.
+  source: varchar("source", { length: 50 }).default("legacy").notNull(), // "Mission", "Game", "Purchase", etc.
   relatedId: int("related_id"), // ID of related entity (game score, achievement, etc.)
+  balanceAfter: decimal("balance_after", { precision: 10, scale: 2 }).default("0").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export type CoinTransaction = typeof coinTransactions.$inferSelect;
 export type InsertCoinTransaction = typeof coinTransactions.$inferInsert;
+
+/**
+ * Global missions — the canonical reward definitions shared by connected apps.
+ */
+export const globalMissions = mysqlTable("global_missions", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  description: text("description"),
+  reward: decimal("reward", { precision: 10, scale: 2 }).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GlobalMission = typeof globalMissions.$inferSelect;
+export type InsertGlobalMission = typeof globalMissions.$inferInsert;
+
+/**
+ * Idempotent mission completion ledger. One event can only reward a user once.
+ */
+export const missionContributions = mysqlTable("mission_contributions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  missionId: varchar("mission_id", { length: 64 }).notNull(),
+  eventId: varchar("event_id", { length: 120 }).notNull(),
+  source: varchar("source", { length: 50 }).notNull(),
+  house: varchar("house", { length: 32 }),
+  mount: varchar("mount", { length: 64 }),
+  reward: decimal("reward", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, table => ({
+  userMissionEvent: uniqueIndex("mission_contributions_user_mission_event").on(table.userId, table.missionId, table.eventId),
+}));
+
+export type MissionContribution = typeof missionContributions.$inferSelect;
+export type InsertMissionContribution = typeof missionContributions.$inferInsert;
 
 /**
  * Achievements — visual badges earned for positive engagement
